@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <title>10min</title>
+  <rect width="32" height="32" rx="6" fill="#FF3D57"/>
+  <text
+    x="16"
+    y="24"
+    text-anchor="middle"
+    font-family="Syne, system-ui, sans-serif"
+    font-weight="800"
+    font-size="20"
+    fill="#0A0A0F"
+    letter-spacing="-0.04em"
+  >10</text>
+</svg>

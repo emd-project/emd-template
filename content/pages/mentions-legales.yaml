@@ -1,0 +1,68 @@
+# content/pages/mentions-legales.yaml
+#
+# Mentions légales du site forké. Format YAML pour cohérence avec les autres
+# pages CMS (home.yaml, deals.yaml, comparer.yaml, quiz.yaml).
+#
+# Rempli par le skill `init-site` lors de l'interview de setup. Tant qu'au
+# moins une valeur reste à `TODO`, init-site considère cette page comme non
+# définie et redéclenchera la question correspondante.
+#
+# La page est rendue côté Next.js par app/(legal)/mentions-legales/page.tsx
+# (à créer côté template si elle n'existe pas encore — voir DUPLICATION-GUIDE).
+
+slug: mentions-legales
+title: "Mentions légales"
+seo:
+  title: "Mentions légales — TODO (nom du site)"
+  description: "Informations légales obligatoires : éditeur, hébergeur, contact."
+  noindex: false  # mettre true si tu préfères ne pas indexer
+
+editeur:
+  raison_sociale: "TODO (nom de l'entité éditrice — personne physique ou morale)"
+  forme_juridique: "TODO (auto-entrepreneur / SAS / SARL / association / particulier)"
+  siret: "TODO (numéro SIRET si entité française ; sinon laisser vide)"
+  rcs: "TODO (numéro RCS si applicable ; sinon laisser vide)"
+  capital_social: "TODO (capital social si société ; sinon laisser vide)"
+  adresse: "TODO (adresse postale du siège — obligatoire si entité commerciale)"
+  representant_legal: "TODO (nom du directeur de la publication / gérant)"
+  tva_intracom: "TODO (numéro TVA intracommunautaire si applicable)"
+
+contact:
+  email: "TODO (email de contact public)"
+  telephone: "TODO (optionnel — laisser vide si pas souhaité)"
+
+hebergeur:
+  nom: "TODO (ex : Vercel Inc.)"
+  adresse: "TODO (ex : 340 S Lemon Ave #4133, Walnut, CA 91789, USA)"
+  url: "TODO (ex : https://vercel.com)"
+  telephone: "TODO (optionnel)"
+
+donnees_personnelles:
+  responsable_traitement: "TODO (nom + email du DPO ou responsable)"
+  dpo_email: "TODO (email dédié RGPD, peut être identique à contact.email)"
+  finalites: |
+    TODO — décrire en 2-4 phrases :
+    - Quelles données on collecte (formulaire contact, newsletter, analytics).
+    - Pourquoi on les collecte.
+    - Combien de temps on les garde.
+    - Avec qui on les partage (le cas échéant — affiliés, hébergeur, etc.).
+  base_legale: "TODO (intérêt légitime / consentement / contrat — citer la base RGPD)"
+  droits_utilisateur: |
+    Conformément au RGPD et à la loi Informatique et Libertés, vous disposez d'un droit
+    d'accès, de rectification, d'effacement, de portabilité et d'opposition sur vos données.
+    Pour exercer ces droits, contactez TODO (email).
+
+propriete_intellectuelle:
+  texte: |
+    TODO — formuler ici la clause propriété intellectuelle adaptée au site (réutilisation
+    autorisée avec mention / tout droits réservés / licence CC-BY / etc.). Éviter de
+    copier-coller depuis un autre site pour ne pas créer de footprint.
+
+cookies:
+  presence: true  # mettre false si site 100% sans cookies (rare)
+  description: |
+    TODO — lister les cookies utilisés (analytics, affiliation, préférences) et renvoyer
+    vers la page de gestion des cookies (`/cookies` si elle existe).
+  url_gestion: "/cookies"
+
+derniere_mise_a_jour: "TODO (date au format YYYY-MM-DD — à mettre à jour à chaque modif substantielle)"

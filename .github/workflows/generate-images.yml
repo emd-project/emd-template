@@ -1,0 +1,66 @@
+name: Generate Images
+
+on:
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: 'Slot ID (ex: home-hero-visual). Leave empty for all slots.'
+        required: false
+        type: string
+      section:
+        description: 'Section filter (home, tools, author, brand, blog). Leave empty for all.'
+        required: false
+        type: string
+      prompt_override:
+        description: 'Custom prompt (overrides slot prompt). Only works with a single slot.'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate images
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.slot }}" ]; then
+            ARGS="$ARGS --slot ${{ inputs.slot }}"
+          fi
+          if [ -n "${{ inputs.section }}" ]; then
+            ARGS="$ARGS --section ${{ inputs.section }}"
+          fi
+          if [ -n "${{ inputs.prompt_override }}" ]; then
+            ARGS="$ARGS --prompt-override \"${{ inputs.prompt_override }}\""
+          fi
+          npx tsx scripts/generate-images.ts --local $ARGS
+
+      - name: Commit generated images
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/images/
+          if git diff --staged --quiet; then
+            echo "No new images to commit."
+          else
+            git commit -m "assets: generate images via Gemini [skip ci]"
+            git push
+          fi

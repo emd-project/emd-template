@@ -1,0 +1,12 @@
+siteName: "10min-template"
+siteDescription: "Template générique 10min — à personnaliser via niche.config.ts"
+siteUrl: "https://example.com"
+nav:
+  - label: "Blog"
+    url: "/blog"
+  - label: "Comparer"
+    url: "/comparer"
+  - label: "Deals"
+    url: "/deals"
+  - label: "Simulateur"
+    url: "/simulateur"

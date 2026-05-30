@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 44" role="img" aria-label="10min-template">
+  <title>10min-template</title>
+  <!-- "10min" ultra-bold -->
+  <text
+    x="0"
+    y="34"
+    font-family="Syne, system-ui, sans-serif"
+    font-weight="800"
+    font-size="34"
+    fill="#F0F0F5"
+    letter-spacing="-0.03em"
+  >10min</text>
+  <!-- Accent dot -->
+  <circle cx="110" cy="28" r="3" fill="#FF3D57"/>
+  <!-- Suffix placeholder -->
+  <text
+    x="120"
+    y="34"
+    font-family="Syne, system-ui, sans-serif"
+    font-weight="400"
+    font-size="28"
+    fill="#9090A8"
+    letter-spacing="-0.02em"
+  >···</text>
+</svg>

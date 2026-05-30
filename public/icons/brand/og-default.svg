@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <title>10min-template</title>
+  <rect width="1200" height="630" fill="#0A0A0F"/>
+  <defs>
+    <linearGradient id="bar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF3D57"/>
+      <stop offset="50%" stop-color="#7B61FF"/>
+      <stop offset="100%" stop-color="#3DFFC0"/>
+    </linearGradient>
+  </defs>
+  <rect y="0" width="1200" height="4" fill="url(#bar)"/>
+  <text
+    x="1080"
+    y="540"
+    font-family="Syne, system-ui, sans-serif"
+    font-weight="800"
+    font-size="280"
+    fill="#FFD23F"
+    opacity="0.05"
+    letter-spacing="-0.04em"
+  >10</text>
+  <text
+    x="80"
+    y="220"
+    font-family="Syne, system-ui, sans-serif"
+    font-weight="700"
+    font-size="18"
+    fill="#FF3D57"
+    letter-spacing="0.1em"
+  >10MIN-TEMPLATE</text>
+  <text
+    x="80"
+    y="320"
+    font-family="Syne, system-ui, sans-serif"
+    font-weight="800"
+    font-size="72"
+    fill="#F0F0F5"
+    letter-spacing="-0.02em"
+  >Trouvez le bon choix</text>
+  <text
+    x="80"
+    y="410"
+    font-family="Syne, system-ui, sans-serif"
+    font-weight="800"
+    font-size="72"
+    fill="#F0F0F5"
+    letter-spacing="-0.02em"
+  >en 10 minutes.</text>
+  <text
+    x="80"
+    y="480"
+    font-family="system-ui, sans-serif"
+    font-weight="400"
+    font-size="24"
+    fill="#9090A8"
+  >Comparateur · Quiz · Simulateur · Deals</text>
+</svg>

@@ -1,0 +1,106 @@
+---
+# _example.mdx — Article template avec tous les champs et composants MDX.
+# Supprimer ce fichier lors de l'init d'un nouveau site.
+
+title: "Titre de l'article exemple"
+description: "Description SEO de l'article exemple — 155 caractères max."
+featureImage: ""
+publishedAt: "2026-01-01"
+updatedAt: "2026-01-01"
+readingTimeMin: 8
+categorie: "general"
+authorSlug: ""
+tags: ["exemple", "template"]
+aiSummary:
+  - "Point clé 1 de l'article"
+  - "Point clé 2 de l'article"
+  - "Point clé 3 de l'article"
+faq:
+  - q: "Question exemple 1 ?"
+    a: "Réponse à la question exemple 1."
+  - q: "Question exemple 2 ?"
+    a: "Réponse à la question exemple 2."
+  - q: "Question exemple 3 ?"
+    a: "Réponse à la question exemple 3."
+  - q: "Question exemple 4 ?"
+    a: "Réponse à la question exemple 4."
+  - q: "Question exemple 5 ?"
+    a: "Réponse à la question exemple 5."
+  - q: "Question exemple 6 ?"
+    a: "Réponse à la question exemple 6."
+stickyCta:
+  - label: "Voir sur Amazon"
+    url: "https://www.amazon.fr/dp/XXXXXXXXXX"
+stickyCtaMessage: "Meilleur prix constaté"
+draft: true
+---
+
+## Introduction
+
+Ceci est un article template. Il montre la structure attendue et les composants MDX disponibles.
+
+## Image dans le contenu
+
+Insérer une image à tout moment dans le texte :
+
+<ArticleImage src="/images/blog/exemple.webp" alt="Description de l'image" caption="Source : rapport 2026" />
+
+## Conseil pratique
+
+<Tip>Ceci est un conseil mis en avant visuellement. Utilisez-le pour les recommandations pratiques.</Tip>
+
+## Attention
+
+<Warning>Ceci est un avertissement. Utilisez-le pour les mises en garde importantes.</Warning>
+
+## Notre verdict
+
+<Verdict note="8" label="Excellent rapport qualité-prix">
+Résumé du verdict en 2-3 phrases. Le produit fait bien ceci, moins bien cela.
+</Verdict>
+
+## Comparaison
+
+<CompareBarGroup>
+<CompareBar label="Performance" left="85" right="92" leftName="Produit A" rightName="Produit B" />
+<CompareBar label="Prix" left="90" right="70" leftName="Produit A" rightName="Produit B" />
+<CompareBar label="Design" left="88" right="88" leftName="Produit A" rightName="Produit B" />
+</CompareBarGroup>
+
+## Avantages et inconvénients
+
+<ProConTable pros="Avantage 1|Avantage 2|Avantage 3" cons="Inconvénient 1|Inconvénient 2" />
+
+## Citation
+
+<PullQuote author="Expert du domaine">
+Une citation mise en avant pour renforcer la crédibilité de l'article.
+</PullQuote>
+
+## Statistiques
+
+<StatRow>
+<StatCard value="92%" label="Satisfaction client" />
+<StatCard value="4.8/5" label="Note moyenne" />
+<StatCard value="2M+" label="Utilisateurs" />
+</StatRow>
+
+## Produit recommandé
+
+<ProductCTA name="Produit Exemple" price="299 €" url="https://www.amazon.fr/dp/XXXXXXXXXX" image="/images/produits/exemple.webp" badge="Recommandé" hook="Description courte du produit et pourquoi on le recommande." />
+
+## Sélection de produits
+
+<ProductCarousel products="slug-produit-1,slug-produit-2,slug-produit-3" />
+
+## Tableau comparatif
+
+| Critère | Produit A | Produit B | Produit C |
+|---------|-----------|-----------|-----------|
+| Prix | 299 € | 399 € | 499 € |
+| Note | 4.5/5 | 4.2/5 | 4.8/5 |
+| Garantie | 2 ans | 3 ans | 2 ans |
+
+## Conclusion
+
+Résumé et recommandation finale. Lien vers le [comparateur](/comparer) et le [quiz](/quiz) pour aller plus loin.

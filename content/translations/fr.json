@@ -1,0 +1,111 @@
+{
+  "nav": {
+    "choose": "Choisir",
+    "compare": "Comparer",
+    "blog": "Blog",
+    "simulator": "Simulateur",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "mainNav": "Navigation principale",
+    "mobileMenu": "Menu mobile"
+  },
+  "footer": {
+    "tools": "Outils",
+    "about": "À propos",
+    "author": "Auteur",
+    "legalNotice": "Mentions légales",
+    "privacy": "Confidentialité",
+    "independent": "Site indépendant.",
+    "affiliateDisclaimer": "Liens affiliés {store}. En achetant via nos liens, vous soutenez le site sans surcoût."
+  },
+  "hero": {
+    "eyebrow": "Guides indépendants · Comparatifs honnêtes"
+  },
+  "tools": {
+    "eyebrow": "Outils interactifs",
+    "title": "Décidez en connaissance de cause",
+    "viewGuides": "Voir tous les guides →",
+    "comparator": {
+      "eyebrow": "Comparateur",
+      "description": "Comparez côte à côte les specs, prix et usages. Filtres par budget et besoin.",
+      "cta": "Lancer le comparateur"
+    },
+    "quiz": {
+      "eyebrow": "Quiz",
+      "cta": "Démarrer le quiz"
+    },
+    "simulator": {
+      "eyebrow": "Simulateur",
+      "cta": "Simuler"
+    }
+  },
+  "authorTeaser": {
+    "eyebrow": "L'auteur",
+    "learnMore": "En savoir plus →"
+  },
+  "recentArticles": {
+    "eyebrow": "Éditorial",
+    "title": "Derniers articles",
+    "viewAll": "Tout le blog →"
+  },
+  "categorySection": {
+    "guidesAndTests": "Guides & tests {label}",
+    "compare": "Comparer →",
+    "inProgress": "Articles {label} en cours de rédaction.",
+    "viewAll": "Tous les articles {label} →"
+  },
+  "article": {
+    "home": "Accueil",
+    "faq": "Questions fréquentes",
+    "relatedArticles": "Continuer votre lecture",
+    "readingTime": "{min} min de lecture",
+    "readingTimeShort": "{min} min",
+    "by": "Par",
+    "updatedOn": "Màj le "
+  },
+  "aiSummary": {
+    "title": "En bref",
+    "summarizeWith": "Résumer avec :"
+  },
+  "deals": {
+    "ariaLabel": "Bons plans du moment",
+    "comingSoon": "Bientôt",
+    "placeholder": "Contenu à venir",
+    "template": "Template"
+  },
+  "blog": {
+    "hub": "Le journal",
+    "allArticles": "Tous les articles",
+    "breadcrumbHome": "Accueil",
+    "breadcrumbBlog": "Blog",
+    "heroSubtitle": "Tests, guides et analyses.",
+    "filterAll": "Tous",
+    "filterLabel": "Filtrer par catégorie",
+    "emptyState": "Premiers articles en cours de rédaction.",
+    "readArticle": "Lire l'article →",
+    "promoComparator": "Comparez vos options",
+    "promoComparatorDesc": "Notre comparateur interactif côte à côte.",
+    "promoQuiz": "Trouvez le bon choix",
+    "promoQuizDesc": "Quelques questions pour cibler votre besoin.",
+    "promoSimulator": "Simulez votre budget",
+    "promoSimulatorDesc": "Estimez le coût réel en quelques clics.",
+    "toolsSectionTitle": "Vos outils",
+    "toolsSectionEyebrow": "Aller plus loin",
+    "featuredLabel": "Article vedette"
+  },
+  "sidebar": {
+    "tocTitle": "Dans cet article",
+    "tocSummary": "En bref",
+    "tocFaq": "FAQ",
+    "tocRelated": "Articles li\u00e9s",
+    "toolPromo": "Comparer les {label}",
+    "toolPromoCta": "Lancer le comparateur \u2192"
+  },
+  "authorCard": {
+    "viewAllArticles": "Voir tous les articles \u2192",
+    "viewProfile": "Voir le profil \u2192"
+  },
+  "common": {
+    "skipToContent": "Aller au contenu principal"
+  }
+}

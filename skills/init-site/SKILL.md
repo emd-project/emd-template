@@ -1,7 +1,7 @@
 ---
 name: init-site
-version: 1.0.0
-description: Bootstrap d'un nouveau site forké du template emd-template. Détecte tous les fichiers de configuration non remplis (ton-of-voice, mots-cles, calendrier-edito, concurrents, faq-base, mentions-legales, AUTHOR-*), lance UN SEUL interview groupé par blocs thématiques (au lieu de N interviews séparés à chaque trigger), et écrit tous les fichiers en une seule passe. À utiliser une fois après "Use this template" sur GitHub. Triggers explicites — « initialise ce site », « configure ce site », « setup le site », « init-site », « bootstrap le site », « lance la conf », « première configuration ». Trigger implicite — si l'utilisateur demande sa première rédaction sur un site visiblement non configuré (≥ 2 fichiers content/ avec TODO), proposer init-site AVANT de lancer ton-of-voice seul.
+version: 2.0.0
+description: Bootstrap d'un nouveau site forké du template emd-template. Lance UN SEUL interview groupé par blocs thématiques en commençant par le Bloc 0 (marché géo + langues), puis les autres blocs (voix, mots-clés, calendrier, concurrents, FAQ, mentions, auteur). Écrit tous les fichiers en une seule passe, y compris niche.config.ts.locales/defaultLocale/market/localePrefix qui pilotent toute l'architecture i18n du site. À utiliser une fois après "Use this template" sur GitHub. Triggers explicites — « initialise ce site », « configure ce site », « setup le site », « init-site », « bootstrap le site », « lance la conf », « première configuration ». Trigger implicite — si l'utilisateur demande sa première rédaction sur un site visiblement non configuré (≥ 2 fichiers content/ avec TODO ou niche.config.ts.market vide), proposer init-site AVANT de lancer ton-of-voice seul.
 allowed-tools:
   - Read
   - Write
@@ -12,7 +12,7 @@ allowed-tools:
 
 # init-site — Bootstrap d'un nouveau site forké
 
-Ce skill remplit en une seule passe tous les fichiers de configuration éditoriale du site forké. Économise des tokens vs déclencher ton-of-voice + 4 autres skills séparément, et garantit la cohérence entre les fichiers (audience définie une fois, réutilisée partout).
+Ce skill remplit en une seule passe tous les fichiers de configuration éditoriale du site forké. Économise des tokens vs déclencher ton-of-voice + 4 autres skills séparément, et garantit la cohérence entre les fichiers (audience définie une fois, réutilisée partout, **locales + marché géo définis AVANT tout**).
 
 ## Étape 0 — Audit de l'état actuel
 
@@ -20,6 +20,7 @@ Avant tout interview, lire l'état de chaque fichier-cible :
 
 | Fichier | Statut « non défini » si… |
 |---|---|
+| `niche.config.ts` | `locales`, `defaultLocale`, `market` absents ou avec valeur placeholder (`'TODO'`, `''`) |
 | `content/ton-of-voice.md` | absent OU contient ≥ 1 `TODO` |
 | `content/mots-cles.md` | absent OU contient ≥ 1 `TODO` |
 | `content/calendrier-edito.md` | absent OU contient ≥ 1 `TODO` |
@@ -30,157 +31,265 @@ Avant tout interview, lire l'état de chaque fichier-cible :
 
 Annoncer à l'utilisateur le bilan :
 
-> J'ai audité l'état du site. Voici ce qu'il reste à définir : [liste]. Je vais te poser les questions par blocs thématiques (5 blocs, ~5-10 minutes au total). Tu peux répondre à un bloc, sauter, ou me donner un export Semrush au lieu de l'interview pour la partie mots-clés.
+> J'ai audité l'état du site. Voici ce qu'il reste à définir : [liste]. Je vais te poser les questions par blocs thématiques, en commençant par les **langues et le marché** (Bloc 0) qui conditionnent toute la suite. ~5-10 minutes au total.
 
-Si TOUT est déjà rempli (zéro TODO), informer et sortir :
+Si TOUT est déjà rempli (zéro TODO + niche.config.ts.market défini), informer et sortir.
 
-> Le site est déjà configuré. Pour re-déclencher l'interview sur une partie, supprime le fichier concerné ou remets-y un TODO.
+---
+
+## Bloc 0 — Langues et marché géo (NOUVEAU, OBLIGATOIRE EN PREMIER)
+
+**Pourquoi ce bloc en premier** : la réponse pilote toute l'architecture du site — routing Next.js (`app/page.tsx` vs `app/[locale]/...`), middleware i18n, hreflang, sitemap, frontmatter MDX, sélecteur de langue, schema.org, OG locale, devise par défaut. Coder le reste avant d'avoir cette réponse = refactor lourd garanti.
+
+### Q0.1 — Pays cible principal ?
+
+> Quel est le **marché géographique principal** du site ? (Détermine OG locale, devise, schema.org addressCountry, références institutionnelles citées par seo-geo-redaction.)
+
+| Option | Code | Conséquences |
+|---|---|---|
+| 🇧🇪 Belgique | `BE` | OG `fr_BE`, devise `EUR`, références FSMA/BNB/Test-Achats |
+| 🇫🇷 France | `FR` | OG `fr_FR`, devise `EUR`, références ACPR/AMF/UFC-Que Choisir |
+| 🇨🇦 Canada | `CA` | OG `fr_CA`, devise `CAD`, références AMF Québec |
+| 🇨🇭 Suisse | `CH` | OG `fr_CH`, devise `CHF`, références FINMA/SECO |
+| Autre | (libre) | À préciser : code ISO pays, devise, régulateur principal |
+
+→ Écrit dans `niche.config.ts → market: 'BE' | 'FR' | 'CA' | 'CH' | string`
+
+### Q0.2 — Combien de langues sur le site ?
+
+> Combien de langues va supporter le site, dans l'ordre de priorité éditoriale ?
+
+**Présets** (si marché = BE) :
+- `FR` seul (mono-langue, marché FR-BE)
+- `FR + EN`
+- `FR + NL`
+- `FR + EN + NL`
+- `FR + NL + DE + EN`
+- Autre (préciser les codes ISO)
+
+**Présets** (si marché = FR / CA / CH) :
+- `FR` seul (mono-langue)
+- `FR + EN`
+- Autre
+
+→ Écrit dans `niche.config.ts → locales: [...]` + `defaultLocale: 'fr'`
+
+### Q0.3 — (Conditionnelle, si N ≥ 2) Variation de voix par langue ?
+
+> La voix éditoriale change-t-elle selon la langue, ou c'est la même transposée ?
+
+- **Voix unique transposée** (recommandé) — le ton FR est traduit tel quel en EN/NL. Une seule définition `content/ton-of-voice.md`, traduction au moment de la rédaction.
+- **Voix adaptée par langue** — NL plus formel, EN plus direct, etc. Une définition par langue : `content/ton-of-voice.md`, `content/ton-of-voice.nl.md`, etc.
+
+→ Détermine si on duplique `content/ton-of-voice.md` par langue ou pas.
+
+### Conséquences automatiques (pas de question, écriture directe)
+
+| Choix Q0.2 | Routing Next.js | localePrefix | Middleware i18n | Sélecteur langue |
+|---|---|---|---|---|
+| 1 langue | `app/page.tsx` direct | n/a | aucun | aucun |
+| 2+ langues | `app/[locale]/...` | `'as-needed'` (default sans préfixe, autres sous segment) | `next-intl` middleware obligatoire | `<LangSwitcher>` dans header |
+
+**Pourquoi `localePrefix: 'as-needed'`** : URLs courtes pour le marché principal (SEO optimal) + segments propres pour les autres locales. Recommandé par next-intl.
+
+### Règle : miroir strict (NON-NÉGOCIABLE si N ≥ 2)
+
+À partir du moment où `locales.length ≥ 2`, **tout est traduit dans toutes les locales**, sans exception :
+- Articles blog (chaque article = N fichiers MDX dans `content/blog/[locale]/[categorie]/[slug].mdx`)
+- Pages utilitaires (À propos, mentions légales, FAQ globale, contact, politique cookies)
+- Composants UI (via `messages/[locale].json` ou dictionnaires serveur)
+- Schema.org `inLanguage` + hreflang généré automatiquement par locale
+
+Voir `skills/seo-geo-redaction/references/mirror-i18n.md` pour le détail technique.
+
+Un visiteur en EN qui clique « À propos » ne doit JAMAIS tomber sur une page FR.
+
+### Sortie immédiate du Bloc 0
+
+À la fin de ce bloc, écrire `niche.config.ts` avec les champs corrects :
+
+```ts
+export const niche: NicheConfig = {
+  // ...
+  market: 'BE',                       // <- Q0.1
+  defaultLocale: 'fr',                // <- première de locales
+  locales: ['fr', 'en'],              // <- Q0.2
+  localePrefix: 'as-needed',          // <- imposé si locales.length >= 2 ; omis sinon
+  // ...
+}
+```
+
+Puis annoncer à l'utilisateur :
+
+> Marché et langues verrouillés. À partir d'ici, tous les fichiers seront créés en miroir dans les N langues, et le routing sera `[appliquer la convention selon Q0.2]`. On enchaîne avec la voix éditoriale.
+
+---
 
 ## Étape 1 — Bloc voix et audience (alimente ton-of-voice.md)
 
-Déléguer au skill `ton-of-voice` en mode définition (les 8 questions existantes). Ne PAS dupliquer le questionnaire ici — on lance le skill existant, on récupère le résultat, on passe au bloc suivant.
+Déléguer au skill `ton-of-voice` en mode définition (les 8 questions existantes).
 
-Si `content/ton-of-voice.md` est déjà rempli, sauter ce bloc.
+**Cascade depuis Bloc 0** :
+- Si Q0.3 = voix unique → un seul fichier `content/ton-of-voice.md` (traduit au runtime lors de la rédaction)
+- Si Q0.3 = voix adaptée par langue → N fichiers `content/ton-of-voice.[locale].md`
+
+Si déjà rempli, sauter ce bloc.
+
+---
 
 ## Étape 2 — Bloc mots-clés (alimente mots-cles.md)
 
+**Cascade depuis Bloc 0** : on demande UN seul set de mots-clés dans la langue principale. Les mots-clés des autres locales sont dérivés au moment de la rédaction (pas d'export Semrush par langue à l'init — trop lourd pour 90% des cas).
+
 Annoncer :
 
-> Pour les mots-clés, deux options : soit tu colles un export Semrush (CSV ou copié-collé du tableau Keyword Magic Tool / Organic Research), soit on fait un mini-interview de 6 questions. L'export Semrush donne un résultat beaucoup plus précis. Tu as un export sous la main ?
+> Pour les mots-clés, deux options : soit tu colles un export Semrush, soit on fait un mini-interview de 6 questions. Set unique en langue principale (`{defaultLocale}`) — la traduction se fait par article au moment de la rédaction. Tu as un export sous la main ?
 
 ### Cas A — Export Semrush fourni
 
-L'utilisateur colle un CSV ou un tableau de keywords avec au minimum les colonnes Keyword / Volume / KD / Intent.
-
-1. Parser les keywords. Regrouper par thème sémantique en 3 à 5 **clusters** (cible : pas plus de 5).
-2. Pour chaque cluster, identifier :
-   - **Head term** = le keyword avec le plus gros volume et un KD acceptable
-   - **Longue traîne** = les keywords < 1000 vol/mois et > 50 vol/mois sur le même thème
-   - **Quick wins** = les keywords avec KD ≤ 30 et intent commercial/informational (5-10 max, alimentent la section « Requêtes prioritaires 90 jours »)
-   - **À éviter** = les keywords avec KD > 60 OU intent non-rentable (alimentent la section « Requêtes à NE PAS cibler »)
-3. Demander à l'utilisateur de confirmer/ajuster la proposition de clusters.
-4. Demander le positionnement global (1 phrase) et les concurrents directs aperçus dans Semrush.
-5. Écrire `content/mots-cles.md` rempli (zéro TODO sauf pour les sections optionnelles qu'on ne peut pas dériver de l'export).
-6. Coller l'export brut intégralement dans la section « Export brut » du fichier — c'est la source de vérité pour le prochain refresh.
+1. Parser. Regrouper par thème sémantique en 3 à 5 **clusters**.
+2. Pour chaque cluster : head term, longue traîne (< 1000 vol/mois), quick wins (KD ≤ 30), à éviter (KD > 60).
+3. Demander à l'utilisateur de confirmer/ajuster.
+4. Demander le positionnement global et les concurrents directs.
+5. Écrire `content/mots-cles.md` + coller l'export brut dans la section « Export brut ».
 
 ### Cas B — Pas d'export Semrush
 
-Poser ces 6 questions en un bloc unique :
+Poser 6 questions en bloc :
 
 1. **Positionnement** — En une phrase, contre qui on se bat et auprès de qui on existe ?
-2. **Clusters** — Trois à cinq grands silos qui couvriront le site. Pour chacun : nom + une phrase qui le résume.
-3. **Mots-clés piliers** — Un head term par cluster (la requête courte la plus juteuse, même si très concurrentielle).
-4. **Longue traîne** — Dix à quinze questions concrètes que ton audience tape réellement. Pas des questions plausibles, des questions vues (Reddit, Discord, Search Console, Quora).
-5. **Priorités 90 jours** — Cinq à dix requêtes qu'on attaque en premier. Choix réaliste — pas les head terms ultra-concurrentiels.
-6. **À éviter** — Trois à cinq intentions qu'on ne cible PAS volontairement, et pourquoi.
+2. **Clusters** — 3 à 5 silos. Pour chacun : nom + une phrase.
+3. **Mots-clés piliers** — Un head term par cluster.
+4. **Longue traîne** — 10-15 questions concrètes que l'audience tape réellement.
+5. **Priorités 90 jours** — 5 à 10 requêtes réalistes.
+6. **À éviter** — 3 à 5 intentions qu'on ne cible PAS et pourquoi.
 
-Écrire `content/mots-cles.md`. Laisser un `TODO` explicite à la section « Export brut » pour rappeler qu'on peut enrichir plus tard avec Semrush.
+Écrire `content/mots-cles.md`.
+
+---
 
 ## Étape 3 — Bloc calendrier éditorial (alimente calendrier-edito.md)
 
-Poser ces 5 questions en bloc :
+Poser 5 questions en bloc :
 
-1. **Cadence cible** et **cadence plancher** — combien d'articles par semaine/mois on vise, et en dessous de quoi on considère qu'on stagne.
-2. **Formats récurrents** — 3 à 6 formats canoniques (guide d'achat / comparatif / FAQ / news / interview / retour d'expérience). Pour chacun : longueur cible et fréquence.
-3. **Saisonnalité** — y a-t-il une saisonnalité forte du domaine ? Si oui, lister les pics par bimestre.
-4. **Rotation d'angles** — 4 à 6 angles pour aborder un même sujet sans se répéter visuellement.
-5. **Refresh** — politique de mise à jour des vieux articles (cycle, critère majeur/mineur, signalement).
+1. **Cadence cible** et **cadence plancher**.
+2. **Formats récurrents** — 3 à 6 formats canoniques (guide, comparatif, FAQ, news, retour d'expérience). Longueur cible + fréquence par format.
+3. **Saisonnalité** — pics par bimestre.
+4. **Rotation d'angles** — 4 à 6 angles.
+5. **Refresh** — politique de mise à jour.
+
+**Cascade depuis Bloc 0** : noter dans le fichier que chaque entrée du calendrier produit `locales.length` articles (un par langue, miroir strict).
 
 Écrire `content/calendrier-edito.md`.
 
+---
+
 ## Étape 4 — Bloc concurrents (alimente concurrents.md)
 
-Poser ces 4 questions en bloc :
+Poser 4 questions en bloc :
 
-1. **Directs (3-5 max)** — pour chacun : URL, pourquoi tu le considères direct (chevauchement de clusters), une force, une faiblesse.
-2. **Indirects (3-5 max)** — forums, agrégateurs, comparateurs, sites de marques qui captent du trafic sur tes requêtes sans être de même type.
-3. **Gaps** — où la SERP est faible aujourd'hui sur tes clusters (résultats datés, AI overview, articles courts), opportunités à attaquer en priorité.
-4. **Anti-modèles** — 2 à 5 pratiques observées chez les concurrents que tu refuses de reproduire.
+1. **Directs (3-5 max)** — URL, pourquoi direct, force, faiblesse.
+2. **Indirects (3-5 max)** — forums, agrégateurs, comparateurs, sites de marques.
+3. **Gaps** — où la SERP est faible.
+4. **Anti-modèles** — 2 à 5 pratiques refusées.
 
-Si l'utilisateur a un export Semrush (étape 2 cas A), réutiliser les concurrents identifiés par Semrush comme proposition de départ — l'utilisateur valide/ajuste.
+**Cascade depuis Bloc 0** : un seul set FR. Les concurrents par locale sont notés ad hoc dans l'analyse SERP de chaque article si pertinent.
 
 Écrire `content/concurrents.md`.
+
+---
 
 ## Étape 5 — Bloc FAQ base (alimente faq-base.md)
 
 Annoncer :
 
-> Pour la FAQ de base, je peux soit te poser quelques questions, soit te proposer une base de Q-R candidates dérivées des People Also Ask des head terms identifiés à l'étape mots-clés. Tu préfères ?
+> Pour la FAQ de base, soit je te pose quelques questions, soit je te propose des Q-R candidates dérivées des PAA des head terms identifiés au bloc 2. Tu préfères ?
 
 ### Cas A — Génération à partir des head terms
 
-1. Pour chacun des head terms définis à l'étape 2, simuler les 3-5 questions People Also Ask les plus probables (le modèle a une bonne intuition là-dessus pour les domaines courants — sinon, demander à l'utilisateur de lister les PAA réels qu'il voit dans Google).
-2. Regrouper par thème (3-5 thèmes).
-3. Proposer pour chaque question une réponse-cadre de 2-4 phrases, **factuelle, neutre, sans tic IA**.
-4. Demander à l'utilisateur de valider/réécrire chaque réponse — c'est la source qui sera réinjectée dans tous les articles, donc précision > vitesse.
+1. Simuler les 3-5 PAA pour chaque head term.
+2. Regrouper par thème.
+3. Proposer réponse-cadre 2-4 phrases, factuelle, sans tic IA.
+4. Demander validation/réécriture par question.
 
 ### Cas B — Interview classique
 
-Poser :
-1. Quels sont les 3-5 thèmes de questions qui reviennent en boucle dans ton domaine ?
-2. Pour chaque thème, 3 à 5 questions exactes (formulées comme les utilisateurs les posent — pas reformulées).
-3. Réponse-cadre courte pour chacune.
+1. 3-5 thèmes de questions récurrentes.
+2. Pour chaque thème, 3 à 5 questions exactes.
+3. Réponse-cadre courte.
+
+**Cascade depuis Bloc 0** : FAQ écrite en langue principale. Au moment de la rédaction d'un article EN/NL/DE, les Q-R réutilisées sont traduites en ligne.
 
 Écrire `content/faq-base.md`.
 
+---
+
 ## Étape 6 — Bloc mentions légales (alimente mentions-legales.yaml)
 
-Poser ces questions en bloc — c'est plus du factuel que de l'éditorial :
+Poser en bloc :
 
-1. **Éditeur** : raison sociale, forme juridique, SIRET (si FR), adresse, représentant légal.
+1. **Éditeur** : raison sociale, forme juridique, identifiant fiscal (SIRET FR / BCE BE / RC CH), adresse, représentant légal.
 2. **Contact** : email public, téléphone (optionnel).
-3. **Hébergeur** : nom + adresse + URL (Vercel par défaut pour la stack emd-template — proposer directement les coordonnées Vercel Inc. comme valeur par défaut, l'utilisateur confirme ou corrige).
-4. **DPO** : email RGPD (peut être identique au contact).
-5. **Cookies** : oui/non — si oui, quels types (analytics, affiliation, préférences).
+3. **Hébergeur** : nom + adresse + URL (Vercel Inc. par défaut).
+4. **DPO** : email RGPD.
+5. **Cookies** : oui/non + types.
 6. **PI** : tous droits réservés / CC-BY / autre.
 
-Écrire `content/pages/mentions-legales.yaml`.
+**Cascade depuis Bloc 0** : ENSUITE générer les versions traduites dans toutes les locales (`content/pages/mentions-legales.yaml`, `content/pages/mentions-legales.nl.yaml`, etc.). Le contenu factuel reste identique, seul le wording RGPD/cookies est adapté à la langue.
+
+Écrire le fichier principal + variantes locales.
+
+---
 
 ## Étape 7 — Bloc auteur (alimente docs/AUTHOR-[slug].md)
 
 Demander :
 
-> Tu signes les articles d'un nom propre (Mathias Cetani / Sophie Lambert / etc.) ou tu signes sous le nom du site ? Si nom propre, je crée la fiche auteur. Sinon on saute.
+> Tu signes les articles d'un nom propre ou sous le nom du site ? Si nom propre, je crée la fiche auteur.
 
-Si nom propre :
+Si nom propre, dérouler l'interview du gabarit `docs/AUTHOR-template.md`.
 
-1. Demander le slug (ex : `mathias` → fichier `docs/AUTHOR-mathias.md`).
-2. Si plusieurs auteurs prévus, boucler sur cette étape pour chacun.
-3. Pour CHAQUE auteur, dérouler l'interview du gabarit `docs/AUTHOR-template.md` :
-   - Identité (nom, slug, titre, lieu, activité depuis)
-   - Bio 3-5 lignes
-   - Tonalité 3 mots / pas-3 mots
-   - 3-5 formulations signature
-   - Vocabulaire interdit spécifique
-   - Tu / vous + raison
-   - Spécificités d'expertise (3 faits vérifiables)
-   - Schema.org Person (sameAs LinkedIn / Twitter — réels)
-4. Écrire `docs/AUTHOR-[slug].md` à partir du gabarit existant.
-5. Rappeler à l'utilisateur de créer aussi `content/authors/[slug].yaml` côté CMS (référence du gabarit dans `DUPLICATION-GUIDE.md` étape 2).
+**Cascade depuis Bloc 0** : si Q0.3 = voix adaptée, la bio et le titre auteur sont traduits par langue. La fiche schema.org Person reste unique, les pages auteur sont en miroir.
+
+Écrire `docs/AUTHOR-[slug].md`.
+
+---
 
 ## Étape 8 — Récapitulatif final
 
-Une fois TOUS les blocs traités, faire un résumé :
+```
+Configuration terminée. Fichiers écrits :
+- niche.config.ts ✓ (market, locales, defaultLocale, localePrefix verrouillés au Bloc 0)
+- content/ton-of-voice.md ✓
+- content/mots-cles.md ✓
+- content/calendrier-edito.md ✓
+- content/concurrents.md ✓
+- content/faq-base.md ✓
+- content/pages/mentions-legales.yaml ✓ (+ variantes locales si N langues)
+- docs/AUTHOR-[slug].md ✓ (si auteur fourni)
 
-> Configuration terminée. Fichiers écrits :
-> - content/ton-of-voice.md ✓
-> - content/mots-cles.md ✓ (avec export Semrush intégré OU interview)
-> - content/calendrier-edito.md ✓
-> - content/concurrents.md ✓
-> - content/faq-base.md ✓
-> - content/pages/mentions-legales.yaml ✓
-> - docs/AUTHOR-mathias.md ✓ (si auteur fourni)
->
-> Prochaines étapes manuelles (cf. docs/DUPLICATION-GUIDE.md) : niche.config.ts, content/settings.yaml, identité visuelle, variables d'env Vercel.
+Routing imposé : [`app/page.tsx` direct | `app/[locale]/...` avec localePrefix:'as-needed']
+Miroir strict : [activé/désactivé]
+Marché : [BE/FR/CA/CH/...]
+Locales : [fr / fr,en / fr,en,nl / ...]
+```
+
+---
 
 ## Règles strictes
 
-- **Ne JAMAIS inventer** une réponse si l'utilisateur ne fournit pas l'info. Laisser un `TODO` explicite dans le fichier — le pattern repose là-dessus pour redéclencher le bloc plus tard.
-- **Bloc par bloc, pas question par question**. L'utilisateur répond en un seul message par bloc. C'est la clé de l'économie de tokens et du flow utilisateur.
-- **Réutiliser les données entre blocs**. Audience définie au bloc 1 → réinjectée au bloc 4 (concurrents). Head terms définis au bloc 2 → réinjectés au bloc 5 (FAQ). Ne PAS reposer deux fois la même question.
-- **Si l'utilisateur saute un bloc**, écrire le fichier avec des `TODO` partout dans les sections concernées et continuer — ne pas bloquer le setup pour un bloc.
-- **L'export Semrush a priorité sur l'interview** pour la partie mots-clés et concurrents. Le mentionner systématiquement avant d'attaquer le bloc 2.
+- **Bloc 0 est OBLIGATOIRE en PREMIER**. Aucun autre bloc ne peut commencer avant que `niche.config.ts.market`, `locales`, `defaultLocale`, `localePrefix` soient écrits.
+- **Ne JAMAIS inventer** une réponse si l'utilisateur ne fournit pas l'info. Laisser un `TODO` explicite.
+- **Bloc par bloc**, pas question par question. Un seul message utilisateur par bloc.
+- **Réutiliser les données entre blocs**. Locales définies au Bloc 0 → réinjectées partout.
+- **L'export Semrush a priorité sur l'interview** pour les blocs 2 et 4.
+- **Miroir strict NON-négociable** dès N ≥ 2 locales. Pas d'option « page FR seulement », même pour les utilitaires.
+
+---
 
 ## Lien avec les autres skills
 
-Une fois `init-site` exécuté avec succès, les skills `ton-of-voice`, `seo-geo-redaction`, `humaniser-fr`, `integrate-claude-design` peuvent travailler sans relancer d'interview. Si l'un d'eux détecte que `content/[fichier].md` contient encore des TODO sur un setup non terminé, il doit relancer `init-site` plutôt que de combler le trou lui-même — chaque skill garde sa responsabilité.
+Une fois `init-site` exécuté :
+- `ton-of-voice`, `seo-geo-redaction`, `humaniser-fr`, `integrate-claude-design` travaillent sans relancer d'interview.
+- `seo-geo-redaction` lit `niche.config.ts.locales` au début de chaque rédaction pour déterminer combien de versions de l'article produire (miroir strict — cf. `skills/seo-geo-redaction/references/mirror-i18n.md`).
+- Les **scheduled tasks** de rédaction quotidienne sur les sites enfants doivent lire `niche.config.ts.locales` au runtime et **toujours générer une version par locale** — pas de fallback « skip EN si non traduit ». La traduction systématique est une garantie de cohérence du miroir.

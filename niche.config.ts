@@ -3,12 +3,17 @@
  * C'est le SEUL fichier à remplir pour chaque nouveau site issu du template.
  *
  * Workflow :
- * - Soit rempli par Claude Code lors de l'intégration des outputs Claude Design
- *   (voir design-incoming/READ-FIRST.md).
+ * - Soit rempli par Claude Code via le skill `init-site` (qui pose les questions
+ *   par blocs, en commençant par le Bloc 0 — langues + marché géo).
  * - Soit rempli à la main quand il n'y a pas de livrable Claude Design.
  *
  * Tous les composants, configs et pages dépendent de ce fichier. Ne pas hardcoder
  * de couleur, de font, de nom de site, de tagline dans le JSX — passer par ici.
+ *
+ * IMPORTANT — Bloc 0 d'init-site :
+ *   Les champs `market`, `locales`, `defaultLocale`, `localePrefix` sont définis
+ *   AVANT tous les autres et pilotent l'architecture i18n du site (routing,
+ *   middleware, hreflang, sitemap, OG locale, schema.org). Cf. skills/init-site/SKILL.md.
  */
 
 export type NicheConfig = {
@@ -24,9 +29,9 @@ export type NicheConfig = {
   dealWord: string        // "deals", "bons plans", "offres"
 
   // Hero
-  heroPrefix: string      // "Choisir votre"
-  heroSuffix: string      // "en 10 minutes"
-  rotatingWords: string[] // ["iPhone", "Mac"] → ["vol", "hôtel"]
+  heroPrefix: string
+  heroSuffix: string
+  rotatingWords: string[]
   subtitle: string
   ctaPrimary: { text: string; url: string }
   ctaSecondary: { text: string; url: string }
@@ -35,33 +40,33 @@ export type NicheConfig = {
   categories: {
     slug: string
     label: string
-    accent: string // hex color
+    accent: string
     description?: string
   }[]
 
   // Outils
   quiz: {
     enabled: boolean
-    question: string        // "Quel iPhone pour vous ?"
-    criteria: string[]      // ["budget", "usage", "taille"]
+    question: string
+    criteria: string[]
   }
   comparator: {
     enabled: boolean
-    criteria: string[]      // ["prix", "performance", "photo"]
+    criteria: string[]
   }
   simulator: {
     enabled: boolean
-    title: string           // "Calculer votre budget Apple"
+    title: string
     description: string
   }
 
   // Style & DA
   style: {
-    mode: 'dark' | 'light'             // dark-first ou light-first
-    hero: 'split' | 'centered' | 'minimal' // layout du hero
-    effects: 'aurora' | 'subtle' | 'none'  // intensité des effets visuels
-    cards: 'bordered' | 'filled' | 'minimal' // style des cartes article
-    uiStyle: string                    // style UI depuis da-presets (ex: "Glassmorphism", "Brutalism", "Editorial Grid / Magazine")
+    mode: 'dark' | 'light'
+    hero: 'split' | 'centered' | 'minimal'
+    effects: 'aurora' | 'subtle' | 'none'
+    cards: 'bordered' | 'filled' | 'minimal'
+    uiStyle: string
   }
   palette: {
     accent1: string
@@ -77,8 +82,8 @@ export type NicheConfig = {
     textMuted: string
   }
   fonts: {
-    display: string   // Google Fonts family name
-    body: string      // Google Fonts family name
+    display: string
+    body: string
   }
 
   // Auteur
@@ -87,42 +92,70 @@ export type NicheConfig = {
     slug: string
     title: string
     bio: string
-    tone: string[]          // ["direct", "honnête", "expert"]
-    noGo: string[]          // ["révolutionnaire", "incroyable"]
-    formulations: string[]  // ["Honnêtement,", "Le vrai tip :"]
+    tone: string[]
+    noGo: string[]
+    formulations: string[]
   }
 
   // Identité visuelle
-  logo: string                // Texte du logo libre (ex: "10min·voyage", "MonSite", "ASPIRO")
-  homeSections: string[]      // Ordre des sections home. Options: 'ticker', 'deals', 'articles', 'categories', 'tools', 'author'
+  logo: string
+  homeSections: string[]
 
   // Affiliation
-  affiliateTag: string     // "monsite-21"
-  defaultStore: string     // "Amazon"
+  affiliateTag: string
+  defaultStore: string
 
   // Signature DA anti-IA — personnalité visuelle unique
   signature: {
-    anchor: string           // élément visuel distinctif (ex: "lettrine éditoriale façon Monocle")
-    oneRule: string          // 1 règle qui casse le look IA (ex: "jamais de gradient sur les boutons")
-    inspiration: string[]    // 2-3 vrais magazines/sites pour le ton visuel
-    forbidden: string[]      // patterns visuels interdits (ceux qui crient "IA")
-    components: string[]     // composants signature activés: 'lettrine' | 'pullQuote' | 'editorialFootnote' | 'tabularStat'
+    anchor: string
+    oneRule: string
+    inspiration: string[]
+    forbidden: string[]
+    components: string[]
   }
 
-  // Langue & i18n
-  defaultLocale: string    // "fr"
-  locales: string[]        // ["fr"] — ajouter "en" quand la traduction est prête
+  // ─── i18n & marché (Bloc 0 d'init-site) ────────────────────────────────
+  /**
+   * Marché géographique principal. Détermine OG locale (`fr_BE` vs `fr_FR`...),
+   * devise par défaut (EUR/CHF/CAD...), schema.org `addressCountry`, références
+   * institutionnelles citées par seo-geo-redaction (FSMA/BNB pour BE, ACPR/AMF
+   * pour FR, FINMA pour CH, AMF Québec pour CA).
+   */
+  market: 'BE' | 'FR' | 'CA' | 'CH' | string
+
+  /**
+   * Locale par défaut du site (généralement la première de `locales`).
+   * Avec `localePrefix: 'as-needed'`, cette locale n'a PAS de préfixe URL
+   * (URLs canoniques courtes pour le marché principal → SEO optimal).
+   */
+  defaultLocale: string
+
+  /**
+   * Liste des langues supportées. Ordre = priorité éditoriale.
+   * Si `length === 1` → routing `app/page.tsx` direct, pas de middleware i18n.
+   * Si `length >= 2` → routing `app/[locale]/...`, middleware `next-intl`,
+   *   miroir strict obligatoire (cf. skills/seo-geo-redaction/references/mirror-i18n.md).
+   */
+  locales: string[]
+
+  /**
+   * Comportement du préfixe locale dans l'URL.
+   * - `'as-needed'` (recommandé) : default sans préfixe, autres sous segment.
+   *   Ex: `/blog/article` (FR) + `/en/blog/article` (EN).
+   * - `'always'` : toutes locales sous préfixe. Ex: `/fr/...` + `/en/...`.
+   * - `undefined` : 1 seule locale, pas de routing locale-aware.
+   */
+  localePrefix?: 'as-needed' | 'always'
 
   // Technique
-  vercelRegion: string     // "fra1"
-  repo: string             // "org/repo"
-  branch: string           // branche principale — PAS toujours "main" ! Le CMS l'utilise pour lire/écrire le contenu.
+  vercelRegion: string
+  repo: string
+  branch: string
 }
 
 // ─── Valeurs par défaut (placeholder) ───────────────────────────────────
 // Ces valeurs permettent au site de build avec un template vierge. Elles sont
-// remplacées soit par Claude Code lors de l'intégration des outputs Claude Design,
-// soit à la main lors d'un setup manuel.
+// remplacées par init-site lors du bootstrap d'un nouveau site forké.
 
 export const niche: NicheConfig = {
   siteName: '10min-template',
@@ -185,8 +218,11 @@ export const niche: NicheConfig = {
   affiliateTag: '',
   defaultStore: 'Amazon',
 
+  // Bloc 0 d'init-site — placeholders à remplacer impérativement
+  market: 'BE',                  // À choisir : 'BE' | 'FR' | 'CA' | 'CH' | string
   defaultLocale: 'fr',
-  locales: ['fr'],
+  locales: ['fr'],               // 1 langue par défaut. Étendre via init-site.
+  // localePrefix omis tant que 1 seule locale. Imposé à 'as-needed' dès N >= 2.
 
   vercelRegion: 'fra1',
   repo: '',
@@ -216,4 +252,20 @@ export function categoryAccents(): Record<string, string> {
     map[cat.slug] = categoryAccent(i)
   })
   return map
+}
+
+/** True si le site est multi-langue (≥ 2 locales actives). */
+export function isMultilingual(): boolean {
+  return niche.locales.length >= 2
+}
+
+/**
+ * Helper pour construire un chemin localisé respectant `localePrefix: 'as-needed'`.
+ * - Si lang === defaultLocale → renvoie path tel quel (pas de préfixe)
+ * - Sinon → préfixe `/[lang]`
+ * Exemple : localePath('fr', '/blog') → '/blog' ; localePath('en', '/blog') → '/en/blog'
+ */
+export function localePath(lang: string, path: string): string {
+  if (lang === niche.defaultLocale) return path
+  return `/${lang}${path === '/' ? '' : path}`
 }

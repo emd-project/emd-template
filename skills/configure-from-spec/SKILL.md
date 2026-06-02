@@ -1,7 +1,7 @@
 ---
 name: configure-from-spec
-version: 2.1.0
-description: Configure un nouveau site fork-é depuis emd-template À PARTIR D'UN FICHIER SPEC pré-rempli par le wizard nano-mentionbox. Lit `init-spec.md` à la racine du repo, analyse les exports Semrush bruts dans `semrush-exports/` pour clusteriser les mots-clés et déterminer l'arborescence du site (categories), écrit `niche.config.ts` + tous les fichiers `content/*` + `docs/AUTHOR-*` en miroir dans toutes les locales, délègue à `integrate-claude-design` si `design-incoming/` contient des fichiers (extraits par le wizard, pas un zip), génère un `content/calendrier-edito.md` avec 50 articles prêts à rédiger classés par priorité (volume × intent / KD), et crée la scheduled task de rédaction quotidienne avec la règle absolue de SERP analysis avant chaque article. À utiliser dans CE cas et CE cas SEULEMENT : un init-spec.md fraîchement poussé par le wizard est présent à la racine du repo et l'utilisateur dit explicitement « configure le site depuis init-spec.md », « configure depuis la spec », « init from spec », « lance la configuration », « setup le repo ». Ne JAMAIS utiliser pour un site déjà configuré (niche.config.ts.market défini → utiliser init-site classique pour amender). Ne JAMAIS proposer ce skill si init-spec.md n'existe pas — proposer init-site à la place.
+version: 2.2.0
+description: Configure un nouveau site fork-é depuis emd-template À PARTIR D'UN FICHIER SPEC pré-rempli par le wizard nano-mentionbox. Lit `init-spec.md` à la racine du repo, analyse les exports Semrush bruts dans `semrush-exports/` pour clusteriser les mots-clés et déterminer l'arborescence du site (categories), écrit `niche.config.ts` + tous les fichiers `content/*` + `docs/AUTHOR-*` en miroir dans toutes les locales, délègue à `integrate-claude-design` si `design-incoming/` contient des fichiers (extraits par le wizard, pas un zip) OU exécute `docs/AUTO-DESIGN.md` pour composer une vraie DA si aucun design n'est fourni, génère un `content/calendrier-edito.md` avec 50 articles prêts à rédiger classés par priorité (volume × intent / KD), et crée la scheduled task de rédaction quotidienne avec la règle absolue de SERP analysis avant chaque article. À utiliser dans CE cas et CE cas SEULEMENT : un init-spec.md fraîchement poussé par le wizard est présent à la racine du repo et l'utilisateur dit explicitement « configure le site depuis init-spec.md », « configure depuis la spec », « init from spec », « lance la configuration », « setup le repo ». Ne JAMAIS utiliser pour un site déjà configuré (niche.config.ts.market défini → utiliser init-site classique pour amender). Ne JAMAIS proposer ce skill si init-spec.md n'existe pas — proposer init-site à la place.
 allowed-tools:
   - Read
   - Write
@@ -12,9 +12,15 @@ allowed-tools:
   - WebSearch
 ---
 
-# configure-from-spec v2.1 — Configurer un site depuis un init-spec.md du wizard
+# configure-from-spec v2.2 — Configurer un site depuis un init-spec.md du wizard
 
-> **Changement v2.0 → v2.1** : Le wizard nano-mentionbox décompresse le zip Claude Design **côté backend** avant de pousser. Donc `design-incoming/` du repo contient maintenant directement les fichiers extraits (.jsx, .html, .json, .png, .css...), pas de zip à décompresser. L'étape 12 a été simplifiée en conséquence.
+> **Changement v2.1 → v2.2** : L'étape 12 (design) ne laisse plus JAMAIS les placeholders quand
+> aucun Claude Design n'est fourni. Si `design-incoming/` est vide, on exécute désormais
+> `docs/AUTO-DESIGN.md` : composition d'une vraie DA depuis `lib/da-presets/` + la référence
+> `docs/design-reference/comparateur-energie/`. Le site sort de l'init avec une direction
+> artistique propre et distincte, même sans livrable design.
+>
+> **Changement v2.0 → v2.1** : Le wizard nano-mentionbox décompresse le zip Claude Design **côté backend** avant de pousser. Donc `design-incoming/` du repo contient maintenant directement les fichiers extraits (.jsx, .html, .json, .png, .css...), pas de zip à décompresser.
 
 Ce skill prend en entrée un fichier `init-spec.md` à la racine du repo + (optionnel) des exports Semrush bruts dans `semrush-exports/` + (optionnel) un dossier `design-incoming/` rempli de fichiers Claude Design extraits. Il produit en sortie une configuration complète du site en un seul commit atomique.
 
@@ -193,26 +199,35 @@ Si `voiceMode === 'per-language'` : créer aussi les variantes par locale.
 
 ---
 
-## Étape 12 — Intégrer le design (NOUVEAU v2.1 — déjà extrait)
+## Étape 12 — Design : intégrer le livrable OU composer une DA auto
 
-Le dossier `design-incoming/` contient déjà les **fichiers extraits** du zip Claude Design (le wizard nano-mentionbox a décompressé côté backend avant le push). Tu y trouveras directement des `.jsx`, `.html`, `.json`, `.png`, `.css`, etc.
+Deux cas, mutuellement exclusifs. Vérifier d'abord ce que contient `design-incoming/` :
 
-**Procédure** :
+```bash
+ls -la design-incoming/ 2>/dev/null
+```
 
-1. Vérifier que `design-incoming/` existe et contient des fichiers :
-   ```bash
-   ls -la design-incoming/ 2>/dev/null
-   ```
-2. Si le dossier est vide ou absent : pas de design → laisser les placeholders palette/fonts/signature dans `niche.config.ts`. Documenter dans `PROGRESS.md` que le design peut être livré plus tard via le workflow `integrate-claude-design` standard.
-3. Si le dossier contient des fichiers : déléguer au skill `integrate-claude-design` qui :
-   - Lit chaque fichier
-   - Mappe pages → `app/`, composants → `components/`, tokens → `niche.config.ts.palette` / `fonts` / `signature`
-   - Applique les conversions techniques (var CSS, next/image, RSC vs 'use client')
-   - Nettoie le dossier `design-incoming/` après intégration
+### Cas A — `design-incoming/` contient des fichiers (livrable Claude Design)
+
+Le dossier contient les **fichiers déjà extraits** du zip Claude Design (le wizard a décompressé côté backend). Tu y trouveras directement des `.jsx`, `.html`, `.json`, `.png`, `.css`, etc. Déléguer au skill `integrate-claude-design` qui :
+- Lit chaque fichier
+- Mappe pages → `app/`, composants → `components/`, tokens → `niche.config.ts.palette` / `fonts` / `signature`
+- Applique les conversions techniques (var CSS, next/image, RSC vs 'use client')
+- Nettoie le dossier `design-incoming/` après intégration
 
 **⚠️ NE PAS faire `unzip`** : il n'y a PAS de zip dans `design-incoming/`. Si tu vois un fichier `design.zip` (cas d'un repo créé avec une vieille version du wizard avant v2.1), tu peux le décompresser via `unzip -o design-incoming/design.zip -d design-incoming/ && rm design-incoming/design.zip`. Sinon, ignore cette étape.
 
-**⚠️ `integrate-claude-design` NE DOIT PAS écraser `niche.config.ts.categories`** que tu viens d'écrire depuis les clusters Semrush. Le design fournit palette + fonts + signature DA + composants visuels — pas l'arborescence éditoriale.
+### Cas B — `design-incoming/` est vide ou absent (AUCUN livrable design)
+
+**NE JAMAIS laisser les placeholders palette/fonts/signature de `niche.config.ts`** (le thème par défaut : rouge `#FF3D57`, fonts Unbounded/Space Grotesk, dark + aurora). Les garder = tous les sites se ressemblent, et le site sort « moche/générique ».
+
+➡️ **Exécuter `docs/AUTO-DESIGN.md`** : composer une vraie DA depuis `lib/da-presets/` (161 presets via `lib/da-presets/index.ts` → `composePreset(productType, moods)`) en s'inspirant de la barre qualité `docs/design-reference/comparateur-energie/`. Écrire palette + fonts + variantes structurelles (`niche.style`) + `niche.signature` dans `niche.config.ts`. Respecter les `antiPatterns` du preset.
+
+Le site doit sortir de l'init avec une direction artistique **propre, distincte, adaptée à la niche** — un Claude Design sur-mesure pourra la remplacer plus tard pour un site qui performe.
+
+### Dans les DEUX cas
+
+**⚠️ Le design (livrable OU auto) NE DOIT PAS écraser `niche.config.ts.categories`** que tu viens d'écrire depuis les clusters Semrush. Le design fournit palette + fonts + signature DA + composants visuels — pas l'arborescence éditoriale.
 
 ---
 
@@ -284,7 +299,7 @@ Marquer [x] + date.
 
 ## Étape 14 — PROGRESS.md + DECISIONS.md
 
-Sections en tête. Inchangé vs v2.0.
+Sections en tête. Inchangé vs v2.0. Documenter dans PROGRESS.md la DA retenue (livrable Claude Design intégré OU DA composée via AUTO-DESIGN : productType, palette, fonts, mode).
 
 ---
 
@@ -305,7 +320,7 @@ Clusters Semrush analysés : K (N keywords)
 Categories proposées : 6
 Calendrier : 50 articles classés par priorité
 Auteur : [name + slug]
-Design : intégré depuis design-incoming/ (X fichiers traités) OU à intégrer plus tard
+Design : intégré depuis design-incoming/ (X fichiers traités) OU DA composée via AUTO-DESIGN (productType + palette + fonts)
 Scheduled task : [repoName]-article-daily, cron 0 8 * * *
 
 Prochaines étapes :
@@ -324,6 +339,7 @@ Lien repo : https://github.com/[owner]/[name]
 - **NE JAMAIS exécuter** sans `init-spec.md`.
 - **NE JAMAIS écraser** un `niche.config.ts` rempli sans confirmation.
 - **NE JAMAIS inventer** si spec incomplète → TODO + avertir.
+- **NE JAMAIS laisser la palette/fonts par défaut** quand aucun design n'est fourni → exécuter `docs/AUTO-DESIGN.md`.
 - **TOUJOURS un commit atomique**.
 - **TOUJOURS demander confirmation** avant scheduled task.
 - **TOUJOURS appliquer miroir strict** si `locales.length >= 2`.
@@ -335,6 +351,7 @@ Lien repo : https://github.com/[owner]/[name]
 
 ## Lien avec les autres skills
 
-- `init-site` v2 : alternatif sans init-spec.md.
-- `integrate-claude-design` : appelé à l'étape 12 si `design-incoming/` non vide. **Ne touche pas à `niche.config.ts.categories`**.
+- `init-site` v2 : alternatif sans init-spec.md (applique aussi AUTO-DESIGN si pas de design).
+- `integrate-claude-design` : appelé à l'étape 12 (Cas A) si `design-incoming/` non vide. **Ne touche pas à `niche.config.ts.categories`**.
+- `docs/AUTO-DESIGN.md` : exécuté à l'étape 12 (Cas B) si `design-incoming/` vide — compose la DA depuis `lib/da-presets/` + la référence énergie.
 - `seo-geo-redaction`, `ton-of-voice`, `humaniser-fr` : utilisés par la scheduled task à chaque rédaction.

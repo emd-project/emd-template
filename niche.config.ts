@@ -158,9 +158,9 @@ export type NicheConfig = {
 // remplacées par init-site lors du bootstrap d'un nouveau site forké.
 
 export const niche: NicheConfig = {
-  siteName: '10min-template',
+  siteName: 'emd-template',
   domain: 'example.com',
-  tagline: 'Trouvez le bon choix en 10 minutes',
+  tagline: 'Le comparateur indépendant de votre niche',
 
   entity: 'produit',
   entities: 'produits',
@@ -168,7 +168,7 @@ export const niche: NicheConfig = {
   dealWord: 'deals',
 
   heroPrefix: 'Choisir votre',
-  heroSuffix: 'en 10 minutes',
+  heroSuffix: 'en toute confiance',
   rotatingWords: ['produit'],
   subtitle: 'Comparateur indépendant, quiz personnalisé et simulateur — tout pour décider vite et bien.',
   ctaPrimary: { text: 'Comparer →', url: '/comparer' },
@@ -204,7 +204,7 @@ export const niche: NicheConfig = {
 
   author: { name: '', slug: '', title: '', bio: '', tone: [], noGo: [], formulations: [] },
 
-  logo: '10min·template',
+  logo: 'emd·template',
   homeSections: ['ticker', 'deals', 'articles', 'categories', 'tools', 'author'],
 
   signature: {

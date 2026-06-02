@@ -1,124 +1,115 @@
 # emd-template
 
-Template Next.js pour sites éditoriaux « 10 minutes » — comparateur, quiz, simulateur, deals, blog. Toute la configuration passe par `niche.config.ts`. CMS intégré sur `/admin`. Workflows de rédaction et d'intégration design pris en charge par des Skills auto-déclenchés.
+Moteur Next.js pour **sites éditoriaux multi-niches** — comparateurs et magazines/blogs informationnels.
+Toute la configuration passe par `niche.config.ts`. CMS intégré sur `/admin`. Direction artistique,
+rédaction et intégration prises en charge par des skills auto-déclenchés.
 
 ## Démarrage
 
+Le plus simple : via le **wizard nano-mentionbox** (« Créer EMD ») — il remplit `init-spec.md`,
+crée le repo depuis ce template, et Claude le configure (« configure le site depuis init-spec.md »).
+
 ```bash
-# 1. "Use this template" sur GitHub → nouveau repo, clone-le
+# En local
 cp .env.example .env.local
 npm install
 npm run dev
-
-# 2. Colle les outputs Claude Design dans design-incoming/
-# 3. Ouvre Claude Code → « intègre ce qui est dans design-incoming/ »
-#    (Le skill integrate-claude-design prend le relais automatiquement.)
 ```
 
-Pas d'outputs Claude Design ? Remplis `niche.config.ts` à la main, c'est le seul fichier obligatoire.
+### Le design à l'init — deux voies
+
+1. **Questionnaire** (par défaut, zéro compétence design) : type de site (comparateur / magazine /
+   hybride), ambiance, couleur, clair/sombre. Claude **compose une vraie DA** depuis la bibliothèque
+   de presets (`lib/da-presets/`) en visant la barre qualité `docs/design-reference/` — cf. `docs/AUTO-DESIGN.md`.
+2. **Import Claude Design** : déposer un zip dans `design-incoming/` → le skill `integrate-claude-design`
+   l'intègre.
+
+Dans les deux cas, le site sort **animé par de vraies images** (générées à l'init), jamais en
+placeholders — cf. `docs/IMAGES-WORKFLOW.md`. Plus de palette/fonts par défaut.
 
 ## Skills auto-déclenchés
 
-Le dossier `skills/` contient quatre skills qui se chargent automatiquement quand leurs triggers correspondent :
-
 | Skill | Quand il s'active |
 |---|---|
-| `integrate-claude-design` | « intègre ce qui est dans design-incoming », « merge les designs » |
-| `ton-of-voice` | Tout trigger de rédaction. Si `content/ton-of-voice.md` est vide → conduit un interview de 8 questions. |
-| `seo-geo-redaction` | Tout trigger de rédaction (article, fiche produit, brief, comparatif…) |
-| `humaniser-fr` | Production (écrit propre dès le départ) + Review (« humanise », « sonne IA ») |
+| `configure-from-spec` | « configure le site depuis init-spec.md » (wizard) |
+| `init-site` | Init manuel sans init-spec.md |
+| `integrate-claude-design` | « intègre ce qui est dans design-incoming » |
+| `ton-of-voice` | Tout trigger de rédaction (interview de 8 questions si vide) |
+| `seo-geo-redaction` | Tout trigger de rédaction (SEO + GEO + miroir i18n) |
+| `humaniser-fr` | Production + review (anti-patterns IA) |
 
-Sur une demande de rédaction, `ton-of-voice` + `seo-geo-redaction` + `humaniser-fr` se chargent en parallèle. Détail dans [`skills/README.md`](skills/README.md).
+Sur une demande de rédaction, `ton-of-voice` + `seo-geo-redaction` + `humaniser-fr` se chargent en parallèle.
 
 ## Stack
 
 | Outil | Version |
 |---|---|
-| Next.js | ~16.2.1 (patch auto) |
+| Next.js | ~16.2.1 |
 | TypeScript | strict |
 | Tailwind CSS | v4 |
 | Hébergement | Vercel — région fra1 |
-| CMS | Custom (packages/cms/) |
+| CMS | Custom (`packages/cms/`) |
 
-## Composants MDX
+## Direction artistique
 
-Disponibles dans les articles :
+- **Presets DA** : `lib/da-presets/` (161 palettes, 72 paires de fonts, 75 styles UI, 161 règles par niche).
+- **Archétypes** : `comparateur` / `magazine` / `hybride` — pilotent la home (`niche.style.homeSections`) et le hero.
+- **Mode** clair/sombre via `niche.style.mode` + `ThemeToggle`.
+- **Images V2** : registre `lib/image-slots.ts`, génération Gemini→Flux (CMS) ou nano-mentionbox (init + tâches).
 
-| Composant | Usage |
-|---|---|
-| `<ArticleImage>` | Image optimisée inline (`src`, `alt`, `caption`) |
-| `<ProductCTA>` | Carte produit affilié (`name`, `price`, `url`, `image?`, `badge?`, `hook?`) |
-| `<ProductCarousel>` | Carousel horizontal de produits (`products="slug-1,slug-2"`) |
-| `<CompareBar>` | Barre comparaison visuelle (`label`, `left`, `right`, `leftName`, `rightName`) |
-| `<CompareBarGroup>` | Wrapper pour grouper les CompareBar |
-| `<Tip>` | Bloc conseil |
-| `<Warning>` | Bloc avertissement |
-| `<Verdict>` | Verdict avec note (`note`, `label`) |
-| `<ProConTable>` | Tableau avantages/inconvénients (`pros`, `cons`) |
-| `<PullQuote>` | Citation mise en avant (`author`) |
-| `<StatCard>` | Statistique (`value`, `label`) |
-| `<StatRow>` | Wrapper pour grouper les StatCard |
+## Composants MDX (articles)
+
+`<ArticleImage>` · `<ProductCTA>` · `<ProductCarousel>` · `<CompareBar>` / `<CompareBarGroup>` ·
+`<Tip>` · `<Warning>` · `<Verdict>` · `<ProConTable>` · `<PullQuote>` · `<StatCard>` / `<StatRow>`.
 
 ## CMS (`/admin`)
 
-- Éditeur WYSIWYG TipTap (tables, images, formatage)
-- Import intelligent (copier-coller texte brut)
-- Sidebar SEO compacte
-- FAQ preview en temps réel
-- Upload images + génération IA (Flux)
-- Gestion auteurs avec vue articles
-- Display name utilisateurs
-- Éditeurs enrichis par page (home, quiz)
+Éditeur WYSIWYG TipTap · import intelligent · sidebar SEO · FAQ preview · upload + génération
+d'images (Gemini/Flux) · gestion auteurs · 2FA TOTP.
 
 ## Pages incluses
 
 | Route | Type |
 |---|---|
-| `/` | Home dynamique |
-| `/blog` | Hub articles |
-| `/blog/[categorie]/[slug]` | Article MDX |
-| `/comparer` | Comparateur |
-| `/comparer/[produit]` | Comparateur par catégorie |
-| `/quiz` | Quiz interactif (questions éditables via CMS) |
-| `/simulateur` | Simulateur |
-| `/deals` | Deals |
+| `/` | Home dynamique (sections pilotées par l'archétype) |
+| `/blog` · `/blog/[categorie]` · `/blog/[categorie]/[slug]` | Hub + catégorie + article MDX |
+| `/comparer` · `/comparer/[produit]` | Comparateur |
 | `/choisir/[produit]` | Guide d'achat |
+| `/quiz` · `/simulateur` · `/deals` | Outils |
 | `/auteurs/[slug]` | Page auteur (JSON-LD Person) |
-| `/mentions-legales` | Mentions légales |
-| `/confidentialite` | Politique de confidentialité |
+| `/mentions-legales` · `/confidentialite` | Légal |
 | `/admin/*` | CMS complet |
 
 ## SEO & GEO
 
 - JSON-LD (Article, Person, BreadcrumbList, FAQPage, WebSite)
-- OG dynamique par page
-- Sitemap + robots.ts
-- hreflang prêt (ajouter `'en'` dans `niche.locales` pour activer)
-- Doctrine de rédaction : skill `seo-geo-redaction` (auto-déclenché sur la rédaction)
+- Titres sans double marque (`title.template: '%s'`, les pages s'auto-brandent)
+- Année dynamique via `currentYear()` (jamais en dur)
+- OG dynamique · sitemap · robots
+- i18n : miroir strict si `locales.length >= 2`, `LangSwitcher` **zéro-404**, hreflang vers les seules traductions existantes
+- Doctrine de rédaction : skill `seo-geo-redaction` (+ `references/mirror-i18n.md`)
 
 ## Scripts
 
 | Commande | Description |
 |---|---|
-| `npm run dev` | Serveur de développement |
+| `npm run dev` | Développement |
 | `npm run build` | Build production |
 | `npm run lint` | ESLint |
 | `npm run type-check` | Vérification TypeScript |
-| `npm run test` | Tests unitaires (Vitest) |
+| `npm run test` | Tests (Vitest) |
 
 ## Documentation
 
-- [`skills/README.md`](skills/README.md) — Index des Skills auto-déclenchés
-- [`design-incoming/READ-FIRST.md`](design-incoming/READ-FIRST.md) — Zone d'atterrissage des outputs Claude Design
-- [`content/ton-of-voice.md`](content/ton-of-voice.md) — Voix éditoriale du site (rempli via interview au premier lancement)
-- [`docs/AUTHOR-template.md`](docs/AUTHOR-template.md) — Squelette pour fichiers auteur (`docs/AUTHOR-[slug].md`)
-- [`docs/TEMPLATE-SPEC.md`](docs/TEMPLATE-SPEC.md) — Architecture du template
-- [`docs/CMS-SPEC.md`](docs/CMS-SPEC.md) — Documentation CMS
-- [`docs/DA-PRESETS.md`](docs/DA-PRESETS.md) — Presets de direction artistique
-- [`docs/DA-ANTI-IA.md`](docs/DA-ANTI-IA.md) — Patterns visuels anti-IA
-- [`docs/DUPLICATION-GUIDE.md`](docs/DUPLICATION-GUIDE.md) — Checklist de personnalisation par site
-- [`DECISIONS.md`](DECISIONS.md) — Décisions d'architecture
-- [`PROGRESS.md`](PROGRESS.md) — Progression et historique
+- [`docs/TEMPLATE-SPEC.md`](docs/TEMPLATE-SPEC.md) — Architecture du moteur
+- [`docs/AUTO-DESIGN.md`](docs/AUTO-DESIGN.md) — Composition auto de la DA à l'init
+- [`docs/WIZARD-DESIGN-STEP.md`](docs/WIZARD-DESIGN-STEP.md) — Étape design du wizard (questionnaire / zip)
+- [`docs/design-reference/`](docs/design-reference/) — Barres qualité (comparateur énergie, magazine)
+- [`docs/IMAGES-WORKFLOW.md`](docs/IMAGES-WORKFLOW.md) — Stratégie images V2
+- [`docs/DA-PRESETS.md`](docs/DA-PRESETS.md) — Bibliothèque de presets DA
+- [`docs/SCHEDULED-TASK-REDACTION.md`](docs/SCHEDULED-TASK-REDACTION.md) — Gabarit de la tâche quotidienne
+- [`skills/seo-geo-redaction/references/mirror-i18n.md`](skills/seo-geo-redaction/references/mirror-i18n.md) — Miroir multi-langue
+- [`docs/CMS-SPEC.md`](docs/CMS-SPEC.md) — CMS · [`DECISIONS.md`](DECISIONS.md) · [`PROGRESS.md`](PROGRESS.md)
 
 ## Variables Vercel
 
@@ -126,7 +117,7 @@ Disponibles dans les articles :
 CMS_SECRET=<openssl rand -hex 32>
 CMS_GITHUB_TOKEN=<PAT GitHub>
 BLOB_READ_WRITE_TOKEN=<auto via Vercel Blob>
+GEMINI_API_KEY=<génération d'images — primaire>   # ou BFL_API_KEY (Flux, fallback)
 GITHUB_CMS_CLIENT_ID=<OAuth App>       # optionnel
 GITHUB_CMS_CLIENT_SECRET=<OAuth App>   # optionnel
-BFL_API_KEY=<Flux — génération images> # optionnel
 ```

@@ -2,83 +2,106 @@
 
 ## Quand exécuter
 
-Pendant l'init d'un site (skills `configure-from-spec` ou `init-site`), **uniquement si
-`design-incoming/` est vide ou absent**.
+Pendant l'init d'un site (`configure-from-spec` ou `init-site`), **uniquement si `design-incoming/`
+est vide ou absent** (aucun livrable Claude Design).
 
-- Si `design-incoming/` contient des fichiers → c'est `integrate-claude-design` qui pilote. Ne
-  PAS exécuter AUTO-DESIGN.
-- Si `design-incoming/` est vide → **NE JAMAIS laisser les placeholders** de `niche.config.ts`
-  (palette rouge `#FF3D57`, fonts Unbounded/Space Grotesk, mode dark, aurora). Ces valeurs sont
-  le thème par défaut du template : les garder = tous les sites se ressemblent. Exécuter la
-  procédure ci-dessous pour composer une DA propre, distincte, adaptée à la niche.
+- `design-incoming/` non vide → c'est `integrate-claude-design` qui pilote. Ne PAS exécuter AUTO-DESIGN.
+- `design-incoming/` vide → **NE JAMAIS laisser les placeholders** de `niche.config.ts` (palette
+  rouge `#FF3D57`, fonts Unbounded/Space Grotesk, dark + aurora). Exécuter la procédure ci-dessous.
 
-Objectif : un collègue non-technique remplit le wizard, ne fournit aucun design, et le site
-sort quand même avec une **vraie direction artistique**.
+Objectif : le site sort de l'init avec une **vraie DA, adaptée à son archétype** — et surtout
+**pas un copier-coller du comparateur énergie**. Un magazine doit ressembler à un magazine.
 
 ## Entrées
 
-- La niche / le sujet du site (depuis `init-spec.md` ou l'interview).
-- Les clusters de catégories (déjà écrits dans `niche.config.ts.categories`).
-- La bibliothèque de presets : `lib/da-presets/` (161 palettes, 72 paires de fonts, 75 styles UI,
-  161 règles par niche) via les helpers de `lib/da-presets/index.ts`.
-- La barre qualité : `docs/design-reference/comparateur-energie/` (DESIGN-NOTES.md + CSS).
+- Le bloc `## Design` de `init-spec.md` (cf. `docs/WIZARD-DESIGN-STEP.md`) — peut contenir
+  `archetype`, `mood`, `brandColor`, `mode`, `reference`, `mustHaveSections`. S'il est absent ou
+  partiel, inférer depuis la niche (mode dégradé).
+- Les clusters de catégories (déjà dans `niche.config.ts.categories`).
+- Les presets : `lib/da-presets/` via `lib/da-presets/index.ts` (`composePreset`, `findPalettes`…).
+- Les barres qualité : `docs/design-reference/comparateur-energie/` et
+  `docs/design-reference/magazine-blog/`.
 
-## Procédure
+---
 
-### 1. Déterminer le type de produit + les moods
+## Étape 0 — Lire le bloc Design + déterminer l'ARCHÉTYPE
 
-Depuis la niche, choisir le `productType` le plus proche dans la base presets et 3-4 mots de
-mood. Lister les types disponibles avec `listProductTypes()`. Exemples :
-- comparateur d'énergie → productType proche « Personal Finance » / « Insurance », moods
-  `['trust', 'clear', 'modern', 'warm']`.
-- magazine auto → « Editorial » / « Automotive » si présent, moods `['editorial', 'bold', 'expert']`.
-- comparateur voiture élec → moods `['tech', 'clean', 'trust', 'green']`.
+Lire le bloc `## Design` de `init-spec.md`. En tirer `archetype`. S'il est absent, l'**inférer**
+depuis l'intent dominant des clusters Semrush :
+- intent surtout commercial/transactionnel (prix, comparer, meilleur, souscrire, offres) →
+  **comparateur**.
+- intent surtout informationnel (comment, pourquoi, guide, qu'est-ce que) → **magazine**.
+- mélange → **hybride**.
 
-### 2. Composer le preset
+L'archétype pilote la **structure de la home** et le **hero**. Ne JAMAIS appliquer la home
+comparateur à un site magazine.
 
-Exécuter le helper (via un petit script Node lancé en bash, ou en raisonnant sur les JSON) :
+| Archétype | `niche.style.hero` | `niche.homeSections` (ordre) | Référence à étudier |
+|---|---|---|---|
+| **comparateur** | `split` (visuel produit) | `['ticker','deals','articles','categories','tools','author']` | `design-reference/comparateur-energie/` |
+| **magazine** | `centered` ou `minimal` (éditorial) | `['ticker','articles','categories','author']` | `design-reference/magazine-blog/` |
+| **hybride** | `split` ou `centered` | `['ticker','articles','tools','categories','author']` | les deux |
+
+Rappels composants (déjà dans le template, pilotés par `homeSections`) :
+- `articles` → `RecentArticles` = **layout magazine** (grand featured + grille). C'est LA section
+  vedette d'un magazine.
+- `tools` → `FeaturedTools` (comparateur/quiz/simulateur) = pour comparateur/hybride.
+- `categories`, `ticker`, `deals`, `author` → communs.
+
+Si `mustHaveSections` est fourni, ajuster `homeSections` en conséquence (sans casser l'ordre
+logique de l'archétype).
+
+---
+
+## Étape 1 — Type de produit + moods (pour la palette/fonts)
+
+Choisir le `productType` le plus proche dans la base presets (`listProductTypes()`), et les moods :
+- priorité au champ `mood` du bloc Design s'il existe ;
+- sinon dériver de l'archétype + la niche. Ex : comparateur énergie → `['trust','clear','warm']` ;
+  magazine tech → `['editorial','bold','expert']`.
+
+---
+
+## Étape 2 — Composer le preset
 
 ```ts
 import { composePreset } from '@/lib/da-presets'
 const preset = composePreset(productType, moods)
-// preset.palette  → couleurs (primary, accent, secondary, background, card, foreground, muted…)
-// preset.fonts[0] → paire (heading + body)
-// preset.rule     → pattern, stylePriority, colorMood, antiPatterns (à respecter !)
-// preset.styles   → styles UI candidats
+// preset.palette / preset.fonts[0] / preset.rule (antiPatterns !) / preset.styles
 ```
 
-Lire `preset.rule.antiPatterns` et NE PAS les enfreindre, même si le wizard suggère autre chose.
+- Si `brandColor` est un hex (pas `auto`) → l'utiliser comme `accent1` et bâtir la palette autour
+  (sa version foncée + une version soft), au lieu du primary du preset.
+- Si `mode` = `light`/`dark` → forcer `niche.style.mode`. Si `auto` → suivre le mood (comparateur
+  sérieux = souvent `light` ; magazine = au choix éditorial).
+- Respecter `preset.rule.antiPatterns`.
 
-### 3. Étudier la barre qualité
+---
 
-Lire `docs/design-reference/comparateur-energie/DESIGN-NOTES.md`. En tirer la **rigueur** (pas
-les couleurs) : fond teinté jamais blanc pur, cartes « papier », une couleur par catégorie avec
-version soft, display expressif vs body lisible, profondeur douce, motion sobre. Transposer ces
-principes au preset de la niche.
+## Étape 3 — Étudier la barre qualité de l'archétype
 
-### 4. Choisir les variantes structurelles
+Lire le `DESIGN-NOTES.md` de la référence correspondante (Étape 0). En tirer la **rigueur**, pas
+les couleurs :
+- comparateur → fond teinté, cartes papier, une couleur par catégorie + version soft, visuel
+  produit dans le hero, profondeur douce.
+- magazine → typo display/body à fort contraste, home menée par l'article à la une, couleur
+  sobre qui ponctue, blanc et hiérarchie comme matière.
 
-Écrire `niche.style` pour casser la silhouette commune (deux sites ne doivent pas avoir le même
-layout) :
-- `mode`: `'light'` ou `'dark'` selon le mood (un comparateur sérieux = souvent `light`).
-- `hero`: `'split'` (avec visuel produit) | `'centered'` | `'minimal'`.
-- `effects`: `'aurora'` | `'subtle'` | `'none'` (cohérent avec le mood ; un site clair évite
-  l'aurora criarde → `'subtle'` ou `'none'`).
-- `cards`: `'bordered'` | `'filled'` | `'minimal'`.
-- `uiStyle`: nom du style UI retenu (ex: « Editorial », « Soft Minimal »).
+---
 
-### 5. Écrire dans niche.config.ts
+## Étape 4 — Variantes structurelles + écriture niche.config.ts
 
-Mapper le preset (ne JAMAIS laisser les valeurs par défaut) :
+Écrire `niche.style` (hero selon archétype, `effects`, `cards`, `uiStyle`) pour casser la
+silhouette commune. Puis la palette + fonts :
 
 ```ts
 palette: {
-  accent1: preset.palette.primary,
+  accent1: brandColor !== 'auto' ? brandColor : preset.palette.primary,
   accent2: preset.palette.accent,
   accent3: preset.palette.secondary,
-  accent4: /* une couleur de catégorie distincte */,
-  accent5: /* une couleur de catégorie distincte */,
-  bgPrimary: preset.palette.background,   // teinté, pas blanc pur
+  accent4: /* couleur de catégorie distincte */,
+  accent5: /* couleur de catégorie distincte */,
+  bgPrimary: preset.palette.background,   // teinté, jamais blanc pur
   bgSurface: preset.palette.card,
   bgSurface2: /* variante */,
   textPrimary: preset.palette.foreground,
@@ -86,33 +109,39 @@ palette: {
   textMuted: /* gris doux */,
 }
 fonts: { display: preset.fonts[0].heading, body: preset.fonts[0].body }
+homeSections: /* selon l'archétype, Étape 0 */
+style: { mode, hero, effects, cards, uiStyle }
 ```
 
-**Une couleur d'accent par catégorie** : aligner `niche.categories[i].accent` sur accent1..5 pour
-que chaque univers ait son code couleur (principe clé d'un comparateur lisible).
+**Une couleur d'accent par catégorie** : aligner `niche.categories[i].accent` sur accent1..5.
 
-### 6. Remplir la signature DA
+---
 
-Renseigner `niche.signature` (anchor, oneRule, inspiration, forbidden, components) à partir de
-`preset.rule` + DESIGN-NOTES, pour donner une personnalité visuelle unique et des garde-fous
-anti-IA. Ne pas laisser ces champs vides.
+## Étape 5 — Signature DA
 
-### 7. Barre qualité avant de valider
+Renseigner `niche.signature` (anchor, oneRule, inspiration, forbidden, components) depuis
+`preset.rule` + le DESIGN-NOTES de l'archétype + `reference` si fournie. Ne pas laisser vide.
 
-- [ ] Plus aucune valeur placeholder dans `niche.palette` / `niche.fonts` / `niche.signature`.
-- [ ] `bgPrimary` n'est pas blanc pur (#FFFFFF) ni le dark par défaut #0A0A0F sans raison.
-- [ ] Fonts ≠ Unbounded/Space Grotesk par défaut (sauf si le preset les a réellement choisies).
-- [ ] Une couleur par catégorie, distinctes, cohérentes avec la palette.
-- [ ] `preset.rule.antiPatterns` respectés.
-- [ ] Contraste texte/fond suffisant (vérifier en mode retenu).
+---
+
+## Étape 6 — Barre qualité avant de valider
+
+- [ ] Archétype respecté : un magazine n'a PAS de hero quick-form/estimateur ; un comparateur a
+      bien ses outils. `homeSections` cohérent avec l'archétype.
+- [ ] Plus aucun placeholder dans `niche.palette` / `niche.fonts` / `niche.signature`.
+- [ ] `bgPrimary` pas blanc pur, pas le dark par défaut sans raison.
+- [ ] Fonts ≠ défaut (sauf si réellement choisies par le preset).
+- [ ] Une couleur par catégorie, distinctes.
+- [ ] `preset.rule.antiPatterns` respectés ; `brandColor`/`mode` du bloc Design honorés.
+- [ ] Contraste texte/fond suffisant.
 
 ## Sortie
 
-Annoncer à l'utilisateur : productType retenu, palette + fonts choisies, mode/variantes, et le
-fait que la DA a été composée automatiquement (pas le thème par défaut). Préciser qu'un Claude
-Design sur-mesure pourra remplacer cette DA plus tard pour un site qui performe.
+Annoncer : archétype retenu (et pourquoi), productType, palette + fonts, mode/variantes,
+`homeSections`. Préciser que la DA est composée auto (pas le thème par défaut) et qu'un Claude
+Design sur-mesure pourra la remplacer plus tard.
 
 ## Règle absolue
 
-Un site qui sort de l'init avec la palette/fonts par défaut du template est un **bug d'init**.
-Sans Claude Design fourni, AUTO-DESIGN doit avoir tourné.
+Sortir de l'init avec la palette/fonts par défaut, OU avec la home comparateur sur un site
+magazine, est un **bug d'init**.

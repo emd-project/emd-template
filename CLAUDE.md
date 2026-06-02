@@ -27,7 +27,7 @@ Configuration centralisée dans `niche.config.ts`
 Voir [`skills/README.md`](skills/README.md) pour la liste des skills bundlés avec le template.
 
 ## DA & images
-DA : typographie configurable · effets aurora/noise CSS · SVG inline · composition dark bold
+DA : typographie configurable · effets aurora/noise CSS · SVG inline · composition selon `niche.style.mode`
 Toute section visuellement vide est un bug de DA. Claude Code a toute latitude — documenter dans DECISIONS.md.
 
 ## DA à l'init (sans livrable Claude Design)
@@ -38,8 +38,15 @@ vraie DA depuis `lib/da-presets/` (`composePreset()`) en s'inspirant de la barre
 `docs/design-reference/comparateur-energie/`, puis écrire palette + fonts + `niche.style` + `niche.signature`.
 Un site qui sort de l'init avec le thème par défaut est un **bug d'init**.
 
+## Images (V2 — le site s'anime)
+La doctrine « no image » V1 est morte. À l'init, après AUTO-DESIGN, **générer les images structurelles**
+(hero + fonds par catégorie) via `mcp__nano-mentionbox__generate_image` à partir des prompts de
+`lib/image-slots.ts`, alignés sur la DA composée, puis push WebP sous `public/images/`. Articles :
+`cover` + `mid` par la tâche quotidienne. Détail complet : **`docs/IMAGES-WORKFLOW.md`**.
+Un site neuf qui reste en placeholders = bug. `next/image` uniquement · `alt` descriptif FR + EN.
+
 ## Assets autorisés
-Images : `public/images/` — uploadées via le CMS ou commitées directement
+Images : `public/images/` (structurelles) · `public/blog/[categorie]/[slug]/` (articles) — générées (IA) ou commitées
 Utiliser `next/image` avec `alt` descriptif pour toutes les images éditoriales
 Icônes : lucide-react · SVG inline pour éléments décoratifs
 OG : générées via app/opengraph-image.tsx
@@ -75,7 +82,7 @@ Pour personnaliser un site : modifier uniquement `niche.config.ts`, pas les comp
 - [ ] curl retourne H1 sans JS
 - [ ] Chaque section a un fond traité documenté dans DECISIONS.md
 - [ ] prefers-reduced-motion respecté sur toutes les animations
-- [ ] Contraste texte/fond vérifié pour chaque effet DA (dark-only)
+- [ ] Contraste texte/fond vérifié pour chaque effet DA (selon le mode clair/sombre)
 - [ ] middleware.ts présent et actif
 
 ## Git

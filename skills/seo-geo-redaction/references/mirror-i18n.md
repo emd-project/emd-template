@@ -74,15 +74,19 @@ Un article = N fichiers MDX (un par locale). Workflow :
 3. Génération images (cover + mid si applicable) — partagées entre locales
 4. Traduction EN — voix transposée, FAQ traduite, sources adaptées au marché EN
 5. Si Q0.2 inclut NL/DE/autre → traduire dans toutes les autres locales
-6. Mise à jour mapping i18n des slugs (lib/i18n/article-slugs.ts ou équivalent)
+6. Mise à jour mapping i18n des slugs (lib/i18n/article-slugs.ts — DÉJÀ présent dans le template)
 7. Commit atomique : TOUS les fichiers MDX + mapping i18n en UN seul commit
 ```
 
 **Règle d'or** : si le commit ne contient pas un fichier MDX par locale, abandonner. Mieux vaut un run skippé qu'un miroir cassé en prod.
 
-## hreflang automatique
+## hreflang automatique — UNIQUEMENT les locales qui existent
 
-Chaque page doit déclarer les variantes locales dans `<head>` via `<link rel="alternate" hreflang="...">`.
+Chaque page déclare ses variantes locales dans `<head>` via `<link rel="alternate" hreflang="...">`.
+
+**Règle anti-404** : n'émettre une alternate `hreflang` QUE pour les locales où la traduction
+**existe réellement** (fichier MDX présent / slug mappé). Un hreflang pointant vers une page
+absente est un signal cassé pour Google. Pour un article, filtrer sur `articleSlugInOrNull(slug, defaultLocale, loc) != null` (ou l'existence du fichier).
 
 Implémentation typique dans `generateMetadata()` :
 
@@ -95,6 +99,8 @@ export async function generateMetadata({ params }) {
 
   const languages: Record<string, string> = {}
   for (const loc of niche.locales) {
+    // n'ajouter QUE si la version `loc` existe (sinon pas d'alternate)
+    if (!translationExists(rest, loc)) continue
     languages[loc === niche.defaultLocale ? 'x-default' : loc] =
       loc === niche.defaultLocale ? path : `/${loc}${path}`
   }
@@ -149,17 +155,31 @@ Dans le JSON-LD Article, déclarer la langue de la version courante :
 
 Le code langue suit le format BCP 47 : `{locale}-{market}`. Exemples : `fr-BE`, `en-BE`, `nl-BE`, `fr-CH`, `de-CH`.
 
-## Sélecteur de langue
+## Sélecteur de langue — composant prêt, GARANTIE zéro-404
 
-Composant `<LangSwitcher>` dans le header, présent UNIQUEMENT si `niche.locales.length >= 2`. Doit :
-- Lister les locales actives de `niche.config.ts.locales`
-- Naviguer vers l'URL équivalente dans la locale cible (via le mapping slug FR↔EN si applicable)
-- Mettre à jour le cookie `NEXT_LOCALE` (pour `next-intl`)
-- Marquer visuellement la locale active
+Le template embarque **déjà** le composant `components/layout/LangSwitcher.tsx` et le mapping
+`lib/i18n/article-slugs.ts`. **NE PAS en regénérer un from scratch** à l'init — le câbler.
+
+À l'init multilingue (`locales.length >= 2`), une seule chose à faire : insérer `<LangSwitcher />`
+dans le header (`components/layout/Nav.tsx`). En mono-langue il rend `null` (aucun effet), donc il
+peut même rester câblé en permanence.
+
+Garanties du composant (à préserver si tu le modifies) :
+- Liste les locales actives de `niche.config.ts.locales`, marque la locale active.
+- Navigue vers l'URL équivalente dans la locale cible via `articleSlugInOrNull()`.
+- **JAMAIS une 404** : si le slug d'article n'a pas de traduction connue → fallback sur l'accueil
+  de la langue cible. Les pages à route fixe (blog, comparer, mentions…) font un simple swap de
+  préfixe (elles existent dans toutes les locales grâce au miroir strict).
+- Met à jour le cookie `NEXT_LOCALE`.
+
+Le mapping `lib/i18n/article-slugs.ts` est la **source de vérité** du switcher : tant qu'un article
+y est inscrit, le switcher pointe juste. S'il n'y est pas, le switcher dégrade proprement (accueil),
+il ne casse pas. La règle reste de TOUJOURS inscrire chaque nouvel article dans le mapping.
 
 ## Mapping de slugs entre locales
 
-Si un article a un slug différent par langue (recommandé pour SEO : URLs naturelles dans chaque langue), maintenir un mapping bidirectionnel :
+Slug naturel par langue (recommandé SEO). Mapping bidirectionnel dans `lib/i18n/article-slugs.ts`
+(présent dans le template, vide au départ) :
 
 ```ts
 // lib/i18n/article-slugs.ts
@@ -168,16 +188,15 @@ export const articleSlugFrToEn: Record<string, string> = {
   'comparatif-cartes-credit-belgique': 'belgium-credit-card-comparison',
   // ...
 }
-
-export const articleSlugEnToFr: Record<string, string> = Object.fromEntries(
-  Object.entries(articleSlugFrToEn).map(([fr, en]) => [en, fr])
-)
+// articleSlugEnToFr est dérivé automatiquement.
+// Helpers fournis : articleSlugInOrNull(slug, from, to) (→ null si non traduit, pour le fallback)
+//                   translateArticleSlug(slug, from, to)  (→ même slug en dernier recours)
 ```
 
 Utilisé par :
-- Le sélecteur de langue (savoir où rediriger)
-- Les redirects 404 (si un user tape un slug FR sur `/en/...`, rediriger vers le bon slug EN)
-- hreflang (pour pointer vers les bonnes alternates)
+- Le sélecteur de langue (savoir où rediriger — sinon accueil, jamais 404)
+- Les redirects (si un user tape un slug FR sur `/en/...`, rediriger vers le bon slug EN)
+- hreflang (pointer vers les bonnes alternates, et seulement si elles existent)
 
 ## Anti-patterns à éviter
 
@@ -185,7 +204,9 @@ Utilisé par :
 |---|---|---|
 | Publier l'article FR sans la version EN | Miroir cassé, hreflang vide en EN | Refuser le commit jusqu'à avoir les N versions |
 | Slug identique dans toutes les locales | SEO pénalisé (Google détecte le duplicate URL pattern) | Slug naturel dans chaque langue + mapping |
-| Oublier le mapping i18n dans `lib/i18n/article-slugs.ts` | Sélecteur de langue qui renvoie 404, hreflang cassé | Validation pre-commit : tout nouveau fichier MDX doit apparaître dans le mapping |
+| Oublier le mapping i18n dans `lib/i18n/article-slugs.ts` | Switcher dégradé (renvoie à l'accueil) + hreflang incomplet | Validation pre-commit : tout nouveau MDX apparaît dans le mapping |
+| Regénérer un LangSwitcher maison à l'init | Risque de 404 réintroduit | Câbler le composant fourni `components/layout/LangSwitcher.tsx` |
+| hreflang vers une traduction inexistante | Signal cassé pour Google | N'émettre l'alternate que si la version existe |
 | Traduire les noms d'institutions belges (FSMA, BNB, SPF) | Confusion lecteur, perte d'autorité | Garder les acronymes officiels, ajouter une parenthèse explicative en EN |
 | Mentions légales en FR uniquement | RGPD partiellement servi, expérience cassée | Mentions légales traduites dans toutes les locales |
 | hreflang `x-default` oublié | Google ne sait pas quelle locale servir aux marchés ambigus | Toujours déclarer `x-default` pointant vers la locale par défaut |

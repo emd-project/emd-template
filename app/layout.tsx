@@ -28,8 +28,12 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL ?? `https://${niche.domain}`
   ),
+  // IMPORTANT — anti double-marque : les pages incluent DÉJÀ le nom du site dans
+  // leur <title> (ex. "Comparateur 2026 | MonSite"). Le template ne doit donc PAS
+  // le rajouter (`%s | MonSite` produirait "… | MonSite | MonSite"). On laisse `%s`
+  // qui rend le titre de la page tel quel. `default` (home, sans title propre) garde la marque.
   title: {
-    template: `%s | ${niche.siteName}`,
+    template: '%s',
     default: `${niche.tagline} | ${niche.siteName}`,
   },
   description: niche.tagline,

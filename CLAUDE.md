@@ -8,7 +8,7 @@
 
 ## Rédaction de contenu (article, fiche produit, page, FAQ, brief, intro, newsletter…)
 
-Sur tout trigger de rédaction (« rédige », « écris », « crée une page », « produis un brief », « relis »), **trois skills s'auto-déclenchent en parallèle** :
+Sur tout trigger de rédaction (« rédige », « écris », « crée une page », « produis un brief », « relis »), **trois skills s'auto-déclenchent en parallèle** :
 
 - `ton-of-voice` — applique la voix éditoriale du site (ou la définit via interview de 8 questions si `content/ton-of-voice.md` est vide).
 - `seo-geo-redaction` — structure SEO + GEO (citabilité LLM, JSON-LD, FAQ, maillage).
@@ -19,27 +19,35 @@ Avant la première ligne, ces trois skills internalisent leurs règles. Pas de t
 Lire aussi `docs/AUTHOR-[slug].md` si l'article a un auteur dédié.
 
 ## Projet
-Template générique "10 minutes" · Stack : Next.js ~16.2.1 + Tailwind v4 + TypeScript strict
-Langue : FR uniquement · pas de [locale] · routes racine directes
+Moteur de sites éditoriaux multi-niches · Stack : Next.js ~16.2.1 + Tailwind v4 + TypeScript strict
+Langue : FR par défaut · i18n piloté par niche.config.ts (locales/market) — cf. skills/init-site
 Configuration centralisée dans `niche.config.ts`
 
 ## Skills locaux
 Voir [`skills/README.md`](skills/README.md) pour la liste des skills bundlés avec le template.
 
 ## DA & images
-DA : typographie configurable · effets aurora/noise CSS · SVG inline · composition dark bold
+DA : typographie configurable · effets aurora/noise CSS · SVG inline · composition dark bold
 Toute section visuellement vide est un bug de DA. Claude Code a toute latitude — documenter dans DECISIONS.md.
 
+## DA à l'init (sans livrable Claude Design)
+Lors d'un init (`configure-from-spec` OU `init-site`), si aucun livrable Claude Design n'est fourni
+(`design-incoming/` vide), **NE JAMAIS garder la palette/fonts par défaut** de `niche.config.ts`
+(rouge `#FF3D57`, fonts Unbounded/Space Grotesk). Exécuter **`docs/AUTO-DESIGN.md`** : composer une
+vraie DA depuis `lib/da-presets/` (`composePreset()`) en s'inspirant de la barre qualité
+`docs/design-reference/comparateur-energie/`, puis écrire palette + fonts + `niche.style` + `niche.signature`.
+Un site qui sort de l'init avec le thème par défaut est un **bug d'init**.
+
 ## Assets autorisés
-Images : `public/images/` — uploadées via le CMS ou commitées directement
+Images : `public/images/` — uploadées via le CMS ou commitées directement
 Utiliser `next/image` avec `alt` descriptif pour toutes les images éditoriales
-Icônes : lucide-react · SVG inline pour éléments décoratifs
-OG : générées via app/opengraph-image.tsx
-Jamais : picsum · unsplash · placeholder.com · images hotlinkées depuis un CDN tiers
+Icônes : lucide-react · SVG inline pour éléments décoratifs
+OG : générées via app/opengraph-image.tsx
+Jamais : picsum · unsplash · placeholder.com · images hotlinkées depuis un CDN tiers
 
 ## Fonts
-Next.js variables : `--next-font-primary` (Space Grotesk) · `--next-font-display` (configurable) · `--next-font-mono` (JetBrains Mono)
-Tailwind theme : `--font-primary` → `var(--next-font-primary)` · idem pour display et mono
+Next.js variables : `--next-font-primary` (Space Grotesk) · `--next-font-display` (configurable) · `--next-font-mono` (JetBrains Mono)
+Tailwind theme : `--font-primary` → `var(--next-font-primary)` · idem pour display et mono
 
 ## Liens affiliés
 TOUT lien Amazon dans le code ou le contenu MDX doit passer par addAffiliateTag() ou le composant <AffiliateLink>.
@@ -48,7 +56,7 @@ Tag affilié configuré dans `niche.config.ts`.
 
 ## Configuration centralisée
 `niche.config.ts` est le fichier maître. Tous les composants, configs et pages en dépendent.
-Pour personnaliser un site : modifier uniquement `niche.config.ts`, pas les composants.
+Pour personnaliser un site : modifier uniquement `niche.config.ts`, pas les composants.
 
 ## Comportement
 - Tâche 3+ étapes → plan tasks/todo.md avant
@@ -62,7 +70,7 @@ Pour personnaliser un site : modifier uniquement `niche.config.ts`, pas les com
 - [ ] Variables CSS · zéro hardcode · composants < 150 lignes
 - [ ] Secrets hors repo · CSP sans unsafe-eval
 - [ ] zéro fonts.googleapis.com · adjustFontFallback:true
-- [ ] Article : byline + AuthorCard + JSON-LD author (sans photo)
+- [ ] Article : byline + AuthorCard + JSON-LD author (sans photo)
 - [ ] Tous les liens Amazon passent par addAffiliateTag() ou <AffiliateLink>
 - [ ] curl retourne H1 sans JS
 - [ ] Chaque section a un fond traité documenté dans DECISIONS.md
@@ -72,7 +80,7 @@ Pour personnaliser un site : modifier uniquement `niche.config.ts`, pas les com
 
 ## Git
 Jamais direct sur main · feature = branche = PR · Conventional Commits anglais
-Branches : feature/ · fix/ · content/
+Branches : feature/ · fix/ · content/
 
 ## Code
 TS strict · HTML sémantique · params Promise await

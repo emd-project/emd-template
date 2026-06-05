@@ -1,15 +1,17 @@
 /**
- * Registre central des emplacements d'images fixes du site.
- * Chaque slot a un ID unique, des dimensions, et un prompt IA recommandé.
+ * Registre central des emplacements d'images fixes du site — SOURCE UNIQUE des
+ * ids, dimensions, chemins et prompts des images structurelles.
  *
  * Usage :
- * 1. Le composant <ImagePlaceholder slotId="home-hero" /> affiche un placeholder
- *    en dev quand l'image n'existe pas, et rien en prod (ou l'image si présente).
+ * 1. <ImagePlaceholder slotId="home-hero-background" /> affiche l'image si elle existe,
+ *    sinon un placeholder (détaillé en dev, épuré en prod). Filet de sécurité dev :
+ *    en V2, un site en prod ne doit afficher AUCUN placeholder.
  * 2. La page /admin/images liste tous les slots et leur statut.
- * 3. Les prompts IA sont utilisables directement dans Midjourney, DALL-E, Flux, Gemini.
+ * 3. Les prompts sont écrits pour Gemini / Nano Banana (le moteur réel) : courts
+ *    (<= ~20 mots), descriptifs, finissant par « no text, no logos, no watermark ».
  *
- * Note : ce registre ne couvre QUE les images structurelles du site (pages fixes).
- * Les articles de blog et produits ont leur propre système via le CMS (featureImage, image).
+ * Note : ce registre couvre QUE les images structurelles (pages fixes).
+ * Les articles ont leurs images (cover/mid) via le frontmatter + la scheduled task.
  */
 
 import { niche } from '@/niche.config'
@@ -33,6 +35,8 @@ function p(str: string): string {
     .replace(/\[tagline\]/g, niche.tagline)
 }
 
+const NEG = 'no text, no logos, no watermark'
+
 // ─── Slots statiques ────────────────────────────────────────────────────
 
 const STATIC_SLOTS: ImageSlot[] = [
@@ -43,21 +47,21 @@ const STATIC_SLOTS: ImageSlot[] = [
     width: 1920,
     height: 1080,
     alt: 'Arrière-plan du hero',
-    description: 'Grande image en fond du hero above-fold. Ambiance immersive, cohérente avec la niche.',
+    description: 'Grande image en fond du hero above-fold. Ambiance immersive, cohérente avec la niche et la DA.',
     prompt: p(
-      'Cinematic editorial background photo, [niche] theme, moody atmospheric lighting, 16:9 wide, shallow depth of field, muted dramatic color grading, high detail, premium magazine aesthetic --ar 16:9 --style raw'
+      `Cinematic editorial background, [niche] theme, moody atmospheric lighting, shallow depth of field, muted color grading, premium magazine aesthetic, ${NEG}`
     ),
     section: 'home',
   },
   {
     id: 'home-hero-visual',
     path: '/images/home/hero-visual.webp',
-    width: 800,
-    height: 1000,
+    width: 1000,
+    height: 1250,
     alt: 'Illustration principale du hero',
-    description: 'Visuel principal à droite du hero (variant "split"). Peut être un produit phare, une illustration éditoriale, ou une scène symbolique.',
+    description: 'Visuel principal à droite du hero (variant "split"). Produit phare, illustration éditoriale, ou scène symbolique.',
     prompt: p(
-      'Editorial hero image for a [niche] guide website, vertical 4:5 format, elegant composition, soft natural lighting, premium aesthetic, negative space on one side for text overlay --ar 4:5 --style raw'
+      `Editorial hero visual for a [niche] guide, soft natural lighting, premium composition, negative space on one side, ${NEG}`
     ),
     section: 'home',
   },
@@ -69,10 +73,8 @@ const STATIC_SLOTS: ImageSlot[] = [
     width: 1920,
     height: 600,
     alt: 'Header du comparateur',
-    description: 'Bandeau horizontal en haut de /comparer. Évoque la comparaison, le choix, la décision.',
-    prompt: p(
-      'Wide banner image evoking side-by-side comparison of [nicheEn], abstract minimalist composition, two elements mirrored, clean background, editorial tone --ar 16:5 --style raw'
-    ),
+    description: 'Bandeau horizontal en haut de /comparer. Évoque la comparaison, le choix.',
+    prompt: p(`Wide minimalist banner evoking side-by-side comparison of [nicheEn], clean background, editorial tone, ${NEG}`),
     section: 'tools',
   },
   {
@@ -81,10 +83,8 @@ const STATIC_SLOTS: ImageSlot[] = [
     width: 1920,
     height: 600,
     alt: 'Header du quiz',
-    description: 'Bandeau horizontal en haut de /quiz. Évoque la question, le parcours personnalisé.',
-    prompt: p(
-      'Wide banner image evoking personalization and guided choice for [nicheEn], abstract path or journey visual, soft gradients, interactive feel --ar 16:5 --style raw'
-    ),
+    description: 'Bandeau horizontal en haut de /quiz. Évoque le parcours personnalisé.',
+    prompt: p(`Wide banner evoking a guided personalized choice for [nicheEn], soft gradients, abstract path, ${NEG}`),
     section: 'tools',
   },
   {
@@ -93,10 +93,8 @@ const STATIC_SLOTS: ImageSlot[] = [
     width: 1920,
     height: 600,
     alt: 'Header du simulateur',
-    description: 'Bandeau horizontal en haut de /simulateur. Évoque le calcul, la projection, le budget.',
-    prompt: p(
-      'Wide banner image evoking calculation and budget simulation for [niche], abstract numeric data visualization, clean lines, editorial aesthetic --ar 16:5 --style raw'
-    ),
+    description: 'Bandeau horizontal en haut de /simulateur. Évoque le calcul, le budget.',
+    prompt: p(`Wide banner evoking calculation and budget for [niche], abstract data visualization, clean lines, ${NEG}`),
     section: 'tools',
   },
   {
@@ -105,10 +103,8 @@ const STATIC_SLOTS: ImageSlot[] = [
     width: 1920,
     height: 600,
     alt: 'Header des deals',
-    description: 'Bandeau horizontal en haut de /deals. Évoque la bonne affaire, le prix, l\'opportunité.',
-    prompt: p(
-      'Wide banner image evoking premium deals and offers for [niche], abstract glowing composition, warm accent lighting, editorial quality --ar 16:5 --style raw'
-    ),
+    description: 'Bandeau horizontal en haut de /deals. Évoque la bonne affaire, l\'opportunité.',
+    prompt: p(`Wide banner evoking premium offers for [niche], warm glowing accent lighting, editorial quality, ${NEG}`),
     section: 'tools',
   },
 
@@ -119,10 +115,8 @@ const STATIC_SLOTS: ImageSlot[] = [
     width: 1200,
     height: 630,
     alt: 'Image OpenGraph par défaut',
-    description: 'Image de partage par défaut (OG image). Utilisée par les réseaux sociaux quand aucune image spécifique n\'est définie. Le site a déjà un opengraph-image.tsx dynamique — celle-ci est optionnelle en fallback.',
-    prompt: p(
-      'Social media sharing card for a [niche] guide website, 1200x630 format, bold typography space on left, elegant visual element on right, premium branded look --ar 1200:630 --style raw'
-    ),
+    description: 'Image de partage par défaut (fallback). Le site a déjà un opengraph-image.tsx dynamique ; celle-ci est optionnelle.',
+    prompt: p(`Branded social sharing card background for a [niche] guide, premium look, space for an overlay, ${NEG}`),
     section: 'brand',
   },
 ]
@@ -142,14 +136,13 @@ function dynamicSlots(): ImageSlot[] {
       alt: `Illustration ${cat.label}`,
       description: `Image d'illustration de la section "${cat.label}" sur la home et en page pilier.`,
       prompt: p(
-        `Editorial image representing ${cat.label} in the context of [niche], shallow depth of field, premium magazine photography, balanced composition --ar 3:2 --style raw`
+        `Editorial photo representing ${cat.label} in the [niche] context, shallow depth of field, premium magazine style, balanced composition, ${NEG}`
       ),
       section: 'home',
     })
   })
 
-  // Background d'article de blog par catégorie (hero cinématique dramatique)
-  // Utilisée en fond d'en-tête d'article — inspiration : acheter-du-cbd, toutou-gourmet.
+  // Fond cinématique d'en-tête d'article par catégorie
   niche.categories.forEach((cat) => {
     slots.push({
       id: `blog-category-background-${cat.slug}`,
@@ -157,9 +150,9 @@ function dynamicSlots(): ImageSlot[] {
       width: 2400,
       height: 1200,
       alt: `Arrière-plan des articles ${cat.label}`,
-      description: `Image de fond cinématique affichée derrière le titre de chaque article de la catégorie "${cat.label}". Doit être atmosphérique, avec de l'espace pour un overlay sombre et du texte par-dessus (titre serif dramatique).`,
+      description: `Fond cinématique derrière le titre de chaque article de la catégorie "${cat.label}". Atmosphérique, avec de l'espace pour un overlay sombre et du texte.`,
       prompt: p(
-        `Cinematic editorial hero background photo representing ${cat.label} for a ${niche.entity} guide blog, dark moody atmospheric lighting, shallow depth of field, rich muted color grading, negative space for dark overlay and large text, ultra wide 2:1 format, premium magazine photography, textured surfaces, shot on 35mm lens --ar 2:1 --style raw`
+        `Cinematic dark editorial background representing ${cat.label} for a ${niche.entity} guide, moody atmospheric lighting, rich muted color grading, space for a dark overlay, ${NEG}`
       ),
       section: 'blog',
     })
@@ -170,11 +163,11 @@ function dynamicSlots(): ImageSlot[] {
     slots.push({
       id: `author-${niche.author.slug}`,
       path: `/images/authors/${niche.author.slug}.webp`,
-      width: 400,
-      height: 400,
+      width: 512,
+      height: 512,
       alt: `Photo de ${niche.author.name}`,
-      description: 'Photo de l\'auteur principal, format carré. Affichée sur la page auteur, les articles, et la section AuthorTeaser de la home.',
-      prompt: `Professional portrait photo of ${niche.author.name || 'the author'}, editorial magazine style, natural lighting, neutral background, 1:1 square format, shot on 85mm lens --ar 1:1 --style raw`,
+      description: 'Photo de l\'auteur principal, format carré. Page auteur, articles, section AuthorTeaser.',
+      prompt: `Professional editorial portrait of ${niche.author.name || 'the author'}, natural lighting, neutral background, ${NEG}`,
       section: 'author',
     })
   }

@@ -1,9 +1,14 @@
-# AUTO-DESIGN — Composer une vraie DA à l'init (sans livrable Claude Design)
+# AUTO-DESIGN — Composer une vraie DA à l'init (doc DA canonique)
+
+> **Doc DA canonique.** C'est ICI qu'est orchestrée la composition de la direction artistique à l'init.
+> La **référence** (7 symptômes IA, méthode signature, et surtout l'**application CSS par style UI**) est
+> dans [`docs/DA-ANTI-IA.md`](DA-ANTI-IA.md). Les **données** de presets sont dans `lib/da-presets/`
+> (cf. [`docs/DA-PRESETS.md`](DA-PRESETS.md)).
 
 ## Quand exécuter
 
-Pendant l'init d'un site (`configure-from-spec` ou `init-site`), **uniquement si `design-incoming/`
-est vide ou absent** (aucun livrable Claude Design).
+Pendant l'init d'un site (`configure-from-spec` ou `init-site`, via le routeur `nouveau-site`),
+**uniquement si `design-incoming/` est vide ou absent** (aucun livrable Claude Design).
 
 - `design-incoming/` non vide → c'est `integrate-claude-design` qui pilote. Ne PAS exécuter AUTO-DESIGN.
 - `design-incoming/` vide → **NE JAMAIS laisser les placeholders** de `niche.config.ts` (palette
@@ -18,9 +23,9 @@ Objectif : le site sort de l'init avec une **vraie DA, adaptée à son archétyp
   `archetype`, `mood`, `brandColor`, `mode`, `reference`, `mustHaveSections`. S'il est absent ou
   partiel, inférer depuis la niche (mode dégradé).
 - Les clusters de catégories (déjà dans `niche.config.ts.categories`).
-- Les presets : `lib/da-presets/` via `lib/da-presets/index.ts` (`composePreset`, `findPalettes`…).
-- Les barres qualité : `docs/design-reference/comparateur-energie/` et
-  `docs/design-reference/magazine-blog/`.
+- Les presets : `lib/da-presets/` via `lib/da-presets/index.ts` (`composePreset`, `findPalettes`, `findUIStyles`…).
+- Les barres qualité : `docs/design-reference/comparateur-energie/` et `docs/design-reference/magazine-blog/`.
+- La référence anti-IA + CSS par style UI : `docs/DA-ANTI-IA.md`.
 
 ---
 
@@ -28,8 +33,7 @@ Objectif : le site sort de l'init avec une **vraie DA, adaptée à son archétyp
 
 Lire le bloc `## Design` de `init-spec.md`. En tirer `archetype`. S'il est absent, l'**inférer**
 depuis l'intent dominant des clusters Semrush :
-- intent surtout commercial/transactionnel (prix, comparer, meilleur, souscrire, offres) →
-  **comparateur**.
+- intent surtout commercial/transactionnel (prix, comparer, meilleur, souscrire, offres) → **comparateur**.
 - intent surtout informationnel (comment, pourquoi, guide, qu'est-ce que) → **magazine**.
 - mélange → **hybride**.
 
@@ -42,21 +46,19 @@ comparateur à un site magazine.
 | **magazine** | `centered` ou `minimal` (éditorial) | `['ticker','articles','categories','author']` | `design-reference/magazine-blog/` |
 | **hybride** | `split` ou `centered` | `['ticker','articles','tools','categories','author']` | les deux |
 
-Rappels composants (déjà dans le template, pilotés par `homeSections`) :
-- `articles` → `RecentArticles` = **layout magazine** (grand featured + grille). C'est LA section
-  vedette d'un magazine.
+Rappels composants (pilotés par `homeSections`) :
+- `articles` → `RecentArticles` = **layout magazine** (grand featured + grille). LA section vedette d'un magazine.
 - `tools` → `FeaturedTools` (comparateur/quiz/simulateur) = pour comparateur/hybride.
 - `categories`, `ticker`, `deals`, `author` → communs.
 
-Si `mustHaveSections` est fourni, ajuster `homeSections` en conséquence (sans casser l'ordre
-logique de l'archétype).
+Si `mustHaveSections` est fourni, ajuster `homeSections` sans casser l'ordre logique de l'archétype.
 
 ---
 
-## Étape 1 — Type de produit + moods (pour la palette/fonts)
+## Étape 1 — Type de produit + moods (palette/fonts)
 
-Choisir le `productType` le plus proche dans la base presets (`listProductTypes()`), et les moods :
-- priorité au champ `mood` du bloc Design s'il existe ;
+Choisir le `productType` le plus proche (`listProductTypes()`) et les moods :
+- priorité au champ `mood` du bloc Design ;
 - sinon dériver de l'archétype + la niche. Ex : comparateur énergie → `['trust','clear','warm']` ;
   magazine tech → `['editorial','bold','expert']`.
 
@@ -70,29 +72,25 @@ const preset = composePreset(productType, moods)
 // preset.palette / preset.fonts[0] / preset.rule (antiPatterns !) / preset.styles
 ```
 
-- Si `brandColor` est un hex (pas `auto`) → l'utiliser comme `accent1` et bâtir la palette autour
-  (sa version foncée + une version soft), au lieu du primary du preset.
-- Si `mode` = `light`/`dark` → forcer `niche.style.mode`. Si `auto` → suivre le mood (comparateur
-  sérieux = souvent `light` ; magazine = au choix éditorial).
+- Si `brandColor` est un hex (pas `auto`) → l'utiliser comme `accent1` et bâtir la palette autour.
+- Si `mode` = `light`/`dark` → forcer `niche.style.mode`. Si `auto` → suivre le mood.
 - Respecter `preset.rule.antiPatterns`.
 
 ---
 
-## Étape 3 — Étudier la barre qualité de l'archétype
+## Étape 3 — Étudier la barre qualité + choisir le style UI
 
-Lire le `DESIGN-NOTES.md` de la référence correspondante (Étape 0). En tirer la **rigueur**, pas
-les couleurs :
-- comparateur → fond teinté, cartes papier, une couleur par catégorie + version soft, visuel
-  produit dans le hero, profondeur douce.
-- magazine → typo display/body à fort contraste, home menée par l'article à la une, couleur
-  sobre qui ponctue, blanc et hiérarchie comme matière.
+Lire le `DESIGN-NOTES.md` de la référence correspondante (Étape 0) pour la **rigueur**. Puis choisir
+un **style UI** via `findUIStyles()` et l'appliquer concrètement (border-radius, ombres, transitions,
+densité, parfois layout) — **voir `docs/DA-ANTI-IA.md`, section « Application CSS concrète par style UI »**.
+C'est ce qui fait que deux sites au même hero `split` (l'un Brutalism, l'autre Glassmorphism) sont
+radicalement différents, pas juste recolorés.
 
 ---
 
 ## Étape 4 — Variantes structurelles + écriture niche.config.ts
 
-Écrire `niche.style` (hero selon archétype, `effects`, `cards`, `uiStyle`) pour casser la
-silhouette commune. Puis la palette + fonts :
+Écrire `niche.style` (hero selon archétype, `effects`, `cards`, `uiStyle`), puis la palette + fonts :
 
 ```ts
 palette: {
@@ -120,28 +118,28 @@ style: { mode, hero, effects, cards, uiStyle }
 ## Étape 5 — Signature DA
 
 Renseigner `niche.signature` (anchor, oneRule, inspiration, forbidden, components) depuis
-`preset.rule` + le DESIGN-NOTES de l'archétype + `reference` si fournie. Ne pas laisser vide.
+`preset.rule` + le DESIGN-NOTES + `docs/DA-ANTI-IA.md` (méthode « 1 ancre + 1 règle + 3 inspirations »)
++ `reference` si fournie. Ne pas laisser vide.
 
 ---
 
 ## Étape 6 — Barre qualité avant de valider
 
-- [ ] Archétype respecté : un magazine n'a PAS de hero quick-form/estimateur ; un comparateur a
-      bien ses outils. `homeSections` cohérent avec l'archétype.
+- [ ] Archétype respecté : un magazine n'a PAS de hero quick-form ; un comparateur a ses outils. `homeSections` cohérent.
 - [ ] Plus aucun placeholder dans `niche.palette` / `niche.fonts` / `niche.signature`.
 - [ ] `bgPrimary` pas blanc pur, pas le dark par défaut sans raison.
 - [ ] Fonts ≠ défaut (sauf si réellement choisies par le preset).
 - [ ] Une couleur par catégorie, distinctes.
-- [ ] `preset.rule.antiPatterns` respectés ; `brandColor`/`mode` du bloc Design honorés.
+- [ ] `preset.rule.antiPatterns` respectés ; `brandColor`/`mode` honorés ; aucun des 7 symptômes IA (DA-ANTI-IA).
 - [ ] Contraste texte/fond suffisant.
 
 ## Sortie
 
-Annoncer : archétype retenu (et pourquoi), productType, palette + fonts, mode/variantes,
-`homeSections`. Préciser que la DA est composée auto (pas le thème par défaut) et qu'un Claude
-Design sur-mesure pourra la remplacer plus tard.
+Annoncer : archétype retenu (et pourquoi), productType, palette + fonts, mode/variantes, style UI,
+`homeSections`. Préciser que la DA est composée auto (pas le thème par défaut) et qu'un Claude Design
+sur-mesure pourra la remplacer plus tard.
 
 ## Règle absolue
 
-Sortir de l'init avec la palette/fonts par défaut, OU avec la home comparateur sur un site
-magazine, est un **bug d'init**.
+Sortir de l'init avec la palette/fonts par défaut, OU avec la home comparateur sur un site magazine,
+est un **bug d'init**.

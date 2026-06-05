@@ -1,10 +1,11 @@
-# DA Anti-IA — Guide autonome pour Claude Code
+# DA Anti-IA — Référence (symptômes + signature + CSS par style UI)
 
-Ce doc est lu par Claude Code pendant l'init. Il contient les règles pour
-créer une direction artistique qui ne ressemble PAS à un site généré par IA.
+Doc de **référence** utilisée par `docs/AUTO-DESIGN.md` pendant l'init. AUTO-DESIGN **orchestre** la
+composition de la DA (archétype, palette, fonts, signature) ; ce doc fournit les **règles anti-IA** et
+**l'application CSS concrète** par style UI.
 
-**Principe fondamental** : l'utilisateur n'est pas designer. Claude Code prend
-TOUTES les décisions DA de manière autonome, les propose en bloc, et explique
+**Principe** : l'utilisateur n'est pas designer. Claude prend TOUTES les décisions DA de manière
+autonome (pendant `init-site` / `configure-from-spec` → AUTO-DESIGN), les propose en bloc, et explique
 le raisonnement. L'utilisateur valide ou ajuste.
 
 ---
@@ -40,8 +41,7 @@ Un élément éditorial distinctif qu'on retrouve sur le site. Exemples :
 | Santé/wellness | Encart "Le saviez-vous" avec bordure accent douce |
 | Mode/beauté | Caption stylisée sous chaque image produit |
 
-Claude Code choisit l'ancre en fonction de la niche et l'active dans
-`niche.signature.components`.
+Claude choisit l'ancre en fonction de la niche et l'active dans `niche.signature.components`.
 
 ### 2. La règle contrariante (`signature.oneRule`)
 
@@ -58,8 +58,7 @@ Cette règle doit être VISIBLE — le site a l'air intentionnel, pas par défau
 
 ### 3. Les inspirations (`signature.inspiration`)
 
-2-3 vrais magazines/sites dont on emprunte le TON VISUEL (pas le contenu).
-Claude Code les choisit selon la niche :
+2-3 vrais magazines/sites dont on emprunte le TON VISUEL (pas le contenu). Choisis selon la niche :
 
 | Niche | Inspirations type |
 |---|---|
@@ -71,14 +70,12 @@ Claude Code les choisit selon la niche :
 | Gaming | Polygon, IGN minimal, Kotaku |
 | Lifestyle | Highsnobiety, Hypebeast, Ssense |
 
-Ces inspirations servent à calibrer les choix de font pairing, densité, et
-traitement typographique — PAS à copier leur layout.
+Ces inspirations calibrent le font pairing, la densité, et le traitement typographique — PAS à copier le layout.
 
 ---
 
 ## Les patterns interdits (`signature.forbidden`)
 
-Claude Code remplit automatiquement ces interdits selon la niche.
 Base minimum pour TOUT site :
 
 ```
@@ -91,8 +88,7 @@ Base minimum pour TOUT site :
 ]
 ```
 
-En ajoutant des interdits spécifiques à la niche :
-
+Interdits spécifiques niche :
 - **Tech** : + "fond noir pur #000000" (trop générique — utiliser un noir teinté)
 - **Cuisine** : + "images stock souriantes" + "palette pastel homogène"
 - **Finance** : + "illustrations flat style Notion" + "tout en bleu corporate"
@@ -105,29 +101,25 @@ En ajoutant des interdits spécifiques à la niche :
 Le template embarque 4 composants dans `components/signature/` :
 
 ### `<Lettrine>`
-Drop cap éditoriale sur le premier paragraphe d'un article. Lettre en display
-font + accent color. Usage en MDX :
+Drop cap éditoriale sur le premier paragraphe. Lettre en display font + accent color.
 ```mdx
 <Lettrine>Le marché des aspirateurs robots a radicalement changé en 2025...</Lettrine>
 ```
 
 ### `<PullQuote>`
-Citation éditoriale entre sections. Grande typo display en italique, bordure
-latérale accent. Usage :
+Citation éditoriale entre sections. Grande typo display italique, bordure latérale accent.
 ```mdx
 <PullQuote attribution="Test labo 2025">Le S8 MaxV écrase tout ce qu'on a testé cette année.</PullQuote>
 ```
 
 ### `<EditorialFootnote>`
-Note de marge/encart éditorial. Fond surface, bordure accent4. Pour les
-apartés, mises en contexte, ou "note de la rédaction". Usage :
+Note de marge/encart. Fond surface, bordure accent4. Pour apartés, mises en contexte.
 ```mdx
 <EditorialFootnote label="Note">Prix relevés en mars 2025. Susceptibles de varier.</EditorialFootnote>
 ```
 
 ### `<TabularStat>`
-Stat tabulaire façon magazine business. Label à gauche, grosse valeur accent à
-droite. Pour les chiffres clés. Usage :
+Stat tabulaire façon magazine business. Label à gauche, grosse valeur accent à droite.
 ```mdx
 <TabularStat label="Autonomie" value="180" unit="min" accent={1} />
 <TabularStat label="Puissance" value="11 000" unit="Pa" accent={2} />
@@ -135,61 +127,50 @@ droite. Pour les chiffres clés. Usage :
 
 ---
 
-## Workflow pendant l'init (ce que Claude Code fait)
+## Comment AUTO-DESIGN utilise ce doc (pendant l'init)
 
-Au Bloc 6 du PROMPT-INIT, Claude Code :
+Pendant `AUTO-DESIGN.md` (étapes DA de `init-site` / `configure-from-spec`), Claude :
 
-1. **Lit la niche** (Bloc 1) et cherche dans `lib/da-presets` le preset le
-   plus proche
-2. **Compose le preset** : palette + fonts + style + anti-patterns
-3. **Choisit la signature** autonomement :
-   - `anchor` : basé sur la niche et le tone
-   - `oneRule` : choisit une règle contrariante pertinente
+1. **Lit la niche** (clusters / spec) et cherche dans `lib/da-presets` le preset le plus proche.
+2. **Compose le preset** : palette + fonts + style + anti-patterns (`composePreset`).
+3. **Choisit la signature** de façon autonome :
+   - `anchor` : selon la niche et le ton
+   - `oneRule` : une règle contrariante pertinente
    - `inspiration` : 2-3 magazines/sites cohérents
    - `forbidden` : patterns IA + patterns spécifiques niche
    - `components` : active les composants signature pertinents
-4. **Présente le tout à l'utilisateur** en un bloc structuré :
+4. **Applique le style UI** (section CSS ci-dessous) : pas juste les couleurs — la **forme**.
+5. **Présente le tout à l'utilisateur** en un bloc structuré (style, palette, fonts, signature + raisonnement), puis applique après validation.
 
 ```
 Voici la DA que je propose pour [siteName] :
-
-■ Style : dark / split hero / effets aurora / cards bordered
-■ Palette : [tableau avec les 11 couleurs]
+■ Style : [mode] / [hero] / effets [effects] / cards [cards]
+■ Palette : [11 couleurs]
 ■ Fonts : [display] + [body]
-■ Signature :
-  · Ancre : lettrine monospace sur chaque article
-  · Règle : jamais de gradient sur les boutons — flat + border
-  · Inspirations : The Verge, Monocle, Wired
-  · Composants activés : lettrine, tabularStat
-  · Interdit : [liste des patterns bannis]
-
-Raisonnement : [1-2 phrases expliquant pourquoi ces choix]
-
+■ Signature : ancre · règle · inspirations · composants · interdits
+Raisonnement : [1-2 phrases]
 Tu valides ou tu ajustes ?
 ```
 
-5. L'utilisateur dit "ok" ou demande un ajustement spécifique
-6. Claude Code applique et passe à l'étape suivante
-
 ---
 
-## Checklist DA — avant de valider l'Étape 1
+## Checklist DA — avant de valider
 
 - [ ] Palette ≠ 2 couleurs — minimum 3 accents utilisés visuellement
 - [ ] Font display ≠ font body — contraste typographique visible
 - [ ] Au moins 1 composant signature activé
 - [ ] `signature.forbidden` contient 3+ patterns
-- [ ] Aucun des 7 symptômes IA listés plus haut n'est présent
+- [ ] Aucun des 7 symptômes IA présent
 - [ ] Le fond n'est pas un noir/blanc pur — toujours teinté
-- [ ] Les cards ont un traitement (border-top, watermark, accent) pas juste un fond
-- [ ] Le hero a un élément asymétrique ou un détail visuel (pas centré symétrique)
+- [ ] Les cards ont un traitement (border-top, watermark, accent), pas juste un fond
+- [ ] Le hero a un élément asymétrique ou un détail visuel
 - [ ] prefers-reduced-motion respecté sur toutes les animations
 
 ---
 
 ## Mapping niche → signature par défaut
 
-Claude Code utilise cette table comme point de départ. Il peut adapter.
+Point de départ (adaptable) :
 
 | Type de niche | anchor | oneRule | components |
 |---|---|---|---|
@@ -208,32 +189,20 @@ Claude Code utilise cette table comme point de départ. Il peut adapter.
 
 ## APPLICATION CSS CONCRÈTE PAR STYLE UI
 
-C'est la section la plus importante. Quand Claude Code choisit un UI style
-via `findUIStyles()`, il **DOIT** modifier `globals.css` et les composants
-en conséquence. Pas juste changer les couleurs — changer la **forme**.
+La section la plus importante. Quand Claude choisit un UI style via `findUIStyles()`, il **DOIT**
+modifier `globals.css` et les composants en conséquence. Pas juste les couleurs — la **forme**.
 
-Le style UI est trouvé dans la base via :
 ```ts
 const styles = findUIStyles(['tech', 'premium', 'dark'], 3)
-// → ex: styles[0].category = "Dark Mode (OLED)"
-// → styles[0].cssKeywords = "backdrop-filter, border: 1px solid rgba(...)..."
-// → styles[0].variables = "--border-radius: 12px, --shadow: 0 0 20px..."
+// styles[0].cssKeywords / .variables / .effects / .checklist
 ```
-
-Claude lit le `cssKeywords`, `variables`, `effects` et `checklist` du style
-et applique les transformations ci-dessous.
 
 ### Brutalism / Neubrutalism
 ```css
 --radius-sm: 0; --radius-md: 0; --radius-lg: 0; --radius-full: 0;
 --shadow: 4px 4px 0 var(--text-primary);
-/* Borders épaisses, typo massive, couleurs crues */
 ```
-- `border-radius: 0` partout — cartes, boutons, inputs
-- `box-shadow: 4px 4px 0` — ombre dure, pas de blur
-- Titres en uppercase ou extra-bold (800+)
-- Borders 2-3px solid, pas 1px
-- Pas de transitions douces — `transition: none` ou très court (100ms)
+- `border-radius: 0` partout · `box-shadow: 4px 4px 0` (dur, sans blur) · titres uppercase/extra-bold · borders 2-3px · transitions très courtes
 
 ### Glassmorphism / Liquid Glass
 ```css
@@ -241,131 +210,70 @@ et applique les transformations ci-dessous.
 --glass-border: rgba(255,255,255,0.08);
 --glass-blur: 16px;
 ```
-- Cards : `backdrop-filter: blur(16px); background: var(--glass-bg)`
-- Borders semi-transparentes `rgba(255,255,255,0.08)`
-- Ombres diffuses `0 8px 32px rgba(0,0,0,0.3)`
-- Border-radius généreux (12-16px)
-- Fond avec gradient subtil sous le blur
+- Cards : `backdrop-filter: blur(16px)` · borders semi-transparentes · ombres diffuses · radius 12-16px · fond gradient subtil sous le blur
 
 ### Minimalism / Swiss Style
 ```css
 --radius-sm: 0; --radius-md: 2px; --radius-lg: 4px;
-/* Pas de shadows, pas d'effets, grid strict */
 ```
-- Zéro ombre, zéro gradient, zéro animation décorative
-- Grid 12 colonnes strictes
-- Beaucoup de whitespace (spacing ×1.5)
-- Typo mono-weight ou 2 weights max (400, 700)
-- Couleurs : noir, blanc, 1 accent unique
+- Zéro ombre/gradient/animation déco · grid 12 colonnes strictes · whitespace ×1.5 · 2 weights max · noir/blanc/1 accent
 
 ### Editorial / Magazine
 ```css
 --radius-sm: 0; --radius-md: 0; --radius-lg: 0;
-/* Serif pour titres, grille asymétrique */
 ```
-- Font display **serif** (Playfair, Cormorant, Libre Baskerville)
-- Grille asymétrique (pas 3 colonnes égales)
-- Pull quotes et lettrines systématiques
-- Filets horizontaux entre sections
-- Espacement aéré, ligne de base visible
+- Font display **serif** (Playfair, Cormorant, Libre Baskerville) · grille asymétrique · pull quotes + lettrines · filets horizontaux · espacement aéré
 
 ### Aurora UI
 ```css
-/* Gradients animés, glow effects */
 --aurora-1: var(--accent-1); --aurora-2: var(--accent-4); --aurora-3: var(--accent-3);
 ```
-- Gradient animé en background (déjà implémenté via AuroraBackground)
-- Glow sur les éléments hover : `box-shadow: 0 0 20px rgba(accent, 0.3)`
-- Transitions fluides (300-400ms)
-- Border-radius moyens (8-12px)
+- Gradient animé en background (AuroraBackground) · glow hover `0 0 20px rgba(accent,0.3)` · transitions 300-400ms · radius 8-12px
 
 ### Dark Mode OLED
 ```css
---bg-primary: #000000; /* exception : vrai noir pour OLED */
---bg-surface: #0A0A0A;
+--bg-primary: #000000; --bg-surface: #0A0A0A;
 ```
-- Fond vrai noir `#000` (économie batterie OLED)
-- Accents vifs sur fond noir (contraste maximum)
-- Borders très subtiles `rgba(255,255,255,0.04)`
-- Pas de surface grise — soit noir soit accent
+- Fond vrai noir `#000` (OLED) · accents vifs · borders très subtiles · pas de surface grise
 
 ### Neumorphism / Soft UI
 ```css
 --shadow-raised: 6px 6px 12px rgba(0,0,0,0.2), -6px -6px 12px rgba(255,255,255,0.03);
 --shadow-inset: inset 4px 4px 8px rgba(0,0,0,0.2), inset -4px -4px 8px rgba(255,255,255,0.03);
 ```
-- Double shadow (ombre + lumière) sur les cards et boutons
-- Fond et cards de couleur très proche (pas de border)
-- Border-radius généreux (12-20px)
-- Inputs avec `box-shadow: inset` (apparence enfoncée)
+- Double shadow · fond et cards très proches (pas de border) · radius 12-20px · inputs `box-shadow: inset`
 
 ### Bento Box / Bento Grid
-```css
-/* Grille asymétrique façon macOS widgets */
-```
-- Home : grille CSS irrégulière avec `grid-template-areas`
-- Cards de tailles variées (span 1, span 2, tall, wide)
-- Border-radius uniforme (16px)
-- Gap constant entre les blocs
-- Pas de hero traditionnel — le hero EST la grille
+- Home : grille CSS irrégulière (`grid-template-areas`) · cards de tailles variées · radius uniforme 16px · gap constant · le hero EST la grille
 
 ### Retro / Y2K / Vaporwave
 ```css
 --radius-sm: 0; --radius-md: 0;
-/* Couleurs saturées, typo pixelisée ou condensée */
 ```
-- Couleurs très saturées (magenta, cyan, jaune)
-- Typo condensée ou pixel-art
-- Borders visibles, parfois doubles
-- Gradients linéaires (pas radiaux)
-- Textures : scan lines, noise fort
+- Couleurs très saturées (magenta, cyan, jaune) · typo condensée/pixel · borders visibles · gradients linéaires · scan lines/noise
 
 ### Cyberpunk / HUD / Sci-Fi
 ```css
-/* Angles coupés, glow neon, fond très sombre */
 --glow: 0 0 10px var(--accent-1), 0 0 30px rgba(accent, 0.2);
 ```
-- Coins coupés via `clip-path` au lieu de border-radius
-- Glow neon sur les accents (`text-shadow`, `box-shadow`)
-- Fond très sombre avec accent vif (cyan, magenta, lime)
-- Typo monospace pour les données
-- Animations : glitch, scan lines, flicker
+- Coins coupés via `clip-path` · glow neon · fond très sombre + accent vif · typo monospace pour les données · glitch/scan lines
 
 ### Conversion-Optimized / Trust & Authority
-```css
-/* Plus conservateur, focus lisibilité et confiance */
-```
-- Pas d'effets décoratifs — focus contenu
-- CTA très visibles (taille, couleur, position)
-- Badges de confiance, étoiles, témoignages
-- Typo large et lisible (16px+ body)
-- Whitespace généreux autour des CTA
+- Pas d'effets déco — focus contenu · CTA très visibles · badges de confiance/étoiles · typo large (16px+) · whitespace généreux autour des CTA
 
 ---
 
-## COMMENT CLAUDE APPLIQUE LE STYLE UI
+## Comment Claude applique le style UI
 
-Pendant l'init, étape 1 (Config + DA), Claude Code :
+Pendant les étapes DA de l'init (via AUTO-DESIGN) :
 
-1. **Identifie le style** via `findUIStyles()` + niche rule `stylePriority`
-2. **Lit les `cssKeywords` et `variables`** du style trouvé
-3. **Réécrit `globals.css`** avec les variables CSS adaptées :
-   - `--radius-*` (0 pour brutalism, 12-16px pour glass, etc.)
-   - `--shadow` / `--glass-bg` / `--glow` selon le style
-   - transitions, spacing, borders
-4. **Adapte les composants** si nécessaire :
-   - Cards : shadows, borders, radius, backdrop-filter
-   - Boutons : flat vs gradient vs neumorphic
-   - Hero : layout selon le `pattern` de la niche rule
-   - Navigation : style des liens, active states
-5. **Ajoute du CSS custom** dans la section `/* ── Style UI ── */` de globals.css
-   pour les effets spécifiques au style (glow, glassmorphism, clip-path, etc.)
+1. **Identifie le style** via `findUIStyles()` + niche rule `stylePriority`.
+2. **Lit `cssKeywords` et `variables`** du style.
+3. **Réécrit `globals.css`** : `--radius-*`, `--shadow` / `--glass-bg` / `--glow`, transitions, spacing, borders.
+4. **Adapte les composants** : cards (shadows/borders/radius/backdrop-filter), boutons (flat vs gradient vs neumorphic), hero (selon le `pattern` de la niche rule), navigation.
+5. **Ajoute du CSS custom** dans la section `/* ── Style UI ── */` de globals.css (glow, glassmorphism, clip-path…).
 
-**IMPORTANT** : Ne pas se limiter aux 4 variantes structurelles (`hero`, `cards`,
-`effects`, `mode`). Le style UI va PLUS LOIN — il modifie le border-radius, les
-ombres, les transitions, la densité, et parfois le layout même des composants.
-Les 4 variantes sont un minimum, le style UI les complète et les dépasse.
-
-**Le résultat** : deux sites avec le même hero `split` mais l'un en Brutalism et
-l'autre en Glassmorphism auront une apparence radicalement différente — pas juste
-des couleurs différentes sur le même squelette.
+**IMPORTANT** : ne pas se limiter aux 4 variantes structurelles (`hero`, `cards`, `effects`, `mode`).
+Le style UI va PLUS LOIN — border-radius, ombres, transitions, densité, parfois le layout. Deux sites
+avec le même hero `split`, l'un Brutalism l'autre Glassmorphism, sont radicalement différents — pas
+juste des couleurs différentes sur le même squelette.

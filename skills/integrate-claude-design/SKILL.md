@@ -1,6 +1,6 @@
 ---
 name: integrate-claude-design
-version: 1.0.0
+version: 1.1.0
 description: Intègre les outputs livrés par Claude Design (JSX, HTML, snippets Tailwind, mockups, descriptions de sections) dans la structure du template emd-template. Mappe les pages vers app/, les composants vers components/, les tokens vers niche.config.ts, applique les conversions techniques (variables CSS, next/image, RSC vs 'use client'), et réutilise les composants MDX existants. À utiliser quand l'utilisateur dit « intègre ce qui est dans design-incoming », « merge les designs », « applique les outputs Claude Design », « intègre les écrans livrés », ou quand le dossier design-incoming/ à la racine du repo contient des fichiers à traiter.
 allowed-tools:
   - Read
@@ -15,7 +15,7 @@ allowed-tools:
 
 ## Mission
 
-Quand le dossier `design-incoming/` contient des fichiers livrés par Claude Design (un site externe qui génère du JSX, HTML, snippets Tailwind, mockups), ton rôle est de :
+Quand le dossier `design-incoming/` contient des fichiers livrés par Claude Design (un site externe qui génère du JSX, HTML, snippets Tailwind, mockups), ton rôle est de :
 
 1. Lire chaque fichier livré avant toute action.
 2. Mapper chaque output sur la structure du template (pages → `app/`, composants → `components/`, tokens → `niche.config.ts`, contenus → `content/`).
@@ -24,13 +24,13 @@ Quand le dossier `design-incoming/` contient des fichiers livrés par Claude Des
 5. Respecter le filtre qualité de `CLAUDE.md`.
 6. Nettoyer le dossier `design-incoming/` une fois l'intégration committée.
 
-Ne jamais proposer un « prompt d'init », un questionnaire en dix questions, ou une génération de boilerplate à partir de rien. Le workflow est linéaire : outputs livrés → mapping → conversions → nettoyage.
+Ne jamais proposer un questionnaire d'init ou une génération de boilerplate à partir de rien. L'init est géré par le skill `nouveau-site` (qui route vers `init-site` ou `configure-from-spec`). Ce skill-ci gère UNIQUEMENT l'intégration de `design-incoming/`. Le workflow est linéaire : outputs livrés → mapping → conversions → nettoyage.
 
 ---
 
 ## Étape 1 — Reconnaissance
 
-Avant tout, recense ce qui est dans `design-incoming/` :
+Avant tout, recense ce qui est dans `design-incoming/` :
 
 ```bash
 ls -la design-incoming/
@@ -54,106 +54,68 @@ Lis chaque fichier intégralement avant d'écrire la moindre ligne dans `app/` o
 | Contenu éditorial (texte, FAQ, briefs) | `content/` selon le type |
 | Mockup PNG / référence visuelle | `public/images/design-references/` (ou jeté si plus nécessaire après intégration) |
 
-Si Claude Design a livré un composant qui existe déjà dans `components/` sous un autre nom, **ne pas dupliquer**. Le signaler à l'utilisateur, proposer soit :
-- d'enrichir le composant existant avec les nouveautés du livrable,
-- soit de remplacer le composant existant si le livrable est meilleur.
+Si Claude Design a livré un composant qui existe déjà dans `components/` sous un autre nom, **ne pas dupliquer**. Le signaler à l'utilisateur, proposer soit d'enrichir le composant existant, soit de le remplacer si le livrable est meilleur.
 
 ---
 
 ## Étape 3 — Conversions techniques obligatoires
 
-Aucun output Claude Design ne va dans le repo tel quel. Applique systématiquement :
+Aucun output Claude Design ne va dans le repo tel quel. Applique systématiquement :
 
 ### 3.1 Couleurs et fonts en dur → variables CSS
 
 ```tsx
 // ❌ Avant (livré par Claude Design)
 <div className="bg-[#FF3D57] text-white font-['Unbounded']">
-
 // ✅ Après (intégré dans le template)
 <div className="bg-[var(--accent-1)] text-[var(--text-primary)] font-display">
 ```
 
-Toutes les couleurs viennent de `niche.config.ts` → exposées comme variables CSS (`--accent-1` à `--accent-5`, `--bg-primary`, `--bg-surface`, `--text-primary`, etc.). Les fonts viennent des mêmes variables (`--font-display`, `--font-primary`, `--font-mono`).
-
-Si Claude Design a livré une couleur ou une font qui ne correspond à aucun token de `niche.config.ts` :
-- soit l'ajouter à `niche.config.ts` (en discuter avec l'utilisateur d'abord),
-- soit utiliser le token le plus proche.
+Toutes les couleurs viennent de `niche.config.ts` → variables CSS (`--accent-1` à `--accent-5`, `--bg-primary`, `--bg-surface`, `--text-primary`, etc.). Idem fonts (`--font-display`, `--font-primary`, `--font-mono`). Si une couleur/font livrée ne correspond à aucun token : l'ajouter à `niche.config.ts` (en discuter) ou prendre le plus proche.
 
 ### 3.2 `<img>` → `next/image`
 
 ```tsx
 // ❌ Avant
 <img src="/hero.jpg" alt="Hero" className="w-full" />
-
 // ✅ Après
 import Image from 'next/image'
 <Image src="/hero.jpg" alt="Hero décrivant le sujet en mots-clés" width={1200} height={600} className="w-full" />
 ```
 
-L'`alt` doit être descriptif (pas « Hero » ou « Image »). Si Claude Design n'a pas fourni d'alt utile, **demander à l'utilisateur** plutôt que d'inventer.
+L'`alt` doit être descriptif. Si Claude Design n'a pas fourni d'alt utile, demander à l'utilisateur plutôt qu'inventer.
 
 ### 3.3 Server Component par défaut, `'use client'` seulement si interactif
 
-```tsx
-// ❌ Avant (par défaut chez Claude Design)
-'use client'
-export default function Hero() {
-  return <section>...</section>
-}
-
-// ✅ Après (si aucun event handler, aucun useState, aucun useEffect)
-export default function Hero() {
-  return <section>...</section>
-}
-```
-
-Garder `'use client'` uniquement si le composant a effectivement : un `onClick`, un `useState`, un `useEffect`, ou un hook React quelconque. Sinon, le retirer — c'est plus rapide et plus léger.
+Garder `'use client'` uniquement si le composant a un `onClick`, un `useState`, un `useEffect`, ou un hook React. Sinon, le retirer.
 
 ### 3.4 Syntaxe Tailwind v4 (pas v3)
 
-Claude Design peut sortir du Tailwind v3 par habitude. À traduire :
-
 | Tailwind v3 | Tailwind v4 |
 |---|---|
-| `text-opacity-50` | `text-[color]/50` (couleur/opacité inline) |
+| `text-opacity-50` | `text-[color]/50` |
 | `bg-opacity-X` | `bg-[color]/X` |
 | `@layer` custom | Variables CSS dans `globals.css` |
 | `theme()` dans CSS | `var(--token)` directement |
 
-Verify avec `grep -r "text-opacity-\|bg-opacity-" components/ app/` — si ça renvoie un résultat post-intégration, c'est qu'il reste du v3.
+Vérifier : `grep -r "text-opacity-\|bg-opacity-" components/ app/`.
 
 ### 3.5 Pas de fonts.googleapis.com en dur
-
-Si Claude Design a inclus un `<link href="https://fonts.googleapis.com/...">` : à retirer. Les fonts passent par `next/font` configuré dans `app/layout.tsx`.
+Retirer tout `<link href="https://fonts.googleapis.com/...">`. Les fonts passent par `next/font` dans `app/layout.tsx`.
 
 ### 3.6 Liens Amazon → `addAffiliateTag()` ou `<AffiliateLink>`
-
-Si un output contient un lien Amazon brut (`https://amazon.fr/dp/...`), le convertir :
-
-```tsx
-// ❌ Avant
-<a href="https://amazon.fr/dp/B08X1234">Voir sur Amazon</a>
-
-// ✅ Après
-import { AffiliateLink } from '@/components/AffiliateLink'
-<AffiliateLink href="https://amazon.fr/dp/B08X1234">Voir sur Amazon</AffiliateLink>
-```
-
-Ou en MDX, le plugin remark s'en charge automatiquement— mais vérifier que le tag affilié est bien configuré dans `niche.config.ts`.
+Convertir tout lien Amazon brut. Vérifier que le tag affilié est configuré dans `niche.config.ts`.
 
 ---
 
 ## Étape 4 — Réutiliser les composants MDX existants
 
-Le template embarque déjà une bibliothèque de composants pour le contenu éditorial. Si Claude Design propose un équivalent, **réutiliser l'existant** :
-
 | Besoin | Composant template à réutiliser |
 |---|---|
 | Image inline dans un article | `<ArticleImage>` |
 | Carte produit affilié | `<ProductCTA>` |
-| Carousel horizontal de produits | `<ProductCarousel>` |
-| Barre de comparaison visuelle | `<CompareBar>` / `<CompareBarGroup>` |
+| Carousel de produits | `<ProductCarousel>` |
+| Barre de comparaison | `<CompareBar>` / `<CompareBarGroup>` |
 | Bloc conseil | `<Tip>` |
 | Bloc avertissement | `<Warning>` |
 | Verdict avec note | `<Verdict>` |
@@ -161,83 +123,60 @@ Le template embarque déjà une bibliothèque de composants pour le contenu édi
 | Citation mise en avant | `<PullQuote>` |
 | Statistique | `<StatCard>` / `<StatRow>` |
 
-Ne pas ré-inventer un composant qui existe déjà. Si l'output Claude Design est *meilleur* que l'existant : proposer une amélioration du composant existant, ne pas créer un parallèle.
+Ne pas ré-inventer un composant existant. Si l'output Claude Design est meilleur : améliorer l'existant, pas créer un parallèle.
 
 ---
 
 ## Étape 5 — Tokens vers niche.config.ts
-
-Si Claude Design a livré des tokens (palette, fonts, nom du site, tagline, vocabulaire de niche, signature DA) :
-
-1. Ouvrir `niche.config.ts`.
-2. Mettre à jour les champs correspondants (`siteName`, `palette.*`, `fonts.*`, `signature.*`, etc.).
-3. Ne jamais hardcoder une couleur ou un nom dans le JSX livré. Si l'output Claude Design est « pré-cablé » avec des valeurs en dur, les **décâbler** vers `niche.config.ts`.
+Mettre à jour `siteName`, `palette.*`, `fonts.*`, `signature.*`, etc. Décâbler toute valeur en dur du JSX livré vers `niche.config.ts`.
 
 ---
 
 ## Étape 6 — Filtre qualité (hérité de CLAUDE.md)
 
-Avant de marquer l'intégration terminée, vérifier :
-
-- [ ] `tsc --noEmit` passe
-- [ ] `npm run lint` passe
-- [ ] Aucun `<img>` brut dans `app/` ou `components/` (`grep -r "<img " app/ components/`)
-- [ ] Toutes les images ont un `alt` descriptif
-- [ ] Aucune couleur hex en dur dans le JSX (`grep -rE "#[0-9a-fA-F]{3,6}" app/ components/` — ne devrait rien retourner sauf cas justifiés)
-- [ ] Aucune référence à `fonts.googleapis.com`
+- [ ] `tsc --noEmit` passe · `npm run lint` passe
+- [ ] Aucun `<img>` brut (`grep -r "<img " app/ components/`)
+- [ ] Tous les `alt` descriptifs
+- [ ] Aucune couleur hex en dur dans le JSX (`grep -rE "#[0-9a-fA-F]{3,6}" app/ components/`)
+- [ ] Aucune référence `fonts.googleapis.com`
 - [ ] `'use client'` uniquement sur composants interactifs
 - [ ] Liens Amazon via `addAffiliateTag()` ou `<AffiliateLink>`
 - [ ] `prefers-reduced-motion` respecté si animations
-- [ ] Composants nouveaux < 150 lignes (sinon à splitter)
-
-Si un point n'est pas respecté : corriger avant de proposer le commit.
+- [ ] Composants nouveaux < 150 lignes
 
 ---
 
 ## Étape 7 — Nettoyage et commit
 
-Une fois l'intégration validée :
-
-1. Supprimer le contenu de `design-incoming/` (sauf le `READ-FIRST.md`, qui est la doc du dossier).
-2. Mettre à jour `PROGRESS.md` avec ce qui a été intégré.
-3. Documenter dans `DECISIONS.md` les choix non triviaux (par exemple : « Claude Design proposait un Hero avec animation fade-in, on l'a remplacé par un slide horizontal pour respecter `signature.oneRule` »).
-4. Proposer un commit avec un message clair en Conventional Commits :
-   ```
-   feat(home): integrate Claude Design home v2
-
-   - Hero, FeaturedTools, CategorySection redesigned
-   - Tokens updated in niche.config.ts (palette + fonts)
-   - All <img> converted to next/image
-   ```
-
-Si tu fais le commit toi-même (Claude Code en mode tooling) : jamais directement sur main. Créer une branche `feature/integrate-design-[date]` et ouvrir une PR.
+1. Supprimer le contenu de `design-incoming/` (sauf `READ-FIRST.md`).
+2. Mettre à jour `PROGRESS.md`.
+3. Documenter les choix non triviaux dans `DECISIONS.md`.
+4. Commit Conventional Commits. Jamais directement sur main : créer une branche `feature/integrate-design-[date]` et ouvrir une PR.
 
 ---
 
 ## Ce qu'il NE faut PAS faire
 
-- **Ne pas** lancer un « prompt d'init » qui pose dix questions. Le workflow init est mort (voir `docs/PROMPT-INIT.md` deprecated).
-- **Ne pas** recopier du JSX tel quel sans le passer par le filtre qualité.
-- **Ne pas** inventer une couleur, une font, un nom de site ou un slogan si Claude Design ne les a pas fournis. Demander à l'utilisateur ou laisser un `TODO` explicite dans `niche.config.ts`.
-- **Ne pas** toucher à `packages/cms/`, `lib/`, `middleware.ts`, ni aux composants génériques (`Hero`, `Nav`, `Footer`, `CategorySection`) sans raison explicite et documentée dans `DECISIONS.md`.
-- **Ne pas** dupliquer un composant qui existe déjà sous un autre nom. Enrichir l'existant.
-- **Ne pas** committer avec `design-incoming/` non vide — le dossier doit être purgé sauf le `READ-FIRST.md`.
+- **Ne pas** lancer d'interview d'init ni de questionnaire ici. L'init passe par `nouveau-site` (→ `init-site` ou `configure-from-spec`). Ce skill gère UNIQUEMENT `design-incoming/`.
+- **Ne pas** recopier du JSX sans le filtre qualité.
+- **Ne pas** inventer couleur/font/nom/slogan absent du livrable. Demander ou laisser un `TODO`.
+- **Ne pas** toucher à `packages/cms/`, `lib/`, `middleware.ts`, ni aux composants génériques sans raison documentée dans `DECISIONS.md`.
+- **Ne pas** dupliquer un composant existant.
+- **Ne pas** committer avec `design-incoming/` non vide (sauf `READ-FIRST.md`).
 
 ---
 
 ## Si `design-incoming/` est vide ou absent
 
-Ne rien déclencher. Le skill n'a pas de travail à faire. Demander à l'utilisateur ce qu'il veut faire (rédiger un article, remplir `niche.config.ts` à la main, fix, etc.). Surtout, **ne pas proposer de générer du design « from scratch »** — ce n'est pas le rôle de Claude Code dans ce workflow. Claude Design est l'amont, Claude Code l'aval.
+Ne rien déclencher. Demander ce que veut l'utilisateur (rédiger, configurer le site via `nouveau-site`, fix…). Ne PAS générer de design « from scratch ». Pour composer une DA SANS livrable Claude Design, c'est `docs/AUTO-DESIGN.md`, déclenché par l'init.
 
 ---
 
 ## Format de sortie attendu
 
-Pour chaque intégration, livrer à l'utilisateur :
-
-1. **Récapitulatif des fichiers livrés** (nom + type d'output + destination dans le repo).
-2. **Liste des conversions appliquées** (couleurs → vars CSS, `<img>` → `next/image`, etc.).
-3. **Décisions non triviales** si l'output Claude Design était ambigu ou en conflit avec l'existant.
-4. **Résultat du filtre qualité** (les checks passés, les checks failés).
-5. **Proposition de commit** (message + branche).
-6. **Nettoyage** (confirmation que `design-incoming/` est vide).
+1. Récapitulatif des fichiers livrés (nom + type + destination).
+2. Conversions appliquées.
+3. Décisions non triviales.
+4. Résultat du filtre qualité.
+5. Proposition de commit (message + branche).
+6. Confirmation que `design-incoming/` est vide.

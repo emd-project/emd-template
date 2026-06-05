@@ -1,295 +1,169 @@
 ---
 name: init-site
-version: 2.0.0
-description: Bootstrap d'un nouveau site forké du template emd-template. Lance UN SEUL interview groupé par blocs thématiques en commençant par le Bloc 0 (marché géo + langues), puis les autres blocs (voix, mots-clés, calendrier, concurrents, FAQ, mentions, auteur). Écrit tous les fichiers en une seule passe, y compris niche.config.ts.locales/defaultLocale/market/localePrefix qui pilotent toute l'architecture i18n du site. À utiliser une fois après "Use this template" sur GitHub. Triggers explicites — « initialise ce site », « configure ce site », « setup le site », « init-site », « bootstrap le site », « lance la conf », « première configuration ». Trigger implicite — si l'utilisateur demande sa première rédaction sur un site visiblement non configuré (≥ 2 fichiers content/ avec TODO ou niche.config.ts.market vide), proposer init-site AVANT de lancer ton-of-voice seul.
+version: 3.0.0
+description: Bootstrap d'un nouveau site forké du template emd-template, SANS init-spec wizard (interview en chat). Lance UN interview groupé par blocs (Bloc 0 marché+langues d'abord, puis voix, mots-clés, calendrier, concurrents, FAQ, mentions, auteur), écrit niche.config.ts + tous les content/* + personas auto-dérivés, PUIS — étapes non sautables — compose une vraie DA via docs/AUTO-DESIGN.md, génère les images structurelles via le MCP nano-mentionbox, et crée la scheduled task de rédaction. À utiliser une fois après "Use this template" quand il n'y a PAS d'init-spec.md. Triggers — « initialise ce site », « configure ce site », « setup le site », « bootstrap le site », « init-site », « lance la conf ». Trigger implicite — première rédaction sur un site visiblement non configuré (niche.config.ts.market vide ou content/ avec TODO). Le routeur nouveau-site appelle ce skill quand aucun init-spec.md n'est présent.
 allowed-tools:
   - Read
   - Write
   - Edit
   - Glob
   - Grep
+  - WebSearch
+  - mcp__nano-mentionbox__generate_image
+  - mcp__nano-mentionbox__wait_for_image
+  - mcp__nano-mentionbox__github_push_images
 ---
 
-# init-site — Bootstrap d'un nouveau site forké
+# init-site v3 — Bootstrap d'un nouveau site forké (interview)
 
-Ce skill remplit en une seule passe tous les fichiers de configuration éditoriale du site forké. Économise des tokens vs déclencher ton-of-voice + 4 autres skills séparément, et garantit la cohérence entre les fichiers (audience définie une fois, réutilisée partout, **locales + marché géo définis AVANT tout**).
+Ce skill remplit en une passe toute la config éditoriale du site, **puis** compose la DA et génère les images. Économie de tokens vs déclencher 5 skills séparément, et cohérence garantie (audience définie une fois, réutilisée partout ; locales + marché définis AVANT tout).
+
+> **Nouveau en v3** : l'init ne s'arrête plus à la config. Il **compose une vraie DA** (étape 8) et **génère les images structurelles** (étape 9) — ces étapes ne sont PAS optionnelles. Un site qui sort de l'init avec le thème par défaut (`#FF3D57`, dark/aurora, logo `emd·template`) OU avec des placeholders d'images est un **échec d'init**.
+
+## Pré-requis (vérifier au démarrage)
+
+**MCP nano-mentionbox disponible** (`mcp__nano-mentionbox__generate_image`). Si absent → prévenir l'utilisateur : sans lui, les étapes 9 (images) ne pourront pas tourner et le site sortira en placeholders = échec d'init. Proposer de brancher le MCP (script « Installer MCP ») avant de continuer, ou de poursuivre la config en sachant qu'il faudra générer les images ensuite.
 
 ## Étape 0 — Audit de l'état actuel
 
-Avant tout interview, lire l'état de chaque fichier-cible :
+Avant l'interview, lire l'état de chaque fichier-cible :
 
-| Fichier | Statut « non défini » si… |
+| Fichier | « non défini » si… |
 |---|---|
-| `niche.config.ts` | `locales`, `defaultLocale`, `market` absents ou avec valeur placeholder (`'TODO'`, `''`) |
-| `content/ton-of-voice.md` | absent OU contient ≥ 1 `TODO` |
-| `content/mots-cles.md` | absent OU contient ≥ 1 `TODO` |
-| `content/calendrier-edito.md` | absent OU contient ≥ 1 `TODO` |
-| `content/concurrents.md` | absent OU contient ≥ 1 `TODO` |
-| `content/faq-base.md` | absent OU contient ≥ 1 `TODO` |
-| `content/pages/mentions-legales.yaml` | absent OU contient ≥ 1 `TODO` |
-| `docs/AUTHOR-[slug].md` | optionnel — proposé seulement si l'utilisateur signe ses articles d'un nom propre |
+| `niche.config.ts` | `locales`, `defaultLocale`, `market` absents ou placeholder (`'TODO'`, `''`) |
+| `content/ton-of-voice.md` | absent OU ≥ 1 `TODO` |
+| `content/mots-cles.md` | absent OU ≥ 1 `TODO` |
+| `content/personas.md` | absent OU ≥ 1 `TODO` |
+| `content/calendrier-edito.md` | absent OU ≥ 1 `TODO` |
+| `content/concurrents.md` | absent OU ≥ 1 `TODO` |
+| `content/faq-base.md` | absent OU ≥ 1 `TODO` |
+| `content/pages/mentions-legales.yaml` | absent OU ≥ 1 `TODO` |
+| `niche.style` / `niche.palette` / `niche.signature` | valeurs par défaut (DA non composée) |
+| `docs/AUTHOR-[slug].md` | optionnel — si l'utilisateur signe d'un nom propre |
 
-Annoncer à l'utilisateur le bilan :
+Annoncer le bilan : « J'ai audité l'état du site. Voici ce qu'il reste à définir : [liste]. Je pose les questions par blocs, en commençant par les langues et le marché (Bloc 0). ~10 min, puis je compose la DA et génère les images. »
 
-> J'ai audité l'état du site. Voici ce qu'il reste à définir : [liste]. Je vais te poser les questions par blocs thématiques, en commençant par les **langues et le marché** (Bloc 0) qui conditionnent toute la suite. ~5-10 minutes au total.
-
-Si TOUT est déjà rempli (zéro TODO + niche.config.ts.market défini), informer et sortir.
+Si TOUT est rempli (zéro TODO, market défini, DA composée, images présentes) → informer et sortir.
 
 ---
 
-## Bloc 0 — Langues et marché géo (NOUVEAU, OBLIGATOIRE EN PREMIER)
+## Bloc 0 — Langues et marché géo (OBLIGATOIRE EN PREMIER)
 
-**Pourquoi ce bloc en premier** : la réponse pilote toute l'architecture du site — routing Next.js (`app/page.tsx` vs `app/[locale]/...`), middleware i18n, hreflang, sitemap, frontmatter MDX, sélecteur de langue, schema.org, OG locale, devise par défaut. Coder le reste avant d'avoir cette réponse = refactor lourd garanti.
+**Pourquoi en premier** : pilote tout — routing Next.js (`app/page.tsx` vs `app/[locale]/...`), middleware i18n, hreflang, sitemap, frontmatter MDX, sélecteur de langue, schema.org, OG locale, devise.
 
 ### Q0.1 — Pays cible principal ?
 
-> Quel est le **marché géographique principal** du site ? (Détermine OG locale, devise, schema.org addressCountry, références institutionnelles citées par seo-geo-redaction.)
-
 | Option | Code | Conséquences |
 |---|---|---|
-| 🇧🇪 Belgique | `BE` | OG `fr_BE`, devise `EUR`, références FSMA/BNB/Test-Achats |
-| 🇫🇷 France | `FR` | OG `fr_FR`, devise `EUR`, références ACPR/AMF/UFC-Que Choisir |
-| 🇨🇦 Canada | `CA` | OG `fr_CA`, devise `CAD`, références AMF Québec |
-| 🇨🇭 Suisse | `CH` | OG `fr_CH`, devise `CHF`, références FINMA/SECO |
-| Autre | (libre) | À préciser : code ISO pays, devise, régulateur principal |
+| 🇧🇪 Belgique | `BE` | OG `fr_BE`, EUR, références FSMA/BNB/Test-Achats |
+| 🇫🇷 France | `FR` | OG `fr_FR`, EUR, références ACPR/AMF/UFC-Que Choisir |
+| 🇨🇦 Canada | `CA` | OG `fr_CA`, CAD, références AMF Québec |
+| 🇨🇭 Suisse | `CH` | OG `fr_CH`, CHF, références FINMA/SECO |
+| Autre | (libre) | code ISO + devise + régulateur |
 
-→ Écrit dans `niche.config.ts → market: 'BE' | 'FR' | 'CA' | 'CH' | string`
+→ `niche.config.ts → market`.
 
-### Q0.2 — Combien de langues sur le site ?
+### Q0.2 — Combien de langues ? (ordre = priorité éditoriale)
 
-> Combien de langues va supporter le site, dans l'ordre de priorité éditoriale ?
+Présets BE : `FR` seul · `FR+EN` · `FR+NL` · `FR+EN+NL` · `FR+NL+DE+EN` · Autre.
+Présets FR/CA/CH : `FR` seul · `FR+EN` · Autre.
+→ `niche.config.ts → locales[]` + `defaultLocale: 'fr'`.
 
-**Présets** (si marché = BE) :
-- `FR` seul (mono-langue, marché FR-BE)
-- `FR + EN`
-- `FR + NL`
-- `FR + EN + NL`
-- `FR + NL + DE + EN`
-- Autre (préciser les codes ISO)
+### Q0.3 — (si N ≥ 2) Voix par langue ?
+- **Voix unique transposée** (recommandé) : un seul `content/ton-of-voice.md`, traduit à la rédaction.
+- **Voix adaptée par langue** : un fichier par locale.
 
-**Présets** (si marché = FR / CA / CH) :
-- `FR` seul (mono-langue)
-- `FR + EN`
-- Autre
+### Conséquences automatiques (écriture directe, pas de question)
 
-→ Écrit dans `niche.config.ts → locales: [...]` + `defaultLocale: 'fr'`
-
-### Q0.3 — (Conditionnelle, si N ≥ 2) Variation de voix par langue ?
-
-> La voix éditoriale change-t-elle selon la langue, ou c'est la même transposée ?
-
-- **Voix unique transposée** (recommandé) — le ton FR est traduit tel quel en EN/NL. Une seule définition `content/ton-of-voice.md`, traduction au moment de la rédaction.
-- **Voix adaptée par langue** — NL plus formel, EN plus direct, etc. Une définition par langue : `content/ton-of-voice.md`, `content/ton-of-voice.nl.md`, etc.
-
-→ Détermine si on duplique `content/ton-of-voice.md` par langue ou pas.
-
-### Conséquences automatiques (pas de question, écriture directe)
-
-| Choix Q0.2 | Routing Next.js | localePrefix | Middleware i18n | Sélecteur langue |
+| Choix | Routing | localePrefix | Middleware | Sélecteur |
 |---|---|---|---|---|
-| 1 langue | `app/page.tsx` direct | n/a | aucun | aucun |
-| 2+ langues | `app/[locale]/...` | `'as-needed'` (default sans préfixe, autres sous segment) | `next-intl` middleware obligatoire | `<LangSwitcher>` dans header |
+| 1 langue | `app/page.tsx` | n/a | aucun | aucun |
+| 2+ langues | `app/[locale]/...` | `'as-needed'` | `next-intl` obligatoire | `<LangSwitcher>` |
 
-**Pourquoi `localePrefix: 'as-needed'`** : URLs courtes pour le marché principal (SEO optimal) + segments propres pour les autres locales. Recommandé par next-intl.
-
-### Règle : miroir strict (NON-NÉGOCIABLE si N ≥ 2)
-
-À partir du moment où `locales.length ≥ 2`, **tout est traduit dans toutes les locales**, sans exception :
-- Articles blog (chaque article = N fichiers MDX dans `content/blog/[locale]/[categorie]/[slug].mdx`)
-- Pages utilitaires (À propos, mentions légales, FAQ globale, contact, politique cookies)
-- Composants UI (via `messages/[locale].json` ou dictionnaires serveur)
-- Schema.org `inLanguage` + hreflang généré automatiquement par locale
-
-Voir `skills/seo-geo-redaction/references/mirror-i18n.md` pour le détail technique.
-
-Un visiteur en EN qui clique « À propos » ne doit JAMAIS tomber sur une page FR.
+**Miroir strict (NON-négociable si N ≥ 2)** : tout est traduit dans toutes les locales (articles, pages utilitaires, composants UI via `messages/[locale].json`, schema.org `inLanguage` + hreflang). Voir `skills/seo-geo-redaction/references/mirror-i18n.md`.
 
 ### Sortie immédiate du Bloc 0
-
-À la fin de ce bloc, écrire `niche.config.ts` avec les champs corrects :
-
-```ts
-export const niche: NicheConfig = {
-  // ...
-  market: 'BE',                       // <- Q0.1
-  defaultLocale: 'fr',                // <- première de locales
-  locales: ['fr', 'en'],              // <- Q0.2
-  localePrefix: 'as-needed',          // <- imposé si locales.length >= 2 ; omis sinon
-  // ...
-}
-```
-
-Puis annoncer à l'utilisateur :
-
-> Marché et langues verrouillés. À partir d'ici, tous les fichiers seront créés en miroir dans les N langues, et le routing sera `[appliquer la convention selon Q0.2]`. On enchaîne avec la voix éditoriale.
+Écrire `niche.config.ts` (market, defaultLocale, locales, localePrefix), puis : « Marché et langues verrouillés. Tous les fichiers seront créés en miroir dans les N langues, routing = [convention]. On enchaîne avec la voix. »
 
 ---
 
-## Étape 1 — Bloc voix et audience (alimente ton-of-voice.md)
+## Étape 1 — Voix et audience (→ ton-of-voice.md)
+Déléguer à `ton-of-voice` en mode définition (8 questions). Cascade Bloc 0 : un fichier unique (Q0.3 = unique) ou N fichiers par locale. Sauter si déjà rempli.
 
-Déléguer au skill `ton-of-voice` en mode définition (les 8 questions existantes).
+## Étape 2 — Mots-clés (→ mots-cles.md)
+Un seul set en langue principale (les autres locales dérivées à la rédaction). Cas A : export Semrush fourni → parser, 3-5 clusters (head term, longue traîne, quick wins KD≤30, à éviter KD>60). Cas B : mini-interview 6 questions (positionnement, clusters, piliers, longue traîne, priorités 90j, à éviter). Écrire `content/mots-cles.md`.
 
-**Cascade depuis Bloc 0** :
-- Si Q0.3 = voix unique → un seul fichier `content/ton-of-voice.md` (traduit au runtime lors de la rédaction)
-- Si Q0.3 = voix adaptée par langue → N fichiers `content/ton-of-voice.[locale].md`
+## Étape 3 — Calendrier éditorial (→ calendrier-edito.md)
+5 questions (cadence cible + plancher, formats récurrents, saisonnalité, rotation d'angles, refresh). Noter que chaque entrée produit `locales.length` articles (miroir). Écrire `content/calendrier-edito.md`.
 
-Si déjà rempli, sauter ce bloc.
+## Étape 4 — Concurrents (→ concurrents.md)
+4 questions (directs 3-5 avec URL/force/faiblesse, indirects, gaps SERP, anti-modèles). Un set FR. Écrire `content/concurrents.md`.
 
----
+## Étape 5 — FAQ base (→ faq-base.md)
+Cas A : dériver des PAA des head terms. Cas B : interview (3-5 thèmes, 3-5 questions précises, réponses-cadre courtes factuelles). Écrire `content/faq-base.md`.
 
-## Étape 2 — Bloc mots-clés (alimente mots-cles.md)
+## Étape 6 — Mentions légales (→ pages/mentions-legales.yaml)
+Éditeur (raison sociale, forme, identifiant fiscal, adresse, représentant), contact (email obligatoire), hébergeur (Vercel par défaut), DPO, cookies, PI. Générer le fichier principal + variantes locales. Écrire.
 
-**Cascade depuis Bloc 0** : on demande UN seul set de mots-clés dans la langue principale. Les mots-clés des autres locales sont dérivés au moment de la rédaction (pas d'export Semrush par langue à l'init — trop lourd pour 90% des cas).
+## Étape 7 — Auteur (→ docs/AUTHOR-[slug].md)
+Si nom propre → dérouler le gabarit `docs/AUTHOR-template.md`. Sinon sauter.
 
-Annoncer :
-
-> Pour les mots-clés, deux options : soit tu colles un export Semrush, soit on fait un mini-interview de 6 questions. Set unique en langue principale (`{defaultLocale}`) — la traduction se fait par article au moment de la rédaction. Tu as un export sous la main ?
-
-### Cas A — Export Semrush fourni
-
-1. Parser. Regrouper par thème sémantique en 3 à 5 **clusters**.
-2. Pour chaque cluster : head term, longue traîne (< 1000 vol/mois), quick wins (KD ≤ 30), à éviter (KD > 60).
-3. Demander à l'utilisateur de confirmer/ajuster.
-4. Demander le positionnement global et les concurrents directs.
-5. Écrire `content/mots-cles.md` + coller l'export brut dans la section « Export brut ».
-
-### Cas B — Pas d'export Semrush
-
-Poser 6 questions en bloc :
-
-1. **Positionnement** — En une phrase, contre qui on se bat et auprès de qui on existe ?
-2. **Clusters** — 3 à 5 silos. Pour chacun : nom + une phrase.
-3. **Mots-clés piliers** — Un head term par cluster.
-4. **Longue traîne** — 10-15 questions concrètes que l'audience tape réellement.
-5. **Priorités 90 jours** — 5 à 10 requêtes réalistes.
-6. **À éviter** — 3 à 5 intentions qu'on ne cible PAS et pourquoi.
-
-Écrire `content/mots-cles.md`.
+## Étape 7bis — Personas (→ content/personas.md, AUTO-DÉRIVÉ)
+**Sans question supplémentaire.** Dériver 2 à 4 personas de l'audience (Étape 1) + des clusters/intentions (Étape 2) + du marché (Bloc 0). Pour chacun : situation, expertise, vocabulaire, déclencheur d'achat, et « Questions par étape de funnel » (découverte/comparaison/décision — alimentent les FAQ in-flow). Archétypes ancrés dans les clusters réels, pas de démographie inventée. `seo-geo-redaction` exige ce fichier.
 
 ---
 
-## Étape 3 — Bloc calendrier éditorial (alimente calendrier-edito.md)
+## Étape 8 — Direction artistique (AUTO-DESIGN) — OBLIGATOIRE, NON SAUTABLE
 
-Poser 5 questions en bloc :
+Exécuter **`docs/AUTO-DESIGN.md`**. Si `design-incoming/` contient un livrable Claude Design → déléguer plutôt à `integrate-claude-design`. Sinon :
 
-1. **Cadence cible** et **cadence plancher**.
-2. **Formats récurrents** — 3 à 6 formats canoniques (guide, comparatif, FAQ, news, retour d'expérience). Longueur cible + fréquence par format.
-3. **Saisonnalité** — pics par bimestre.
-4. **Rotation d'angles** — 4 à 6 angles.
-5. **Refresh** — politique de mise à jour.
+1. Déterminer l'**archétype** (comparateur / magazine / hybride) depuis l'intent dominant des clusters → pilote `niche.style.hero` + `homeSections`.
+2. `composePreset(productType, moods)` sur `lib/da-presets/` → palette + fonts + styles + anti-patterns.
+3. Écrire `niche.palette` (une couleur d'accent par catégorie, bgPrimary jamais blanc pur), `niche.fonts`, `niche.style` (mode/hero/effects/cards/uiStyle), `niche.signature` (anchor, oneRule, inspiration, forbidden, components).
 
-**Cascade depuis Bloc 0** : noter dans le fichier que chaque entrée du calendrier produit `locales.length` articles (un par langue, miroir strict).
+**NE JAMAIS** garder la palette/fonts par défaut (rouge `#FF3D57`, Unbounded/Space Grotesk, dark+aurora). Sortir de l'init avec le thème par défaut = bug d'init.
 
-Écrire `content/calendrier-edito.md`.
+## Étape 9 — Images structurelles (MCP nano-mentionbox) — OBLIGATOIRE, NON SAUTABLE
 
----
+Voir **`docs/IMAGES-WORKFLOW.md`**. Après AUTO-DESIGN, générer les slots structurels (`home-hero-background`, `home-hero-visual`, `home-category-[slug]` + `blog-category-background-[slug]` par catégorie, `author-[slug]` si auteur) via `mcp__nano-mentionbox__generate_image` (fire-and-poll → `wait_for_image`), prompts de la bibliothèque (`prompts/`) + `lib/image-slots.ts` **alignés sur la DA composée**. Compresser en WebP, pousser via `mcp__nano-mentionbox__github_push_images` sous `public/images/`.
 
-## Étape 4 — Bloc concurrents (alimente concurrents.md)
+Prompts ≤ ~20 mots, finir par « no text, no logos, no watermark ». Si la génération échoue, laisser le placeholder et le noter dans PROGRESS.md (ne pas bloquer tout l'init), mais le signaler clairement. Un site neuf en placeholders = bug.
 
-Poser 4 questions en bloc :
+## Étape 10 — Scheduled task de rédaction quotidienne
 
-1. **Directs (3-5 max)** — URL, pourquoi direct, force, faiblesse.
-2. **Indirects (3-5 max)** — forums, agrégateurs, comparateurs, sites de marques.
-3. **Gaps** — où la SERP est faible.
-4. **Anti-modèles** — 2 à 5 pratiques refusées.
-
-**Cascade depuis Bloc 0** : un seul set FR. Les concurrents par locale sont notés ad hoc dans l'analyse SERP de chaque article si pertinent.
-
-Écrire `content/concurrents.md`.
+Chemin sans-wizard → **demander confirmation** avant de créer (effet de bord global). Si oui, créer selon le gabarit canonique `docs/SCHEDULED-TASK-REDACTION.md` (remplacer les `[placeholders]` depuis `niche.config.ts`). TaskId `[repoName]-article-daily`, cron selon la cadence du Bloc 3 (`0 8 * * *` par défaut).
 
 ---
 
-## Étape 5 — Bloc FAQ base (alimente faq-base.md)
-
-Annoncer :
-
-> Pour la FAQ de base, soit je te pose quelques questions, soit je te propose des Q-R candidates dérivées des PAA des head terms identifiés au bloc 2. Tu préfères ?
-
-### Cas A — Génération à partir des head terms
-
-1. Simuler les 3-5 PAA pour chaque head term.
-2. Regrouper par thème.
-3. Proposer réponse-cadre 2-4 phrases, factuelle, sans tic IA.
-4. Demander validation/réécriture par question.
-
-### Cas B — Interview classique
-
-1. 3-5 thèmes de questions récurrentes.
-2. Pour chaque thème, 3 à 5 questions exactes.
-3. Réponse-cadre courte.
-
-**Cascade depuis Bloc 0** : FAQ écrite en langue principale. Au moment de la rédaction d'un article EN/NL/DE, les Q-R réutilisées sont traduites en ligne.
-
-Écrire `content/faq-base.md`.
-
----
-
-## Étape 6 — Bloc mentions légales (alimente mentions-legales.yaml)
-
-Poser en bloc :
-
-1. **Éditeur** : raison sociale, forme juridique, identifiant fiscal (SIRET FR / BCE BE / RC CH), adresse, représentant légal.
-2. **Contact** : email public, téléphone (optionnel).
-3. **Hébergeur** : nom + adresse + URL (Vercel Inc. par défaut).
-4. **DPO** : email RGPD.
-5. **Cookies** : oui/non + types.
-6. **PI** : tous droits réservés / CC-BY / autre.
-
-**Cascade depuis Bloc 0** : ENSUITE générer les versions traduites dans toutes les locales (`content/pages/mentions-legales.yaml`, `content/pages/mentions-legales.nl.yaml`, etc.). Le contenu factuel reste identique, seul le wording RGPD/cookies est adapté à la langue.
-
-Écrire le fichier principal + variantes locales.
-
----
-
-## Étape 7 — Bloc auteur (alimente docs/AUTHOR-[slug].md)
-
-Demander :
-
-> Tu signes les articles d'un nom propre ou sous le nom du site ? Si nom propre, je crée la fiche auteur.
-
-Si nom propre, dérouler l'interview du gabarit `docs/AUTHOR-template.md`.
-
-**Cascade depuis Bloc 0** : si Q0.3 = voix adaptée, la bio et le titre auteur sont traduits par langue. La fiche schema.org Person reste unique, les pages auteur sont en miroir.
-
-Écrire `docs/AUTHOR-[slug].md`.
-
----
-
-## Étape 8 — Récapitulatif final
+## Étape 11 — Récapitulatif final
 
 ```
-Configuration terminée. Fichiers écrits :
-- niche.config.ts ✓ (market, locales, defaultLocale, localePrefix verrouillés au Bloc 0)
-- content/ton-of-voice.md ✓
-- content/mots-cles.md ✓
-- content/calendrier-edito.md ✓
-- content/concurrents.md ✓
-- content/faq-base.md ✓
+Init terminé.
+- niche.config.ts ✓ (market, locales, defaultLocale, localePrefix)
+- content/ton-of-voice.md ✓ · mots-cles ✓ · personas ✓ (auto) · calendrier ✓ · concurrents ✓ · faq-base ✓
 - content/pages/mentions-legales.yaml ✓ (+ variantes locales si N langues)
-- docs/AUTHOR-[slug].md ✓ (si auteur fourni)
+- docs/AUTHOR-[slug].md ✓ (si auteur)
+- DA composée ✓ : archétype [x], palette + fonts + signature (plus de thème par défaut)
+- Images structurelles ✓ : hero + fonds catégories (+ auteur) générés et poussés
+- Scheduled task ✓ (si confirmée)
 
-Routing imposé : [`app/page.tsx` direct | `app/[locale]/...` avec localePrefix:'as-needed']
-Miroir strict : [activé/désactivé]
-Marché : [BE/FR/CA/CH/...]
-Locales : [fr / fr,en / fr,en,nl / ...]
+Routing : [app/page.tsx | app/[locale]/...] · Miroir strict : [oui/non] · Marché : [x] · Locales : [...]
+Prochaines étapes : pnpm dev → vérifier rendu · déploiement Vercel
 ```
 
 ---
 
 ## Règles strictes
 
-- **Bloc 0 est OBLIGATOIRE en PREMIER**. Aucun autre bloc ne peut commencer avant que `niche.config.ts.market`, `locales`, `defaultLocale`, `localePrefix` soient écrits.
-- **Ne JAMAIS inventer** une réponse si l'utilisateur ne fournit pas l'info. Laisser un `TODO` explicite.
-- **Bloc par bloc**, pas question par question. Un seul message utilisateur par bloc.
-- **Réutiliser les données entre blocs**. Locales définies au Bloc 0 → réinjectées partout.
-- **L'export Semrush a priorité sur l'interview** pour les blocs 2 et 4.
-- **Miroir strict NON-négociable** dès N ≥ 2 locales. Pas d'option « page FR seulement », même pour les utilitaires.
-
----
+- **Bloc 0 OBLIGATOIRE en PREMIER** : aucun autre bloc avant que market/locales/defaultLocale/localePrefix soient écrits.
+- **Étapes 8 (DA) et 9 (images) NON SAUTABLES** : un site qui sort en thème par défaut ou en placeholders = échec d'init.
+- **NE JAMAIS inventer** une réponse manquante → `TODO` explicite.
+- **Bloc par bloc**, un seul message utilisateur par bloc. Réutiliser les données entre blocs.
+- **Personas auto-dérivés** (pas de bloc d'interview dédié).
+- **Miroir strict NON-négociable** dès N ≥ 2 locales.
 
 ## Lien avec les autres skills
-
-Une fois `init-site` exécuté :
-- `ton-of-voice`, `seo-geo-redaction`, `humaniser-fr`, `integrate-claude-design` travaillent sans relancer d'interview.
-- `seo-geo-redaction` lit `niche.config.ts.locales` au début de chaque rédaction pour déterminer combien de versions de l'article produire (miroir strict — cf. `skills/seo-geo-redaction/references/mirror-i18n.md`).
-- Les **scheduled tasks** de rédaction quotidienne sur les sites enfants doivent lire `niche.config.ts.locales` au runtime et **toujours générer une version par locale** — pas de fallback « skip EN si non traduit ». La traduction systématique est une garantie de cohérence du miroir.
+- `nouveau-site` : routeur qui appelle ce skill quand pas d'`init-spec.md`.
+- `configure-from-spec` : équivalent AVEC init-spec wizard (zéro question).
+- `docs/AUTO-DESIGN.md` (étape 8) · `docs/IMAGES-WORKFLOW.md` (étape 9) · `docs/SCHEDULED-TASK-REDACTION.md` (étape 10).
+- `ton-of-voice`, `seo-geo-redaction`, `humaniser-fr` : utilisés à chaque rédaction ensuite (lisent les content/* écrits ici, dont personas.md).

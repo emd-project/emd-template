@@ -1,13 +1,14 @@
 /**
  * ImagePlaceholder — affiche une image optimisée si elle existe,
- * ou un placeholder visuel en dev pour que tu saches quelle image mettre.
+ * ou un placeholder visuel pour signaler quelle image mettre.
  *
  * Usage : <ImagePlaceholder slotId="home-hero-background" />
  *
  * Comportement :
- * - En dev : si l'image n'existe pas, affiche un bloc avec ID, dimensions, prompt IA
- * - En prod : si l'image n'existe pas, ne rend rien (fallback silencieux)
- * - Si l'image existe : rendue via next/image avec les bonnes dimensions
+ * - Si l'image existe : rendue via next/image avec les bonnes dimensions.
+ * - Image absente, en dev : bloc détaillé (ID, dimensions, prompt IA) pour savoir quoi générer.
+ * - Image absente, en prod : placeholder épuré (ID + dimensions). C'est un FILET DE SÉCURITÉ —
+ *   en V2, un site en prod ne doit afficher AUCUN placeholder (toutes les images sont générées).
  *
  * Server Component — pas de JS client.
  */
@@ -90,7 +91,7 @@ export function ImagePlaceholder({ slotId, priority = false, className, style, f
     )
   }
 
-  // Image absente + prod → placeholder épuré avec prompt
+  // Image absente + prod → placeholder épuré (filet de sécurité, pas la cible)
   if (!isDev) {
     return (
       <div

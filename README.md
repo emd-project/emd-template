@@ -18,14 +18,15 @@ npm run dev
 
 ### Le design à l'init — deux voies
 
-1. **Questionnaire** (par défaut, zéro compétence design) : type de site (comparateur / magazine /
-   hybride), ambiance, couleur, clair/sombre. Claude **compose une vraie DA** depuis la bibliothèque
-   de presets (`lib/da-presets/`) en visant la barre qualité `docs/design-reference/` — cf. `docs/AUTO-DESIGN.md`.
+1. **Choix d'un skin Voltéo** (par défaut, zéro compétence design) : type de site (comparateur /
+   magazine / hybride), **skin V1–V4** (4 identités prêtes), et **verticale** (énergie / assurance /
+   auto / tech). Claude **applique le skin** (bloc prêt à coller) puis le **mute** pour rester unique —
+   cf. `docs/AUTO-DESIGN.md` + `docs/design-reference/volteo/`.
 2. **Import Claude Design** : déposer un zip dans `design-incoming/` → le skill `integrate-claude-design`
    l'intègre.
 
 Dans les deux cas, le site sort **animé par de vraies images** (générées à l'init), jamais en
-placeholders — cf. `docs/IMAGES-WORKFLOW.md`. Plus de palette/fonts par défaut.
+placeholders — cf. `docs/IMAGES-WORKFLOW.md`. Plus de palette/fonts par défaut, jamais de clone brut d'un skin.
 
 ## Skills auto-déclenchés
 
@@ -52,9 +53,13 @@ Sur une demande de rédaction, `ton-of-voice` + `seo-geo-redaction` + `humaniser
 
 ## Direction artistique
 
-- **Presets DA** : `lib/da-presets/` (161 palettes, 72 paires de fonts, 75 styles UI, 161 règles par niche).
+- **Source unique : Voltéo** (`docs/design-reference/volteo/`) — 4 skins (V1 Électrique, V2 Éditorial,
+  V3 Suisse-Minimal, V4 Premium-sombre) + 4 verticales (énergie/assurance/auto/tech). Doctrine :
+  **choisir un skin → l'appliquer → le muter** (anti-footprint). Mode d'emploi + blocs prêts à coller :
+  `docs/design-reference/volteo/DESIGN-NOTES.md`.
 - **Archétypes** : `comparateur` / `magazine` / `hybride` — pilotent la home (`niche.style.homeSections`) et le hero.
 - **Mode** clair/sombre via `niche.style.mode` + `ThemeToggle`.
+- **Fallback** : `lib/da-presets/` (161 palettes) — uniquement si aucun skin ne convient (`docs/DA-PRESETS.md`).
 - **Images V2** : registre `lib/image-slots.ts`, génération Gemini→Flux (CMS) ou nano-mentionbox (init + tâches).
 
 ## Composants MDX (articles)
@@ -102,11 +107,12 @@ d'images (Gemini/Flux) · gestion auteurs · 2FA TOTP.
 ## Documentation
 
 - [`docs/TEMPLATE-SPEC.md`](docs/TEMPLATE-SPEC.md) — Architecture du moteur
-- [`docs/AUTO-DESIGN.md`](docs/AUTO-DESIGN.md) — Composition auto de la DA à l'init
-- [`docs/WIZARD-DESIGN-STEP.md`](docs/WIZARD-DESIGN-STEP.md) — Étape design du wizard (questionnaire / zip)
-- [`docs/design-reference/`](docs/design-reference/) — Barres qualité (comparateur énergie, magazine)
+- [`docs/AUTO-DESIGN.md`](docs/AUTO-DESIGN.md) — Doctrine DA à l'init (skin Voltéo → appliquer → muter)
+- [`docs/design-reference/volteo/`](docs/design-reference/volteo/README.md) — **Source design : skins + verticales + DESIGN-NOTES**
+- [`docs/WIZARD-DESIGN-STEP.md`](docs/WIZARD-DESIGN-STEP.md) — Étape design du wizard (skin / zip)
+- [`docs/DA-ANTI-IA.md`](docs/DA-ANTI-IA.md) — Garde-fous anti-IA + signature
+- [`docs/DA-PRESETS.md`](docs/DA-PRESETS.md) — Bibliothèque de fallback (optionnelle)
 - [`docs/IMAGES-WORKFLOW.md`](docs/IMAGES-WORKFLOW.md) — Stratégie images V2
-- [`docs/DA-PRESETS.md`](docs/DA-PRESETS.md) — Bibliothèque de presets DA
 - [`docs/SCHEDULED-TASK-REDACTION.md`](docs/SCHEDULED-TASK-REDACTION.md) — Gabarit de la tâche quotidienne
 - [`skills/seo-geo-redaction/references/mirror-i18n.md`](skills/seo-geo-redaction/references/mirror-i18n.md) — Miroir multi-langue
 - [`docs/CMS-SPEC.md`](docs/CMS-SPEC.md) — CMS · [`DECISIONS.md`](DECISIONS.md) · [`PROGRESS.md`](PROGRESS.md)

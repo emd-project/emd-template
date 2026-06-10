@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>document.documentElement.classList.add('js')</script>
+<title>Voltéo — Le marché de l'énergie belge en direct</title>
+<meta name="description" content="Suivez les tarifs d'énergie belges en temps réel et trouvez la meilleure offre d'électricité, de gaz, de gaz vert, d'eau ou de borne de recharge. Gratuit, neutre, sans inscription.">
+<link rel="canonical" href="https://volteo.be/home-comparateur-marche.html">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_BE">
+<meta property="og:title" content="Voltéo — Le marché de l'énergie belge en direct">
+<meta property="og:description" content="Tarifs d'énergie belges en temps réel et meilleure offre en 2 minutes.">
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="assets/marche.css">
+</head>
+<body class="md-page" data-screen-label="Comparateur — Marché en direct">
+<h1 class="sr-only">Voltéo — comparateur d'énergie en Belgique, tarifs du marché en direct</h1>
+
+<!-- ============ NAV ============ -->
+<nav class="nav">
+  <div class="wrap">
+    <a href="home-comparateur-marche.html" class="logo">
+      <span class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H13l0-8Z" fill="#FF6B35"/></svg></span>
+      <span class="word">Volté<span class="dot">o</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="#board">Tarifs du jour</a>
+      <a href="#flow">Comment ça marche</a>
+      <a href="#offres">Offres</a>
+      <a href="#blog">Le blog</a>
+    </div>
+    <div class="nav-cta">
+      <a href="#board" class="btn btn-accent" style="padding:11px 22px;font-size:15px;">Comparer<span class="arr">→</span></a>
+    </div>
+    <button class="nav-burger" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+<div class="mobile-menu">
+  <a href="#board">Tarifs du jour</a>
+  <a href="#flow">Comment ça marche</a>
+  <a href="#offres">Offres</a>
+  <a href="#blog">Le blog</a>
+  <a href="#board" class="btn btn-accent btn-lg">Comparer maintenant →</a>
+</div>
+
+<!-- ============ BARRE LIVE ============ -->
+<div class="md-statusbar">
+  <div class="wrap">
+    <span class="md-live"><span class="md-dot"></span> Marché belge · mise à jour à l'instant</span>
+    <div class="right">
+      <span>Indice élec <b>0,284 €/kWh</b></span>
+      <span>Gaz <b>0,072 €/kWh</b></span>
+      <span>38 fournisseurs suivis</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ HERO ============ -->
+<header class="md-hero">
+
+  <!-- orbites (boules qui tournent) -->
+  <div class="md-orbits" aria-hidden="true">
+    <span class="md-ring r1"></span><span class="md-ring r2"></span><span class="md-ring r3"></span>
+    <span class="md-arm a1"><span class="md-orbpos"><span class="md-orb" style="background:var(--elec);color:#5a3d00;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H13l0-8Z"/></svg></span></span></span>
+    <span class="md-arm a2"><span class="md-orbpos"><span class="md-orb" style="background:var(--green);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 21c0-9 6-15 16-16-1 10-7 16-16 16Z"/></svg></span></span></span>
+    <span class="md-arm a3"><span class="md-orbpos"><span class="md-orb sm" style="background:var(--water);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/></svg></span></span></span>
+    <span class="md-arm a4"><span class="md-orbpos"><span class="md-orb sm" style="background:var(--mobi);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v8a5 5 0 0 1-10 0z"/><path d="M9 3v3M15 3v3M12 20v2"/></svg></span></span></span>
+  </div>
+  <div class="md-orbits left" aria-hidden="true">
+    <span class="md-ring r2"></span><span class="md-ring r3"></span>
+    <span class="md-arm a2"><span class="md-orbpos"><span class="md-orb sm" style="background:var(--gaz);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 3-2 4-2 7a2 2 0 0 0 4 0c2 2 3 4 3 6a5 5 0 0 1-10 0c0-4 5-6 5-13Z"/></svg></span></span></span>
+  </div>
+
+  <!-- pastilles de tarifs flottantes -->
+  <div class="md-chips" aria-hidden="true">
+    <span class="md-chip c1"><span class="ci" style="background:var(--elec);color:#5a3d00;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H13l0-8Z"/></svg></span> Eoluz <span class="d dn">−12 %</span></span>
+    <span class="md-chip c2"><span class="ci" style="background:var(--green);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 21c0-9 6-15 16-16-1 10-7 16-16 16Z"/></svg></span> 100 % vert</span>
+    <span class="md-chip c3"><span class="ci" style="background:var(--gaz);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 3-2 4-2 7a2 2 0 0 0 4 0c2 2 3 4 3 6a5 5 0 0 1-10 0c0-4 5-6 5-13Z"/></svg></span> Gaz <span class="v">7,1 c</span></span>
+    <span class="md-chip c4"><span class="ci" style="background:var(--mobi);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v8a5 5 0 0 1-10 0z"/><path d="M12 20v2"/></svg></span> Borne <span class="v">0,40 €</span></span>
+    <span class="md-chip c5"><span class="ci" style="background:var(--water);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/></svg></span> Eau <span class="d dn">−4 %</span></span>
+    <span class="md-chip c6"><span class="ci" style="background:var(--green);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> <span class="d up">−490 €/an</span></span>
+  </div>
+
+  <div class="md-hero-inner">
+    <span class="md-pill"><span class="md-dot"></span> Le marché de l'énergie des Belges — avril 2026</span>
+    <h2 class="md-title">Comparez le marché,<br><span class="mk">gardez</span> <span class="grad">vos économies.</span></h2>
+    <p class="md-sub">Tarifs belges en temps réel, comparatifs neutres, calcul d'économies en 2 minutes. Électricité, gaz, gaz vert, eau et bornes — sans inscription.</p>
+    <div class="md-cta">
+      <a href="#board" class="md-btn md-btn-primary">Voir les tarifs du jour <span class="arr">→</span></a>
+      <a href="hub.html" class="md-btn md-btn-ghost">Lire le blog</a>
+    </div>
+    <div class="md-micro">
+      <span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 38 fournisseurs suivis</span>
+      <span class="mdot"></span>
+      <span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 100 % fiscalité belge</span>
+      <span class="mdot"></span>
+      <span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Sans inscription</span>
+      <span class="mdot"></span>
+      <span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 52 guides publiés</span>
+    </div>
+  </div>
+
+  <!-- ticker bandeau -->
+  <div class="md-ticker" aria-hidden="true">
+    <div class="md-ticker-track">
+      <span class="tk"><b>ÉLEC base</b> <span class="v">0,284 €/kWh</span> <i class="up">▲ +1,2 %</i></span>
+      <span class="tk"><b>GAZ</b> <span class="v">0,072 €/kWh</span> <i class="dn">▼ −0,4 %</i></span>
+      <span class="tk"><b>EOLUZ fixe 1 an</b> <span class="v">0,261 €</span> <i class="dn">▼ −12 %</i></span>
+      <span class="tk"><b>LUMIO 100 % vert</b> <span class="v">0,293 €</span> <i class="up">▲ +0,6 %</i></span>
+      <span class="tk"><b>BORNE rapide</b> <span class="v">0,59 €/kWh</span> <i class="up">▲ +2,1 %</i></span>
+      <span class="tk"><b>EAU SWDE</b> <span class="v">5,12 €/m³</span> <i class="dn">▼ −4,0 %</i></span>
+      <span class="tk"><b>MAZOUT</b> <span class="v">0,98 €/L</span> <i class="dn">▼ −1,3 %</i></span>
+      <span class="tk"><b>WATTERA variable</b> <span class="v">0,277 €</span> <i class="up">▲ +0,3 %</i></span>
+      <!-- duplicata pour boucle fluide -->
+      <span class="tk"><b>ÉLEC base</b> <span class="v">0,284 €/kWh</span> <i class="up">▲ +1,2 %</i></span>
+      <span class="tk"><b>GAZ</b> <span class="v">0,072 €/kWh</span> <i class="dn">▼ −0,4 %</i></span>
+      <span class="tk"><b>EOLUZ fixe 1 an</b> <span class="v">0,261 €</span> <i class="dn">▼ −12 %</i></span>
+      <span class="tk"><b>LUMIO 100 % vert</b> <span class="v">0,293 €</span> <i class="up">▲ +0,6 %</i></span>
+      <span class="tk"><b>BORNE rapide</b> <span class="v">0,59 €/kWh</span> <i class="up">▲ +2,1 %</i></span>
+      <span class="tk"><b>EAU SWDE</b> <span class="v">5,12 €/m³</span> <i class="dn">▼ −4,0 %</i></span>
+      <span class="tk"><b>MAZOUT</b> <span class="v">0,98 €/L</span> <i class="dn">▼ −1,3 %</i></span>
+      <span class="tk"><b>WATTERA variable</b> <span class="v">0,277 €</span> <i class="up">▲ +0,3 %</i></span>
+    </div>
+  </div>
+</header>
+
+<!-- ============ TABLEAU DE TARIFS (TERMINAL) ============ -->
+<section class="md-board" id="board">
+  <div class="wrap">
+    <div class="md-board-head">
+      <div>
+        <span class="eyebrow">Tarifs du jour</span>
+        <h2>Le meilleur prix, par énergie.</h2>
+        <p>On scanne le marché belge en continu et on ne garde que l'offre gagnante du moment.</p>
+      </div>
+      <span class="md-updated"><span class="md-dot"></span> Dernière analyse · il y a 2 min</span>
+    </div>
+
+    <div class="md-board-grid">
+      <div class="brow head">
+        <span>Énergie</span><span>Meilleur tarif</span><span class="h-prov">Fournisseur</span><span>30 j</span><span class="h-spark">Tendance</span><span></span>
+      </div>
+
+      <div class="brow">
+        <div class="b-energy"><span class="b-ic" style="background:var(--elec);color:#5a3d00;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H13l0-8Z"/></svg></span><span>Électricité<small>Tarif fixe 1 an</small></span></div>
+        <div class="b-price">0,261<small> €/kWh</small></div>
+        <div class="b-prov">Eoluz<small>★ 4,7 · sans frais</small></div>
+        <div class="b-delta dn">▼ 12 %</div>
+        <div class="spark dn"><i style="height:62%"></i><i style="height:80%"></i><i style="height:55%"></i><i style="height:70%"></i><i style="height:40%"></i><i style="height:48%"></i><i style="height:30%"></i></div>
+        <a href="hub.html" class="b-cta">Comparer →</a>
+      </div>
+
+      <div class="brow">
+        <div class="b-energy"><span class="b-ic" style="background:var(--gaz);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 3-2 4-2 7a2 2 0 0 0 4 0c2 2 3 4 3 6a5 5 0 0 1-10 0c0-4 5-6 5-13Z"/></svg></span><span>Gaz<small>Tarif variable</small></span></div>
+        <div class="b-price">0,068<small> €/kWh</small></div>
+        <div class="b-prov">Belgaz<small>★ 4,5 · 100 % en ligne</small></div>
+        <div class="b-delta dn">▼ 3 %</div>
+        <div class="spark dn"><i style="height:70%"></i><i style="height:64%"></i><i style="height:72%"></i><i style="height:50%"></i><i style="height:58%"></i><i style="height:44%"></i><i style="height:52%"></i></div>
+        <a href="hub.html" class="b-cta">Comparer →</a>
+      </div>
+
+      <div class="brow">
+        <div class="b-energy"><span class="b-ic" style="background:var(--green);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 21c0-9 6-15 16-16-1 10-7 16-16 16Z"/></svg></span><span>Gaz vert<small>100 % biométhane</small></span></div>
+        <div class="b-price">0,089<small> €/kWh</small></div>
+        <div class="b-prov">Naturéo<small>★ 4,8 · garanties d'origine</small></div>
+        <div class="b-delta up">▲ 1 %</div>
+        <div class="spark up"><i style="height:40%"></i><i style="height:48%"></i><i style="height:44%"></i><i style="height:60%"></i><i style="height:55%"></i><i style="height:72%"></i><i style="height:80%"></i></div>
+        <a href="hub.html" class="b-cta">Comparer →</a>
+      </div>
+
+      <div class="brow">
+        <div class="b-energy"><span class="b-ic" style="background:var(--water);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/></svg></span><span>Eau<small>Tarif distributeur</small></span></div>
+        <div class="b-price">5,12<small> €/m³</small></div>
+        <div class="b-prov">SWDE<small>Wallonie</small></div>
+        <div class="b-delta dn">▼ 4 %</div>
+        <div class="spark dn"><i style="height:80%"></i><i style="height:72%"></i><i style="height:66%"></i><i style="height:58%"></i><i style="height:50%"></i><i style="height:46%"></i><i style="height:38%"></i></div>
+        <a href="hub.html" class="b-cta">Comparer →</a>
+      </div>
+
+      <div class="brow">
+        <div class="b-energy"><span class="b-ic" style="background:var(--mobi);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v8a5 5 0 0 1-10 0z"/><path d="M9 3v3M15 3v3M12 20v2"/></svg></span><span>Borne de recharge<small>Abonnement maison</small></span></div>
+        <div class="b-price">0,40<small> €/kWh</small></div>
+        <div class="b-prov">Pilote<small>★ 4,6 · interopérable</small></div>
+        <div class="b-delta up">▲ 2 %</div>
+        <div class="spark up"><i style="height:44%"></i><i style="height:40%"></i><i style="height:52%"></i><i style="height:48%"></i><i style="height:64%"></i><i style="height:70%"></i><i style="height:78%"></i></div>
+        <a href="hub.html" class="b-cta">Comparer →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ÉTAPES ============ -->
+<section class="md-flow" id="flow">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Comment ça marche</span>
+      <h2>Trois étapes, deux minutes.</h2>
+    </div>
+    <div class="md-rail">
+      <div class="track"></div>
+      <div class="mstep reveal d1"><div class="num">1</div><h3>Votre profil</h3><p>Code postal et type d'énergie. C'est tout — aucune création de compte.</p></div>
+      <div class="mstep reveal d2"><div class="num">2</div><h3>Le marché en direct</h3><p>On confronte les 38 fournisseurs belges sur le coût réel d'une année complète.</p></div>
+      <div class="mstep reveal d3"><div class="num">3</div><h3>Vous changez</h3><p>On gère la résiliation et la bascule. Vous ne touchez à rien, vous économisez.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ OFFRE VEDETTE + CLASSEMENT ============ -->
+<section class="md-spotlight" id="offres">
+  <div class="wrap">
+    <div class="md-spot-grid">
+      <div class="md-best reveal">
+        <span class="blob"></span>
+        <span class="tag tag-best"><span class="pip" style="background:#fff;"></span>Offre gagnante du jour</span>
+        <h3>Eoluz · Électricité fixe 1 an</h3>
+        <p class="sub">Prix bloqué 12 mois, énergie 100 % renouvelable, sans frais de dossier.</p>
+        <div class="price"><span class="amt">948</span><span class="per">€ / an estimés</span></div>
+        <span class="save">−490 € vs tarif marché</span>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Prix de l'énergie bloqué 12 mois</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 100 % vert · garanties d'origine</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Résiliation gérée par Voltéo</li>
+        </ul>
+        <a href="hub.html" class="md-btn md-btn-ghost">Voir le détail de l'offre <span class="arr">→</span></a>
+      </div>
+
+      <div class="md-rank">
+        <a href="hub.html" class="rk"><span class="rkn">2</span><span class="rkp"><b>Lumio · Vert</b><small>Variable · ★ 4,6</small></span><span class="rka"><b>972 €</b><small>−466 €/an</small></span></a>
+        <a href="hub.html" class="rk"><span class="rkn">3</span><span class="rkp"><b>Wattera · Flex</b><small>Variable · ★ 4,4</small></span><span class="rka"><b>1 004 €</b><small>−434 €/an</small></span></a>
+        <a href="hub.html" class="rk"><span class="rkn">4</span><span class="rkp"><b>Belgaz · Duo</b><small>Élec + gaz · ★ 4,5</small></span><span class="rka"><b>1 041 €</b><small>−397 €/an</small></span></a>
+        <a href="hub.html" class="rk"><span class="rkn">5</span><span class="rkp"><b>Vélia · Éco</b><small>Fixe 2 ans · ★ 4,3</small></span><span class="rka"><b>1 058 €</b><small>−380 €/an</small></span></a>
+        <a href="hub.html" class="rk"><span class="rkn">6</span><span class="rkp"><b>Naturéo · Bio</b><small>Gaz vert · ★ 4,8</small></span><span class="rka"><b>1 077 €</b><small>−361 €/an</small></span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BLOG PAR RUBRIQUE ============ -->
+<section class="md-blog" id="blog">
+  <div class="wrap">
+    <div class="md-blog-head">
+      <div>
+        <span class="eyebrow">Le blog Voltéo</span>
+        <h2>Comprenez avant de signer.</h2>
+        <p>Guides chiffrés et décryptages du marché belge, rangés par thème. Sans jargon, sans pub déguisée.</p>
+      </div>
+      <a href="hub.html" class="more">Tous les articles <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+
+    <div class="md-cat-grid">
+      <a href="hub.html" class="md-cat">
+        <span class="ic" style="background:var(--elec);color:#5a3d00;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H13l0-8Z"/></svg></span>
+        <span class="tx"><h3>Électricité</h3><small>14 articles</small></span>
+        <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+      <a href="hub.html" class="md-cat">
+        <span class="ic" style="background:var(--gaz);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 3-2 4-2 7a2 2 0 0 0 4 0c2 2 3 4 3 6a5 5 0 0 1-10 0c0-4 5-6 5-13Z"/></svg></span>
+        <span class="tx"><h3>Gaz &amp; chauffage</h3><small>9 articles</small></span>
+        <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+      <a href="hub.html" class="md-cat">
+        <span class="ic" style="background:var(--green);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 21c0-9 6-15 16-16-1 10-7 16-16 16Z"/></svg></span>
+        <span class="tx"><h3>Énergie verte</h3><small>11 articles</small></span>
+        <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+      <a href="hub.html" class="md-cat">
+        <span class="ic" style="background:var(--mobi);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v8a5 5 0 0 1-10 0z"/><path d="M9 3v3M15 3v3M12 20v2"/></svg></span>
+        <span class="tx"><h3>Mobilité</h3><small>8 articles</small></span>
+        <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+      <a href="hub.html" class="md-cat">
+        <span class="ic" style="background:var(--water);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/></svg></span>
+        <span class="tx"><h3>Actus du marché</h3><small>16 articles</small></span>
+        <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+      <a href="hub.html" class="md-cat">
+        <span class="ic" style="background:var(--primary);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h10"/></svg></span>
+        <span class="tx"><h3>Guides pratiques</h3><small>12 articles</small></span>
+        <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+    </div>
+
+    <div class="md-read">
+      <div class="lbl">À lire cette semaine</div>
+      <div class="md-posts">
+        <a href="article.html" class="md-post">
+          <div class="ph"><span>photo · compteur</span></div>
+          <div class="pb">
+            <span class="tag elec"><span class="pip"></span>Électricité</span>
+            <h3>Tarif fixe ou variable en 2026 : le grand match</h3>
+            <p>On a simulé les deux scénarios sur trois profils de ménages belges.</p>
+            <div class="pm">8 min · 12 mai 2026</div>
+          </div>
+        </a>
+        <a href="article.html" class="md-post">
+          <div class="ph"><span>photo · radiateur</span></div>
+          <div class="pb">
+            <span class="tag gaz"><span class="pip"></span>Gaz</span>
+            <h3>10 gestes qui réduisent vraiment votre facture de gaz</h3>
+            <p>Les réglages et habitudes qui pèsent le plus, chiffres à l'appui.</p>
+            <div class="pm">6 min · 28 avr. 2026</div>
+          </div>
+        </a>
+        <a href="article.html" class="md-post">
+          <div class="ph"><span>photo · borne</span></div>
+          <div class="pb">
+            <span class="tag mobi"><span class="pip"></span>Mobilité</span>
+            <h3>Recharger sa voiture à domicile : quel tarif choisir ?</h3>
+            <p>Heures creuses, borne dédiée, panneaux : le bon réglage coût.</p>
+            <div class="pm">8 min · 2 avr. 2026</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA FINAL ============ -->
+<section class="md-final">
+  <div class="wrap">
+    <div class="md-final-card reveal">
+      <span class="glow g1"></span><span class="glow g2"></span>
+      <span class="eyebrow">Alerte tarifs</span>
+      <h2>Soyez prévenu dès qu'une offre bat la vôtre.</h2>
+      <p>Une fois par mois : l'état du marché belge et une alerte personnalisée quand vous pouvez économiser. Sans spam.</p>
+      <form class="md-news-form" onsubmit="return false">
+        <input type="email" placeholder="votre@email.be" required>
+        <button type="submit" class="md-btn md-btn-primary">M'alerter <span class="arr">→</span></button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="home-comparateur-marche.html" class="logo"><span class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H13l0-8Z" fill="#fff"/></svg></span><span class="word">Voltéo</span></a>
+        <p class="footer-blurb">Le comparateur d'énergie indépendant en Belgique. Neutre, gratuit, et 100 % du côté du consommateur.</p>
+      </div>
+      <div class="footer-col"><h4>Comparer</h4><ul><li><a href="#board">Électricité</a></li><li><a href="#board">Gaz</a></li><li><a href="#board">Gaz vert</a></li><li><a href="#board">Eau</a></li><li><a href="#board">Bornes de recharge</a></li></ul></div>
+      <div class="footer-col"><h4>Le blog</h4><ul><li><a href="hub.html">Électricité</a></li><li><a href="hub.html">Gaz &amp; chauffage</a></li><li><a href="hub.html">Énergie verte</a></li><li><a href="hub.html">Mobilité</a></li><li><a href="hub.html">Actus du marché</a></li></ul></div>
+      <div class="footer-col"><h4>Voltéo</h4><ul><li><a href="#">Qui sommes-nous</a></li><li><a href="#">Notre méthode</a></li><li><a href="#">Contact</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Voltéo · Comparateur indépendant agréé · Bruxelles, Belgique</span>
+      <div class="footer-social">
+        <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5A2.5 2.5 0 1 1 0 3.5a2.5 2.5 0 0 1 4.98 0ZM0 8h5v16H0V8Zm7.5 0h4.8v2.2h.07c.67-1.2 2.3-2.5 4.73-2.5 5.06 0 6 3.3 6 7.6V24h-5v-7.1c0-1.7 0-3.9-2.4-3.9s-2.7 1.85-2.7 3.77V24h-5V8Z"/></svg></a>
+        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
+        <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 22v-9h3l.5-4H13V7c0-1.1.3-1.9 2-1.9h2V1.5C16.6 1.4 15.4 1.3 14 1.3 11 1.3 9 3.1 9 6.5V9H6v4h3v9h4Z"/></svg></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/main.js"></script>
+</body>
+</html>

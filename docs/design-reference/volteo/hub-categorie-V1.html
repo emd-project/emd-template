@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>document.documentElement.classList.add('js')</script>
+<title>Le mag Voltéo — Conseils & guides énergie en Belgique</title>
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="assets/hub.css">
+<link rel="stylesheet" href="assets/theme-v1.css">
+<meta name="x-skin" content="V1">
+</head>
+<body data-screen-label="Hub blog">
+
+<!-- ============ NAV ============ -->
+<nav class="nav">
+  <div class="wrap">
+    <a href="home-comparateur-V1.html" class="logo">
+      <span class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H13l0-8Z" fill="#FF6B35"/></svg></span>
+      <span class="word">Volté<span class="dot">o</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="home-comparateur-V1.html#categories">Comparer</a>
+      <a href="home-comparateur-V1.html#estimateur">Estimer</a>
+      <a href="home-comparateur-V1.html#offres">Offres</a>
+      <a href="hub-categorie-V1.html" class="active">Conseils</a>
+      <a href="home-comparateur-V1.html#aide">Aide</a>
+    </div>
+    <div class="nav-cta">
+      <a href="home-comparateur-V1.html#hero-form" class="btn btn-accent" style="padding:11px 22px;font-size:15px;">Comparer<span class="arr">→</span></a>
+    </div>
+    <button class="nav-burger" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+<div class="mobile-menu">
+  <a href="home-comparateur-V1.html#categories">Comparer</a>
+  <a href="home-comparateur-V1.html#estimateur">Estimer</a>
+  <a href="home-comparateur-V1.html#offres">Offres</a>
+  <a href="hub-categorie-V1.html">Conseils</a>
+  <a href="home-comparateur-V1.html#aide">Aide</a>
+  <a href="home-comparateur-V1.html#hero-form" class="btn btn-accent btn-lg">Comparer maintenant →</a>
+</div>
+
+<!-- ============ HERO HUB ============ -->
+<header class="hub-hero" data-screen-label="En-tête catégorie">
+  <span class="glow"></span>
+  <div class="wrap">
+    <nav class="crumb">
+      <a href="home-comparateur-V1.html">Accueil</a><span class="sep">/</span><span class="cur">Le mag</span>
+    </nav>
+    <span class="kicker"><span class="tag elec" style="padding:3px 10px;"><span class="pip"></span>Le mag Voltéo</span></span>
+    <h1>Conseils, guides et actus pour payer votre énergie moins cher.</h1>
+    <p class="lead">On décrypte les tarifs belges, on teste les astuces et on traque les pièges — pour que vous gardiez le contrôle de vos factures.</p>
+    <div class="meta">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg> 48 articles</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Mis à jour chaque semaine</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> Indépendant & sans pub déguisée</span>
+    </div>
+  </div>
+</header>
+
+<!-- ============ FILTRES ============ -->
+<div class="filter-bar">
+  <div class="wrap">
+    <button class="chip on" data-filter="all">Tout</button>
+    <button class="chip" data-filter="elec"><span class="pip" style="background:var(--elec)"></span>Électricité</button>
+    <button class="chip" data-filter="gaz"><span class="pip" style="background:var(--gaz)"></span>Gaz</button>
+    <button class="chip" data-filter="green"><span class="pip" style="background:var(--green)"></span>Énergie verte</button>
+    <button class="chip" data-filter="eau"><span class="pip" style="background:var(--water)"></span>Eau</button>
+    <button class="chip" data-filter="mobi"><span class="pip" style="background:var(--mobi)"></span>Mobilité</button>
+    <button class="chip" data-filter="actus"><span class="pip" style="background:var(--ink-3)"></span>Actus</button>
+  </div>
+</div>
+
+<!-- ============ À LA UNE ============ -->
+<section class="section" style="padding-top:56px;padding-bottom:0;">
+  <div class="wrap">
+    <a href="article-V1.html" class="featured reveal">
+      <div class="ph feat-img"><span>photo · compteur électrique</span></div>
+      <div class="feat-body">
+        <span class="feat-flag"><span class="tag elec" style="padding:4px 11px;"><span class="pip"></span>À la une · Électricité</span></span>
+        <h2>Tarif fixe ou variable en 2026 : le grand match, chiffres à l'appui.</h2>
+        <p>Avec la fin du bouclier tarifaire, le choix du type de contrat n'a jamais autant pesé sur votre facture. On a simulé les deux scénarios sur 3 profils de ménages belges.</p>
+        <div class="feat-meta">
+          <span class="avatar">CM</span>
+          <span>Camille Mertens · <span style="color:var(--ink-2)">8 min de lecture</span> · 12 mai 2026</span>
+        </div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ============ LISTE ============ -->
+<section class="section" style="padding-top:48px;">
+  <div class="wrap">
+    <div class="list-head">
+      <h3>Tous les articles</h3>
+      <span class="count" id="listCount">48 articles</span>
+    </div>
+
+    <div class="posts">
+      <a href="article-V1.html" class="post" data-cat="gaz"><div class="ph post-img"><span>photo · radiateur</span></div><div class="post-body"><span class="tag gaz"><span class="pip"></span>Gaz</span><h3>10 gestes qui réduisent vraiment votre facture de gaz</h3><p>On a chiffré chaque astuce. Spoiler : baisser d'1°C ne fait pas tout.</p><div class="post-meta">6 min · 28 avr. 2026</div></div></a>
+      <a href="article-V1.html" class="post" data-cat="green"><div class="ph post-img"><span>photo · éoliennes</span></div><div class="post-body"><span class="tag green"><span class="pip"></span>Énergie verte</span><h3>Gaz vert : vrai geste écolo ou argument marketing ?</h3><p>Garanties d'origine, biométhane, compensation… on sépare le vrai du faux.</p><div class="post-meta">7 min · 15 avr. 2026</div></div></a>
+      <a href="article-V1.html" class="post" data-cat="elec"><div class="ph post-img"><span>photo · panneaux solaires</span></div><div class="post-body"><span class="tag elec"><span class="pip"></span>Électricité</span><h3>Tarif prosumer en Wallonie : comment le calculer en 2026</h3><p>Le guide clair pour les propriétaires de panneaux photovoltaïques.</p><div class="post-meta">9 min · 9 avr. 2026</div></div></a>
+      <a href="article-V1.html" class="post" data-cat="mobi"><div class="ph post-img"><span>photo · borne recharge</span></div><div class="post-body"><span class="tag mobi"><span class="pip"></span>Mobilité</span><h3>Recharger sa voiture électrique à domicile : quel tarif ?</h3><p>Heures creuses, tarif bi-horaire, borne intelligente : on compare.</p><div class="post-meta">8 min · 2 avr. 2026</div></div></a>
+      <a href="article-V1.html" class="post" data-cat="eau"><div class="ph post-img"><span>photo · robinet</span></div><div class="post-body"><span class="tag water"><span class="pip"></span>Eau</span><h3>Facture d'eau en Belgique : qui fixe les prix et pourquoi ils grimpent</h3><p>SWDE, Vivaqua, Pidpa… comprendre votre distributeur régional.</p><div class="post-meta">5 min · 27 mars 2026</div></div></a>
+      <a href="article-V1.html" class="post" data-cat="actus"><div class="ph post-img"><span>photo · parlement</span></div><div class="post-body"><span class="tag actus"><span class="pip"></span>Actus</span><h3>Indexation des tarifs : ce qui change pour les ménages au 1er juillet</h3><p>Le point sur les nouvelles règles de la CREG et leur impact réel.</p><div class="post-meta">4 min · 24 mars 2026</div></div></a>
+      <a href="article-V1.html" class="post" data-cat="elec"><div class="ph post-img"><span>photo · tableau électrique</span></div><div class="post-body"><span class="tag elec"><span class="pip"></span>Électricité</span><h3>Heures pleines / heures creuses : est-ce encore rentable ?</h3><p>Le compteur bi-horaire a-t-il toujours du sens avec les nouveaux tarifs ?</p><div class="post-meta">6 min · 18 mars 2026</div></div></a>
+      <a href="article-V1.html" class="post" data-cat="gaz"><div class="ph post-img"><span>photo · chaudière</span></div><div class="post-body"><span class="tag gaz"><span class="pip"></span>Gaz</span><h3>Chaudière au gaz : faut-il anticiper l'interdiction de 2035 ?</h3><p>Pompe à chaleur, hybride, ou rester au gaz : on fait le calcul.</p><div class="post-meta">10 min · 11 mars 2026</div></div></a>
+      <a href="article-V1.html" class="post" data-cat="green"><div class="ph post-img"><span>photo · forêt</span></div><div class="post-body"><span class="tag green"><span class="pip"></span>Énergie verte</span><h3>Comment vérifier qu'un fournisseur est vraiment 100 % vert</h3><p>Les labels qui comptent et ceux qui ne valent rien, décryptés.</p><div class="post-meta">7 min · 4 mars 2026</div></div></a>
+      <a href="article-V1.html" class="post" data-cat="mobi"><div class="ph post-img"><span>photo · voiture ville</span></div><div class="post-body"><span class="tag mobi"><span class="pip"></span>Mobilité</span><h3>Bornes publiques en Belgique : le guide des abonnements 2026</h3><p>Comparatif des réseaux et des cartes de recharge interopérables.</p><div class="post-meta">9 min · 26 fév. 2026</div></div></a>
+      <a href="article-V1.html" class="post" data-cat="actus"><div class="ph post-img"><span>photo · marché énergie</span></div><div class="post-body"><span class="tag actus"><span class="pip"></span>Actus</span><h3>Prix de l'énergie : à quoi s'attendre pour l'hiver prochain</h3><p>Notre lecture des marchés de gros et ce que ça implique pour vous.</p><div class="post-meta">5 min · 19 fév. 2026</div></div></a>
+      <a href="article-V1.html" class="post" data-cat="elec"><div class="ph post-img"><span>photo · ampoule</span></div><div class="post-body"><span class="tag elec"><span class="pip"></span>Électricité</span><h3>Combien consomment réellement vos appareils en veille ?</h3><p>On a branché un wattmètre sur 15 appareils du quotidien. Surprises.</p><div class="post-meta">6 min · 12 fév. 2026</div></div></a>
+    </div>
+
+    <div class="more-wrap">
+      <button class="btn btn-ghost btn-lg" id="loadMore">Charger plus d'articles</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GUIDES ============ -->
+<section class="section guides">
+  <div class="wrap">
+    <div class="sec-head reveal" style="margin-bottom:36px;">
+      <span class="eyebrow">Par thème</span>
+      <h2 style="font-size:clamp(28px,3.6vw,42px);font-weight:800;margin-top:14px;">Explorez nos guides</h2>
+    </div>
+    <div class="guide-grid">
+      <a href="hub-categorie-V1.html" class="guide reveal d1"><span class="g-ic" style="background:var(--elec-soft);color:#966400;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H13l0-8Z"/></svg></span><h4>Réduire sa facture</h4><p>Astuces concrètes et chiffrées pour électricité et gaz.</p><span class="g-count">14 articles</span></a>
+      <a href="hub-categorie-V1.html" class="guide reveal d2"><span class="g-ic" style="background:var(--green-soft);color:#0c6e3f;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21c0-6 3-11 9-12-1 7-4 11-9 12Zm0 0c0-5-2-8-7-9 1 5 3 8 7 9Z"/></svg></span><h4>Passer au vert</h4><p>Tout sur l'énergie renouvelable et le biométhane.</p><span class="g-count">11 articles</span></a>
+      <a href="hub-categorie-V1.html" class="guide reveal d3"><span class="g-ic" style="background:var(--mobi-soft);color:#5a3ed6;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M9 7h6M12 11v4M10 15h4"/></svg></span><h4>Mobilité électrique</h4><p>Recharge, tarifs et bornes pour votre véhicule.</p><span class="g-count">8 articles</span></a>
+      <a href="hub-categorie-V1.html" class="guide reveal d4"><span class="g-ic" style="background:var(--cream-2);color:var(--ink-2);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg></span><h4>Comprendre le marché</h4><p>Actus, tarifs et décryptages de la régulation belge.</p><span class="g-count">15 articles</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NEWSLETTER ============ -->
+<section class="section" style="padding-top:0;">
+  <div class="wrap">
+    <div class="news reveal">
+      <h2>L'alerte qui vous fait économiser</h2>
+      <p>Une fois par mois, nos meilleurs conseils et une alerte dès qu'une offre bat la vôtre. Rien d'autre.</p>
+      <form class="news-form">
+        <input type="email" placeholder="votre@email.be" required>
+        <button type="submit" class="btn btn-primary">S'inscrire</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="home-comparateur-V1.html" class="logo"><span class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H13l0-8Z" fill="#fff"/></svg></span><span class="word">Voltéo</span></a>
+        <p class="footer-blurb">Le comparateur d'énergie indépendant en Belgique. Neutre, gratuit, et 100 % du côté du consommateur.</p>
+      </div>
+      <div class="footer-col"><h4>Comparer</h4><ul><li><a href="home-comparateur-V1.html#offres">Électricité</a></li><li><a href="home-comparateur-V1.html#offres">Gaz</a></li><li><a href="home-comparateur-V1.html#offres">Gaz vert</a></li><li><a href="home-comparateur-V1.html#offres">Eau</a></li><li><a href="home-comparateur-V1.html#offres">Bornes de recharge</a></li></ul></div>
+      <div class="footer-col"><h4>Ressources</h4><ul><li><a href="hub-categorie-V1.html">Le mag</a></li><li><a href="home-comparateur-V1.html#estimateur">Estimateur</a></li><li><a href="#">Quiz contrat</a></li><li><a href="#">Glossaire énergie</a></li></ul></div>
+      <div class="footer-col"><h4>Voltéo</h4><ul><li><a href="#">Qui sommes-nous</a></li><li><a href="#">Notre méthode</a></li><li><a href="#">Contact</a></li><li><a href="#">Aide & FAQ</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Voltéo · Comparateur indépendant agréé · Bruxelles, Belgique</span>
+      <div class="footer-social">
+        <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5A2.5 2.5 0 1 1 0 3.5a2.5 2.5 0 0 1 4.98 0ZM0 8h5v16H0V8Zm7.5 0h4.8v2.2h.07c.67-1.2 2.3-2.5 4.73-2.5 5.06 0 6 3.3 6 7.6V24h-5v-7.1c0-1.7 0-3.9-2.4-3.9s-2.7 1.85-2.7 3.77V24h-5V8Z"/></svg></a>
+        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
+        <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 22v-9h3l.5-4H13V7c0-1.1.3-1.9 2-1.9h2V1.5C16.6 1.4 15.4 1.3 14 1.3 11 1.3 9 3.1 9 6.5V9H6v4h3v9h4Z"/></svg></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/main.js"></script>
+<script src="assets/hub.js"></script>
+</body>
+</html>

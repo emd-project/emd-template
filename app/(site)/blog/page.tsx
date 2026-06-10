@@ -1,26 +1,30 @@
 /**
- * /blog — hub éditorial style magazine.
- * Featured hero + filtres catégories + grille asymétrique + promo outils.
+ * /blog — hub éditorial à la structure Voltéo.
+ * hub-hero + barre de filtres + article à la une + grille d'articles + guides.
  * Server Component · ISR 3600s · searchParams: page
  */
 
 import Link from 'next/link'
+import Image from 'next/image'
 import type { Metadata } from 'next'
-import Balancer from 'react-wrap-balancer'
-import { getAllArticles, getCategories, CATEGORY_ACCENT, formatDate, articleHref } from '@/lib/blog'
+import { getAllArticles, getCategories, formatDate, articleHref, type ArticleMeta } from '@/lib/blog'
 import { currentYear } from '@/lib/utils/year'
-import { ArticleCard } from '@/components/blog/ArticleCard'
 import { Pagination } from '@/components/blog/Pagination'
 import { niche } from '@/niche.config'
 import { t } from '@/lib/i18n'
-import { FadeIn } from '@/components/motion/FadeIn'
-import { Stagger, StaggerItem } from '@/components/motion/Stagger'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://${niche.domain}`
 
 export const revalidate = 3600
 
 const ARTICLES_PER_PAGE = 9
+
+const CAT_INDEX: Record<string, number> = Object.fromEntries(
+  niche.categories.map((c, i) => [c.slug, (i % 5) + 1])
+)
+const catClass = (slug: string) => `c${CAT_INDEX[slug] ?? 1}`
+const catLabel = (slug: string) =>
+  niche.categories.find((c) => c.slug === slug)?.label ?? slug
 
 type SearchParams = Promise<{ page?: string }>
 
@@ -40,6 +44,11 @@ export function generateMetadata(): Metadata {
   }
 }
 
+function Cover({ a, className }: { a: ArticleMeta; className?: string }) {
+  if (a.featureImage) return <Image src={a.featureImage} alt={a.title} fill sizes="(max-width:980px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
+  return <div className={`ph ${className ?? ''}`}><span>{catLabel(a.categorie)}</span></div>
+}
+
 export default async function BlogPage({ searchParams }: { searchParams: SearchParams }) {
   const { page = '1' } = await searchParams
   const currentPage = Math.max(1, parseInt(page) || 1)
@@ -48,11 +57,9 @@ export default async function BlogPage({ searchParams }: { searchParams: SearchP
   const categories = getCategories()
   const [featured, ...rest] = allArticles
 
-  const paged = rest.slice(
-    (currentPage - 1) * ARTICLES_PER_PAGE,
-    currentPage * ARTICLES_PER_PAGE
-  )
+  const paged = rest.slice((currentPage - 1) * ARTICLES_PER_PAGE, currentPage * ARTICLES_PER_PAGE)
   const totalPages = Math.ceil(rest.length / ARTICLES_PER_PAGE)
+  const showFeatured = featured && currentPage === 1
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -68,165 +75,109 @@ export default async function BlogPage({ searchParams }: { searchParams: SearchP
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <main id="main-content">
-        {/* ── Hero magazine ── */}
-        <FadeIn>
-          <section style={{ maxWidth: '1280px', margin: '0 auto', padding: 'var(--space-16) var(--space-6) var(--space-10)' }}>
-            <nav aria-label={t('blog.filterLabel')} style={{ marginBottom: 'var(--space-6)' }}>
-              <ol style={{ display: 'flex', gap: 'var(--space-2)', listStyle: 'none', fontSize: '13px', color: 'var(--text-muted)', flexWrap: 'wrap' }}>
-                <li><Link href="/" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>{t('blog.breadcrumbHome')}</Link></li>
-                <li aria-hidden="true">›</li>
-                <li aria-current="page" style={{ color: 'var(--text-secondary)' }}>{t('blog.breadcrumbBlog')}</li>
-              </ol>
-            </nav>
 
-            {/* Featured article as hero */}
-            {featured && currentPage === 1 ? (
-              <Link href={articleHref(featured)} style={{ textDecoration: 'none', display: 'block' }}>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr',
-                  gap: 'var(--space-6)',
-                  borderLeft: '4px solid var(--accent-1)',
-                  paddingLeft: 'var(--space-8)',
-                  paddingTop: 'var(--space-4)',
-                  paddingBottom: 'var(--space-4)',
-                }} className="blog-hero-featured">
-                  <div>
-                    <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent-1)', display: 'block', marginBottom: 'var(--space-3)' }}>
-                      {t('recentArticles.eyebrow')}
-                    </span>
-                    <h1 style={{
-                      fontFamily: 'var(--next-font-display), system-ui, sans-serif',
-                      fontSize: 'clamp(32px, 5vw, 60px)',
-                      fontWeight: 800,
-                      color: 'var(--text-primary)',
-                      lineHeight: 1.08,
-                      marginBottom: 'var(--space-4)',
-                    }}>
-                      <Balancer>{featured.title}</Balancer>
-                    </h1>
-                    {featured.description && (
-                      <p style={{ fontSize: 'clamp(15px, 2vw, 18px)', color: 'var(--text-secondary)', lineHeight: 1.6, maxWidth: '640px', marginBottom: 'var(--space-4)' }}>
-                        {featured.description}
-                      </p>
-                    )}
-                    <div style={{ display: 'flex', gap: 'var(--space-3)', fontSize: '13px', color: 'var(--text-muted)', alignItems: 'center' }}>
-                      {niche.author.name && <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>{niche.author.name}</span>}
-                      <span aria-hidden="true">·</span>
-                      <time dateTime={featured.publishedAt}>{formatDate(featured.publishedAt)}</time>
-                      <span aria-hidden="true">·</span>
-                      <span>{t('article.readingTimeShort', { min: featured.readingTimeMin })}</span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ) : (
-              <div>
-                <h1 style={{ fontFamily: 'var(--next-font-display), system-ui, sans-serif', fontSize: 'clamp(32px, 5vw, 60px)', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1, marginBottom: 'var(--space-3)' }}>
-                  <Balancer>{t('nav.blog')}</Balancer>
-                </h1>
-                <p style={{ fontSize: 'clamp(15px, 2vw, 17px)', color: 'var(--text-secondary)', maxWidth: '520px', lineHeight: 1.6 }}>
-                  {t('blog.heroSubtitle')}
-                </p>
-              </div>
-            )}
-          </section>
-        </FadeIn>
+        {/* ── Hero hub ── */}
+        <header className="hub-hero">
+          <span className="glow" aria-hidden="true" />
+          <div className="wrap">
+            <nav className="crumb" aria-label={t('blog.filterLabel')}>
+              <Link href="/">{t('blog.breadcrumbHome')}</Link><span className="sep">/</span><span className="cur">{t('blog.breadcrumbBlog')}</span>
+            </nav>
+            <span className="kicker"><span className="tag c1" style={{ padding: '3px 10px' }}><span className="pip" />{niche.siteName}</span></span>
+            <h1>{t('nav.blog')} {currentYear()}</h1>
+            <p className="lead">{t('blog.heroSubtitle')}</p>
+            <div className="meta">
+              <span>{allArticles.length} articles</span>
+            </div>
+          </div>
+        </header>
 
         {/* ── Filtres catégories ── */}
-        <nav aria-label={t('blog.filterLabel')} style={{ borderBottom: '1px solid var(--border)', marginBottom: 'var(--space-10)' }}>
-          <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 var(--space-6)', display: 'flex', overflowX: 'auto', WebkitOverflowScrolling: 'touch', gap: 0 }}>
-            <Link
-              href="/blog"
-              aria-current="page"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)', padding: 'var(--space-3) var(--space-4)', fontSize: '13px', fontWeight: 700, color: 'var(--accent-1)', borderBottom: '2px solid var(--accent-1)', textDecoration: 'none', whiteSpace: 'nowrap' }}
-            >
-              {t('blog.filterAll')}
-              <span style={{ fontSize: '11px', background: 'rgba(255,61,87,0.10)', borderRadius: 'var(--radius-full)', padding: '1px 6px' }}>
-                {allArticles.length}
-              </span>
-            </Link>
-            {categories.map(({ slug, label, count }) => (
-              <Link key={slug} href={`/blog/${slug}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)', padding: 'var(--space-3) var(--space-4)', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', borderBottom: '2px solid transparent', textDecoration: 'none', whiteSpace: 'nowrap' }}>
-                {label}
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{count}</span>
+        <div className="filter-bar">
+          <div className="wrap">
+            <Link href="/blog" className="chip on">{t('blog.filterAll')}</Link>
+            {categories.map(({ slug, label }) => (
+              <Link key={slug} href={`/blog/${slug}`} className="chip">
+                <span className="pip" style={{ background: `var(--cat-${CAT_INDEX[slug] ?? 1})` }} />{label}
               </Link>
             ))}
           </div>
-        </nav>
-
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 var(--space-6) var(--space-24)' }}>
-          {allArticles.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)', fontSize: '15px' }}>{t('blog.emptyState')}</p>
-          ) : (
-            <>
-              {/* ── Grille asymétrique ── */}
-              {paged.length > 0 && (
-                <Stagger staggerDelay={80}>
-                  <ul role="list" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-6)', listStyle: 'none', margin: 0, padding: 0 }} className="blog-grid">
-                    {paged.map((article, i) => (
-                      <li
-                        key={`${article.categorie}/${article.slug}`}
-                        style={i < 2 ? { gridColumn: 'span 1' } : undefined}
-                        className={i < 2 ? 'blog-grid-large' : undefined}
-                      >
-                        <StaggerItem>
-                          <ArticleCard article={article} index={i} />
-                        </StaggerItem>
-                      </li>
-                    ))}
-                  </ul>
-                </Stagger>
-              )}
-
-              <Pagination currentPage={currentPage} totalPages={totalPages} basePath="/blog" />
-
-              {/* ── Promo outils ── */}
-              <FadeIn>
-                <section style={{ marginTop: 'var(--space-16)', borderTop: '1px solid var(--border)', paddingTop: 'var(--space-10)' }}>
-                  <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-muted)', display: 'block', marginBottom: 'var(--space-2)' }}>
-                    {t('blog.toolsSectionEyebrow')}
-                  </span>
-                  <h2 style={{ fontFamily: 'var(--next-font-display), system-ui, sans-serif', fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 'var(--space-6)' }}>
-                    <Balancer>{t('blog.toolsSectionTitle')}</Balancer>
-                  </h2>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 'var(--space-4)' }}>
-                    {niche.comparator.enabled && (
-                      <Link href="/comparer" style={{
-                        textDecoration: 'none',
-                        padding: 'var(--space-5)',
-                        background: 'var(--bg-surface)',
-                        border: '1px solid var(--border)',
-                        borderRadius: 'var(--radius-lg)',
-                        display: 'block',
-                        transition: 'border-color 200ms ease',
-                      }} className="tool-card">
-                        <p style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent-1)', marginBottom: 'var(--space-2)' }}>{t('tools.comparator.eyebrow')}</p>
-                        <p style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 'var(--space-2)' }}>{t('blog.promoComparator')}</p>
-                        <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.5 }}>{t('blog.promoComparatorDesc')}</p>
-                      </Link>
-                    )}
-                    {niche.quiz.enabled && (
-                      <Link href="/quiz" style={{
-                        textDecoration: 'none',
-                        padding: 'var(--space-5)',
-                        background: 'var(--bg-surface)',
-                        border: '1px solid var(--border)',
-                        borderRadius: 'var(--radius-lg)',
-                        display: 'block',
-                        transition: 'border-color 200ms ease',
-                      }} className="tool-card">
-                        <p style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent-4)', marginBottom: 'var(--space-2)' }}>{t('tools.quiz.eyebrow')}</p>
-                        <p style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 'var(--space-2)' }}>{t('blog.promoQuiz')}</p>
-                        <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.5 }}>{t('blog.promoQuizDesc')}</p>
-                      </Link>
-                    )}
-                  </div>
-                </section>
-              </FadeIn>
-            </>
-          )}
         </div>
+
+        {allArticles.length === 0 ? (
+          <section className="section"><div className="wrap"><p style={{ color: 'var(--ink-3)' }}>{t('blog.emptyState')}</p></div></section>
+        ) : (
+          <>
+            {/* ── Article à la une ── */}
+            {showFeatured && (
+              <section className="section" style={{ paddingTop: 56, paddingBottom: 0 }}>
+                <div className="wrap">
+                  <Link href={articleHref(featured)} className="featured">
+                    <div className="feat-img"><Cover a={featured} /></div>
+                    <div className="feat-body">
+                      <span className="feat-flag"><span className={`tag ${catClass(featured.categorie)}`}><span className="pip" />{catLabel(featured.categorie)}</span></span>
+                      <h2>{featured.title}</h2>
+                      {featured.description && <p>{featured.description}</p>}
+                      <div className="feat-meta">
+                        {niche.author.name && <span style={{ fontWeight: 700, color: 'var(--ink-2)' }}>{niche.author.name} · </span>}
+                        <time dateTime={featured.publishedAt}>{formatDate(featured.publishedAt)}</time> · {featured.readingTimeMin} min
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              </section>
+            )}
+
+            {/* ── Liste ── */}
+            <section className="section" style={{ paddingTop: 48 }}>
+              <div className="wrap">
+                <div className="list-head">
+                  <h3>{t('nav.blog')}</h3>
+                  <span className="count">{allArticles.length} articles</span>
+                </div>
+                <div className="posts">
+                  {paged.map((a) => (
+                    <Link key={`${a.categorie}/${a.slug}`} href={articleHref(a)} className="post">
+                      <div className="post-img" style={{ position: 'relative', overflow: 'hidden' }}><Cover a={a} /></div>
+                      <div className="post-body">
+                        <span className={`tag ${catClass(a.categorie)}`}><span className="pip" />{catLabel(a.categorie)}</span>
+                        <h3>{a.title}</h3>
+                        {a.description && <p>{a.description}</p>}
+                        <div className="post-meta">{formatDate(a.publishedAt)} · {a.readingTimeMin} min</div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: 48 }}>
+                  <Pagination currentPage={currentPage} totalPages={totalPages} basePath="/blog" />
+                </div>
+              </div>
+            </section>
+
+            {/* ── Guides par thème ── */}
+            {categories.length > 0 && (
+              <section className="section guides">
+                <div className="wrap">
+                  <div className="sec-head" style={{ marginBottom: 36 }}>
+                    <span className="eyebrow">{t('blog.toolsSectionEyebrow')}</span>
+                    <h2 style={{ fontSize: 'clamp(28px,3.6vw,42px)', fontWeight: 800, marginTop: 14 }}>{t('blog.toolsSectionTitle')}</h2>
+                  </div>
+                  <div className="guide-grid">
+                    {categories.map(({ slug, label, count }) => (
+                      <Link key={slug} href={`/blog/${slug}`} className="guide">
+                        <span className="g-ic" style={{ background: `var(--cat-${CAT_INDEX[slug] ?? 1}-soft)`, color: `var(--cat-${CAT_INDEX[slug] ?? 1})` }}>
+                          <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><circle cx="12" cy="12" r="8" /></svg>
+                        </span>
+                        <h4>{label}</h4>
+                        <span className="g-count">{count} article{count > 1 ? 's' : ''}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            )}
+          </>
+        )}
       </main>
     </>
   )

@@ -1,14 +1,8 @@
-# Référence de DA — Comparateur énergie (« Voltéo »)
+# ⚠️ Remplacé — voir `../volteo/`
 
-Ce dossier est une **référence de direction artistique aboutie**, pas du code de production.
-Il sert de **barre qualité** au moment de l'init d'un nouveau site (cf. `docs/AUTO-DESIGN.md`) :
-quand aucun livrable Claude Design n'est fourni, l'init étudie cette référence + les presets de
-`lib/da-presets/` pour composer une vraie DA, au lieu de copier le thème par défaut du template.
+Cette référence (« Voltéo early ») est **obsolète**. Le système Voltéo complet (4 skins V1–V4,
+4 verticales, mode d'emploi + blocs prêts à coller) vit désormais dans :
 
-Contenu :
-- `index.html` — page d'accueil de référence (structure + sections d'un comparateur)
-- `assets/styles.css` — système de design partagé (tokens, boutons, nav, footer, cartes)
-- `assets/home.css` — DA de la home (hero, bill-card, estimateur, table d'offres, stats…)
-- `DESIGN-NOTES.md` — extraction distillée des principes (couleurs, typo, espacements, motion)
+→ **[`../volteo/`](../volteo/README.md)** · mode d'emploi : [`../volteo/DESIGN-NOTES.md`](../volteo/DESIGN-NOTES.md)
 
-Ne pas importer ces fichiers dans `app/` ou `components/`. Ils ne sont là que pour être lus.
+Ce dossier peut être **supprimé** sans risque via l'UI GitHub. Ne plus le lire à l'init.

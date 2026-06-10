@@ -1,25 +1,31 @@
-# Références design — INSPIRATION, jamais à copier
+# Références design
 
-## ⚠️ RÈGLE ABSOLUE
+## ✅ Source canonique : `volteo/`
 
-Ces dossiers sont des **sources d'inspiration**, PAS des templates à cloner.
+**[`volteo/`](volteo/README.md) est LA référence design du moteur.** C'est elle qu'on lit à l'init
+(via [`docs/AUTO-DESIGN.md`](../AUTO-DESIGN.md)) : 4 skins prouvés (V1–V4) + 4 verticales + le mode
+d'emploi complet ([`volteo/DESIGN-NOTES.md`](volteo/DESIGN-NOTES.md) : mapping, blocs prêts à coller,
+mutation, checklist).
 
-- **INTERDIT** de copier un pack tel quel sur un site.
-- **OBLIGATION** d'**adapter en s'inspirant** : recombiner des éléments de plusieurs références, muter palette + fonts + rayons, et **réinterpréter** les techniques (animations, effets) à la sauce de la niche.
-- Deux sites ne doivent **JAMAIS** partager la même DA. Un site qui ressemble à une référence à l'identique = **échec d'init** (footprint SEO détectable par Google).
+Doctrine : **partir d'un skin Voltéo → l'appliquer → le muter** pour rester unique. On ne compose plus
+une DA « à partir de zéro ».
 
-`AUTO-DESIGN` puise ICI des **idées** (techniques d'animation, traitements de cartes, pairings de fonts, hero) pour **composer une DA unique** par site. Jamais de copier-coller, jamais un clone.
+## 🗄️ Anciens packs d'inspiration (optionnels, hors chemin d'init)
 
-Test anti-footprint : si un visiteur peut dire « c'est le même site que X » en regardant deux sites du réseau, la règle est violée.
+Les dossiers ci-dessous datent de l'ancienne approche « composer depuis zéro ». Ils ne sont **plus sur
+le chemin d'init**. On peut éventuellement y puiser une **idée d'animation/traitement à réinterpréter**
+pendant l'étape de **mutation** d'un skin — jamais pour cloner.
 
-## Les références
+| Dossier | Statut |
+|---|---|
+| `comparateur-energie/` | **Remplacé par `volteo/`** (c'était le Voltéo early). À supprimer. |
+| `magazine-blog/` | Inspiration mutation optionnelle (archétype magazine). |
+| `beam-projecteur/` | Inspiration mutation optionnelle (glow / dual ink-paper). |
+| `robot-tondeuse/` | Inspiration mutation optionnelle (éditorial organique, serif). |
+| `klarolab/` | Inspiration mutation optionnelle (fintech dark glass). |
 
-| Dossier | Langage visuel | Archétype |
-|---|---|---|
-| `comparateur-energie/` | barre qualité comparateur (existant) | comparateur |
-| `magazine-blog/` | barre qualité magazine (existant) | magazine |
-| `beam-projecteur/` | cinéma / « beam », dual ink-paper, glow à intensité | comparateur / review |
-| `robot-tondeuse/` | éditorial organique, serif, verts + cuivre, anims ludiques | magazine / hybride |
-| `klarolab/` | fintech dark glass, dégradés animés, calculateur | comparateur data |
+## ⚠️ Règle anti-footprint (inchangée)
 
-Chaque `DESIGN-NOTES.md` décrit le langage + les techniques **à réinterpréter** (pas à copier).
+Deux sites ne doivent **jamais** partager la même DA. Un skin Voltéo est un **point de départ** :
+toujours le **muter** (teinte de marque, fonts, rayons — cf. `volteo/DESIGN-NOTES.md` §6). Un site qui
+ressort en valeurs brutes d'un skin = footprint SEO détectable = **bug d'init**.

@@ -1,7 +1,7 @@
 ---
 name: init-site
-version: 3.0.0
-description: Bootstrap d'un nouveau site forké du template emd-template, SANS init-spec wizard (interview en chat). Lance UN interview groupé par blocs (Bloc 0 marché+langues d'abord, puis voix, mots-clés, calendrier, concurrents, FAQ, mentions, auteur), écrit niche.config.ts + tous les content/* + personas auto-dérivés, PUIS — étapes non sautables — compose une vraie DA via docs/AUTO-DESIGN.md, génère les images structurelles via le MCP nano-mentionbox, et crée la scheduled task de rédaction. À utiliser une fois après "Use this template" quand il n'y a PAS d'init-spec.md. Triggers — « initialise ce site », « configure ce site », « setup le site », « bootstrap le site », « init-site », « lance la conf ». Trigger implicite — première rédaction sur un site visiblement non configuré (niche.config.ts.market vide ou content/ avec TODO). Le routeur nouveau-site appelle ce skill quand aucun init-spec.md n'est présent.
+version: 3.1.0
+description: Bootstrap d'un nouveau site forké du template emd-template, SANS init-spec wizard (interview en chat). Lance UN interview groupé par blocs (Bloc 0 marché+langues d'abord, puis voix, mots-clés, calendrier, concurrents, FAQ, mentions, auteur), écrit niche.config.ts + tous les content/* + personas auto-dérivés, PUIS — étapes non sautables — applique un skin Voltéo (DA) via docs/AUTO-DESIGN.md, génère les images structurelles via le MCP nano-mentionbox, et crée la scheduled task de rédaction. À utiliser une fois après "Use this template" quand il n'y a PAS d'init-spec.md. Triggers — « initialise ce site », « configure ce site », « setup le site », « bootstrap le site », « init-site », « lance la conf ». Trigger implicite — première rédaction sur un site visiblement non configuré (niche.config.ts.market vide ou content/ avec TODO). Le routeur nouveau-site appelle ce skill quand aucun init-spec.md n'est présent.
 allowed-tools:
   - Read
   - Write
@@ -16,9 +16,9 @@ allowed-tools:
 
 # init-site v3 — Bootstrap d'un nouveau site forké (interview)
 
-Ce skill remplit en une passe toute la config éditoriale du site, **puis** compose la DA et génère les images. Économie de tokens vs déclencher 5 skills séparément, et cohérence garantie (audience définie une fois, réutilisée partout ; locales + marché définis AVANT tout).
+Ce skill remplit en une passe toute la config éditoriale du site, **puis** applique la DA et génère les images. Économie de tokens vs déclencher 5 skills séparément, et cohérence garantie (audience définie une fois, réutilisée partout ; locales + marché définis AVANT tout).
 
-> **Nouveau en v3** : l'init ne s'arrête plus à la config. Il **compose une vraie DA** (étape 8) et **génère les images structurelles** (étape 9) — ces étapes ne sont PAS optionnelles. Un site qui sort de l'init avec le thème par défaut (`#FF3D57`, dark/aurora, logo `emd·template`) OU avec des placeholders d'images est un **échec d'init**.
+> **Nouveau en v3** : l'init ne s'arrête plus à la config. Il **applique une vraie DA** (étape 8, skin Voltéo) et **génère les images structurelles** (étape 9) — ces étapes ne sont PAS optionnelles. Un site qui sort de l'init avec le thème par défaut (`#FF3D57`, dark/aurora, logo `emd·template`) OU avec des placeholders d'images est un **échec d'init**.
 
 ## Pré-requis (vérifier au démarrage)
 
@@ -38,12 +38,12 @@ Avant l'interview, lire l'état de chaque fichier-cible :
 | `content/concurrents.md` | absent OU ≥ 1 `TODO` |
 | `content/faq-base.md` | absent OU ≥ 1 `TODO` |
 | `content/pages/mentions-legales.yaml` | absent OU ≥ 1 `TODO` |
-| `niche.style` / `niche.palette` / `niche.signature` | valeurs par défaut (DA non composée) |
+| `niche.style` / `niche.palette` / `niche.signature` | valeurs par défaut (DA non appliquée) |
 | `docs/AUTHOR-[slug].md` | optionnel — si l'utilisateur signe d'un nom propre |
 
-Annoncer le bilan : « J'ai audité l'état du site. Voici ce qu'il reste à définir : [liste]. Je pose les questions par blocs, en commençant par les langues et le marché (Bloc 0). ~10 min, puis je compose la DA et génère les images. »
+Annoncer le bilan : « J'ai audité l'état du site. Voici ce qu'il reste à définir : [liste]. Je pose les questions par blocs, en commençant par les langues et le marché (Bloc 0). ~10 min, puis je applique la DA et génère les images. »
 
-Si TOUT est rempli (zéro TODO, market défini, DA composée, images présentes) → informer et sortir.
+Si TOUT est rempli (zéro TODO, market défini, DA appliquée, images présentes) → informer et sortir.
 
 ---
 
@@ -113,19 +113,21 @@ Si nom propre → dérouler le gabarit `docs/AUTHOR-template.md`. Sinon sauter.
 
 ---
 
-## Étape 8 — Direction artistique (AUTO-DESIGN) — OBLIGATOIRE, NON SAUTABLE
+## Étape 8 — Direction artistique (AUTO-DESIGN, skin Voltéo) — OBLIGATOIRE, NON SAUTABLE
 
-Exécuter **`docs/AUTO-DESIGN.md`**. Si `design-incoming/` contient un livrable Claude Design → déléguer plutôt à `integrate-claude-design`. Sinon :
+Exécuter **`docs/AUTO-DESIGN.md`** (doctrine Voltéo). Si `design-incoming/` contient un livrable Claude Design → déléguer plutôt à `integrate-claude-design`. Sinon, **poser les 3 choix** puis appliquer :
 
-1. Déterminer l'**archétype** (comparateur / magazine / hybride) depuis l'intent dominant des clusters → pilote `niche.style.hero` + `homeSections`.
-2. `composePreset(productType, moods)` sur `lib/da-presets/` → palette + fonts + styles + anti-patterns.
-3. Écrire `niche.palette` (une couleur d'accent par catégorie, bgPrimary jamais blanc pur), `niche.fonts`, `niche.style` (mode/hero/effects/cards/uiStyle), `niche.signature` (anchor, oneRule, inspiration, forbidden, components).
+1. **Template** — archétype (comparateur / magazine / hybride) depuis l'intent dominant des clusters → pilote `niche.style.hero` + `homeSections`.
+2. **Skin** — proposer V1 Électrique / V2 Éditorial / V3 Suisse-Minimal / V4 Premium-sombre selon le ton de la niche ; l'utilisateur valide (ou « laisse Claude choisir »).
+3. **Verticale** — énergie / assurance / auto / tech / custom → couleurs de catégorie.
+4. **Appliquer** le **bloc prêt à coller** du skin (`docs/design-reference/volteo/DESIGN-NOTES.md` §5) dans `niche.palette` / `niche.fonts` / `niche.style` ; reporter la verticale (§4) dans les accents catégorie ; reporter rayons + correctifs (§3b — V3 angles 0/zéro ombre, V4 sections sombres) dans `app/globals.css`.
+5. **Muter** (teinte de marque, fonts, rayons — DESIGN-NOTES §6) pour rester unique, écrire `niche.signature` (anchor/oneRule/inspiration/forbidden/components — cf. `docs/DA-ANTI-IA.md`), puis dérouler la **checklist** (DESIGN-NOTES §7).
 
-**NE JAMAIS** garder la palette/fonts par défaut (rouge `#FF3D57`, Unbounded/Space Grotesk, dark+aurora). Sortir de l'init avec le thème par défaut = bug d'init.
+**NE JAMAIS** garder la palette/fonts par défaut (`#FF3D57`, Unbounded/Space Grotesk, dark+aurora), **ni** sortir en **clone brut d'un skin** = bug d'init. (Fallback `lib/da-presets/` uniquement si aucun skin ne colle — cf. `docs/DA-PRESETS.md`.)
 
 ## Étape 9 — Images structurelles (MCP nano-mentionbox) — OBLIGATOIRE, NON SAUTABLE
 
-Voir **`docs/IMAGES-WORKFLOW.md`**. Après AUTO-DESIGN, générer les slots structurels (`home-hero-background`, `home-hero-visual`, `home-category-[slug]` + `blog-category-background-[slug]` par catégorie, `author-[slug]` si auteur) via `mcp__nano-mentionbox__generate_image` (fire-and-poll → `wait_for_image`), prompts de la bibliothèque (`prompts/`) + `lib/image-slots.ts` **alignés sur la DA composée**. Compresser en WebP, pousser via `mcp__nano-mentionbox__github_push_images` sous `public/images/`.
+Voir **`docs/IMAGES-WORKFLOW.md`**. Après AUTO-DESIGN, générer les slots structurels (`home-hero-background`, `home-hero-visual`, `home-category-[slug]` + `blog-category-background-[slug]` par catégorie, `author-[slug]` si auteur) via `mcp__nano-mentionbox__generate_image` (fire-and-poll → `wait_for_image`), prompts de la bibliothèque + `lib/image-slots.ts` **alignés sur le skin appliqué**. Compresser en WebP, pousser via `mcp__nano-mentionbox__github_push_images` sous `public/images/`.
 
 Prompts ≤ ~20 mots, finir par « no text, no logos, no watermark ». Si la génération échoue, laisser le placeholder et le noter dans PROGRESS.md (ne pas bloquer tout l'init), mais le signaler clairement. Un site neuf en placeholders = bug.
 
@@ -143,7 +145,7 @@ Init terminé.
 - content/ton-of-voice.md ✓ · mots-cles ✓ · personas ✓ (auto) · calendrier ✓ · concurrents ✓ · faq-base ✓
 - content/pages/mentions-legales.yaml ✓ (+ variantes locales si N langues)
 - docs/AUTHOR-[slug].md ✓ (si auteur)
-- DA composée ✓ : archétype [x], palette + fonts + signature (plus de thème par défaut)
+- DA appliquée ✓ : template [x] · skin [Vn] · verticale [x] · muté (plus de thème par défaut, pas de clone)
 - Images structurelles ✓ : hero + fonds catégories (+ auteur) générés et poussés
 - Scheduled task ✓ (si confirmée)
 
@@ -156,7 +158,7 @@ Prochaines étapes : pnpm dev → vérifier rendu · déploiement Vercel
 ## Règles strictes
 
 - **Bloc 0 OBLIGATOIRE en PREMIER** : aucun autre bloc avant que market/locales/defaultLocale/localePrefix soient écrits.
-- **Étapes 8 (DA) et 9 (images) NON SAUTABLES** : un site qui sort en thème par défaut ou en placeholders = échec d'init.
+- **Étapes 8 (DA) et 9 (images) NON SAUTABLES** : un site qui sort en thème par défaut, en clone brut d'un skin, ou en placeholders = échec d'init.
 - **NE JAMAIS inventer** une réponse manquante → `TODO` explicite.
 - **Bloc par bloc**, un seul message utilisateur par bloc. Réutiliser les données entre blocs.
 - **Personas auto-dérivés** (pas de bloc d'interview dédié).
@@ -165,5 +167,5 @@ Prochaines étapes : pnpm dev → vérifier rendu · déploiement Vercel
 ## Lien avec les autres skills
 - `nouveau-site` : routeur qui appelle ce skill quand pas d'`init-spec.md`.
 - `configure-from-spec` : équivalent AVEC init-spec wizard (zéro question).
-- `docs/AUTO-DESIGN.md` (étape 8) · `docs/IMAGES-WORKFLOW.md` (étape 9) · `docs/SCHEDULED-TASK-REDACTION.md` (étape 10).
+- `docs/AUTO-DESIGN.md` (étape 8, skin Voltéo) · `docs/design-reference/volteo/DESIGN-NOTES.md` · `docs/IMAGES-WORKFLOW.md` (étape 9) · `docs/SCHEDULED-TASK-REDACTION.md` (étape 10).
 - `ton-of-voice`, `seo-geo-redaction`, `humaniser-fr` : utilisés à chaque rédaction ensuite (lisent les content/* écrits ici, dont personas.md).

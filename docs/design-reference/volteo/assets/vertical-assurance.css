@@ -1,0 +1,21 @@
+/* ============================================================
+   PACK VERTICALE — Assurance
+   Charger après le skin :  …theme-vN.css → vertical-assurance.css
+   Redéfinit les 5 slots d'accent. Adapter ensuite icônes + textes
+   dans le HTML (auto, habitation, santé…).
+
+   Catégorie     → slot   |  Vocabulaire type
+   --------------------------------------------------------------
+   Auto          → cat-1  |  formule, franchise, bonus-malus
+   Habitation    → cat-2  |  multirisque, capital, sinistre
+   Santé         → cat-3  |  remboursement, mutuelle, ticket modérateur
+   Vie / décès   → cat-4  |  capital, bénéficiaire, prime
+   Animaux       → cat-5  |  forfait, prise en charge, vétérinaire
+   ============================================================ */
+:root {
+  --elec:  #3D5AFE;  --elec-soft:  #E0E4FF;   /* Auto */
+  --gaz:   #7C5CFF;  --gaz-soft:   #E9E3FF;   /* Habitation */
+  --green: #1AA35F;  --green-soft: #D6F2E1;   /* Santé */
+  --water: #F5A623;  --water-soft: #FCEBCC;   /* Vie */
+  --mobi:  #E0524D;  --mobi-soft:  #FBDAD7;   /* Animaux */
+}

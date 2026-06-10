@@ -31,12 +31,13 @@ DA : typographie configurable · effets aurora/noise CSS · SVG inline · compos
 Toute section visuellement vide est un bug de DA. Claude Code a toute latitude — documenter dans DECISIONS.md.
 
 ## DA à l'init (sans livrable Claude Design)
-Lors d'un init (`configure-from-spec` OU `init-site`), si aucun livrable Claude Design n'est fourni
-(`design-incoming/` vide), **NE JAMAIS garder la palette/fonts par défaut** de `niche.config.ts`
-(rouge `#FF3D57`, fonts Unbounded/Space Grotesk). Exécuter **`docs/AUTO-DESIGN.md`** : composer une
-vraie DA depuis `lib/da-presets/` (`composePreset()`) en s'inspirant de la barre qualité
-`docs/design-reference/comparateur-energie/`, puis écrire palette + fonts + `niche.style` + `niche.signature`.
-Un site qui sort de l'init avec le thème par défaut est un **bug d'init**.
+Lors d'un init (`configure-from-spec` OU `init-site`), si `design-incoming/` est vide, **NE JAMAIS garder
+la palette/fonts par défaut** de `niche.config.ts` (rouge `#FF3D57`, fonts Unbounded/Space Grotesk).
+Exécuter **`docs/AUTO-DESIGN.md`** : **choisir un skin Voltéo** (V1–V4) + un **template** (comparateur/
+magazine) + une **verticale**, copier le **bloc prêt à coller** depuis
+**`docs/design-reference/volteo/DESIGN-NOTES.md`**, reporter rayons/correctifs dans `app/globals.css`,
+puis **muter** (teinte/fonts/rayons — anti-footprint). Source design **unique** : `docs/design-reference/volteo/`.
+Un site qui sort de l'init avec le thème par défaut, **ou en clone brut d'un skin**, est un **bug d'init**.
 
 ## Images (V2 — le site s'anime)
 La doctrine « no image » V1 est morte. À l'init, après AUTO-DESIGN, **générer les images structurelles**

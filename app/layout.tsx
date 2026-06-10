@@ -1,23 +1,25 @@
 import type { Metadata } from 'next'
-import { Space_Grotesk, Unbounded } from 'next/font/google'
+import { Bricolage_Grotesque, Hanken_Grotesk } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { niche } from '@/niche.config'
 import { t } from '@/lib/i18n'
 import './globals.css'
+import './styles/volteo.css'
 
-// ── Fonts — remplacer à l'init par les fonts choisies pour la niche ──
-const fontPrimary = Space_Grotesk({
+// ── Fonts — défaut V1 Voltéo (Hanken Grotesk + Bricolage Grotesque) ──
+//    Remplacées à l'init par les fonts du skin choisi pour la niche.
+const fontPrimary = Hanken_Grotesk({
   subsets: ['latin'],
-  weight: ['400', '500', '700'],
+  weight: ['400', '500', '600', '700', '800'],
   variable: '--next-font-primary',
   adjustFontFallback: true,
   preload: true,
   display: 'swap',
 })
 
-const fontDisplay = Unbounded({
+const fontDisplay = Bricolage_Grotesque({
   subsets: ['latin'],
-  weight: ['400', '700', '800'],
+  weight: ['400', '600', '700', '800'],
   variable: '--next-font-display',
   adjustFontFallback: true,
   preload: true,
@@ -60,7 +62,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${fontPrimary.variable} ${fontDisplay.variable}`}
+      className={`js ${fontPrimary.variable} ${fontDisplay.variable}`}
     >
       {/* Script inline : applique data-theme avant tout rendu pour éviter le flash */}
       <head>

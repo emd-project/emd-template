@@ -1,10 +1,50 @@
-# Voltéo — Mode d'emploi (barre qualité + mapping vers le moteur)
+# Voltéo — Mode d'emploi (structure + DA + mapping vers le moteur)
 
-> **À quoi sert ce dossier.** Voltéo est la **référence de DA** lue à l'init. Le moteur
-> Next.js ne consomme PAS ces fichiers : il a ses propres composants. Ici, Claude lit les
-> **tokens CSS** (source de vérité) pour écrire `niche.config.ts` + `app/globals.css`.
-> Objectif : partir d'un skin **prouvé**, l'appliquer **mécaniquement**, puis le **muter**
-> pour que deux sites ne se ressemblent jamais (anti-footprint).
+> **À quoi sert ce dossier.** Voltéo est la **référence design** lue à l'init. Claude doit en
+> reproduire DEUX choses dans le moteur Next.js : (1) la **STRUCTURE** des pages (sections, hero,
+> grilles, ordre) à partir des fichiers **HTML** de référence, et (2) la **DA** (couleurs, fonts,
+> formes) à partir des **tokens CSS**. Appliquer seulement les couleurs sur la structure existante
+> du moteur = **bug d'init** : le site garde l'ancien squelette (héritage pré-Voltéo) et n'est pas
+> un site Voltéo. Doctrine : partir d'un skin **prouvé**, reproduire sa **structure** + ses
+> **tokens**, puis **muter** pour rester unique (anti-footprint).
+
+---
+
+## ⚠️ 0. Reproduire la STRUCTURE (NON négociable)
+
+**Le CSS seul ne suffit PAS** : il ne porte pas la structure. La structure vit dans les **pages HTML
+de référence** ci-dessous. Claude doit **reconstruire les composants du moteur** (`components/`,
+`app/`) pour qu'ils produisent CES sections, dans CET ordre — **pas** recolorer le squelette par défaut.
+
+| Type de page | HTML de référence | CSS de layout | À reproduire dans le moteur |
+|---|---|---|---|
+| **Home comparateur** | `home-comparateur.html` | `assets/home.css` | home archétype comparateur (`app/(site)/page.tsx` + sections) |
+| **Home magazine** | `home-magazine.html` | `assets/magazine.css` | home archétype magazine |
+| **Hub / catégorie** | `hub-categorie.html` | `assets/hub.css` | `/blog` + `/blog/[categorie]` |
+| **Article** | `article.html` | `assets/article.css` | `/blog/[categorie]/[slug]` |
+
+### Ordre des sections à respecter
+
+- **Home comparateur** : nav → **hero split** (texte + mini-form à gauche, carte facture animée à
+  droite) → bande de confiance (marquee fournisseurs) → grille de catégories colorées → « comment ça
+  marche » (3 étapes reliées) → **estimateur** (bloc sombre, sliders + carte résultat chiffrée) →
+  **table comparative** (onglets catégorie + cartes d'offres, une carte « best ») → stats pleine
+  couleur → quiz teaser → blog teaser (3 cartes) → newsletter → footer.
+- **Home magazine** : topbar fine → nav (pastille MAG) → bandeau de rubriques → **mosaïque hero**
+  (1 grande une + 4 cartes) → corps **2 colonnes** : main (rubriques = 1 article principal + liste
+  compacte ; bloc « à la une » pleine largeur ; édito/citation ; grille 3) **+ sidebar** (réseaux,
+  dossier promo vers le comparateur, populaires, newsletter) → footer.
+- **Hub / catégorie** : nav → hero hub (fil d'ariane, titre, méta) → **barre de filtres sticky**
+  (chips par catégorie) → article à la une (featured 2 colonnes) → grille d'articles + « charger
+  plus » → grille de guides par thème → newsletter → footer.
+- **Article** : barre de progression de lecture → nav → hero article (fil d'ariane, titre,
+  standfirst, byline + partage) → cover → corps **2 colonnes** : **sommaire sticky (TOC)** + prose
+  (lettrine, callout, pull-quote, tableau de données, figure, encadré « à retenir ») → tags + carte
+  auteur → CTA comparateur → « à lire ensuite » (3 cartes) → newsletter → footer.
+
+> Le moteur a ses propres composants : on les **adapte/recrée** pour produire ces structures (en
+> RSC, `next/image`, variables CSS). Si une page sort avec l'ordre / les sections par défaut du
+> template (héritage pré-Voltéo), c'est un **bug d'init** — même si les couleurs sont les bonnes.
 
 ---
 
@@ -14,9 +54,9 @@
 |---|---|---|---|
 | **Skin** (V1–V4) | marque, fonds, texte, fonts, formes (rayons/ombres) | `theme-vN.css` | ✅ on en choisit 1 |
 | **Verticale** | les couleurs de catégorie (`--cat-1..5`) | `vertical-*.css` | ✅ on en choisit 1 |
-| **Template** | structure/sections de la home | (archétype moteur) | ✅ comparateur / magazine |
+| **Template** | structure/sections de la home + pages | HTML de réf. (§0) | ✅ comparateur / magazine |
 
-N'importe quel skin × n'importe quelle verticale fonctionne. On choisit **un de chaque**, on applique, on mute.
+N'importe quel skin × n'importe quelle verticale fonctionne. On choisit **un de chaque**, on **reproduit la structure (§0)**, on applique les tokens, on mute.
 
 ---
 
@@ -157,6 +197,9 @@ Le skin est un **point de départ**, jamais un clone. Appliquer 2–3 mutations 
 - **Fonts** : remplacer la paire par une paire **du même registre** (ex. V2 : Newsreader → Fraunces /
   Source Serif ; V1 : Bricolage → Clash/Cabinet ; V4 : Sora → Space Grotesk/Geist).
 - **Rayons** : varier `--r` dans la fourchette du skin (V1/V4 : 12–20 px ; V2 : 2–6 px ; V3 : 0).
+- **Structure** : on garde l'**ossature** Voltéo (§0) mais on peut varier l'ordre d'1-2 sections
+  secondaires ou ajouter une section propre à la niche (cf. anti-footprint). On ne revient JAMAIS au
+  squelette par défaut.
 - **Verticale** : les couleurs de catégorie viennent du pack choisi → déjà différenciantes.
 
 Règle : si un visiteur peut dire « c'est le même site que X », la mutation est insuffisante.
@@ -165,6 +208,8 @@ Règle : si un visiteur peut dire « c'est le même site que X », la mutation e
 
 ## 7. Checklist qualité — l'init n'est PAS finie tant que ✗
 
+- [ ] **Structure Voltéo reproduite** : home (selon comparateur/magazine), hub et article suivent
+      l'ordre des sections de **§0** — pas le squelette par défaut du moteur (héritage pré-Voltéo).
 - [ ] `bgPrimary` ≠ blanc pur (teinté) — sauf V3 où le blanc pur est le parti pris.
 - [ ] Contraste texte/fond **AA** vérifié (texte principal ≥ 4.5:1, gros titres ≥ 3:1).
 - [ ] `mode` cohérent avec le skin (V4 = sombre ; V1/V2/V3 = clair).
@@ -174,4 +219,5 @@ Règle : si un visiteur peut dire « c'est le même site que X », la mutation e
 - [ ] `prefers-reduced-motion` respecté ; chaque section a un fond traité (pas de bloc plat vide).
 - [ ] Aucun placeholder restant dans `palette`/`fonts` de `niche.config.ts`.
 
-Un site qui sort de l'init en **clone d'un skin** (valeurs brutes) **ou** avec un contraste cassé = **bug d'init**.
+Un site qui sort de l'init en **structure par défaut** (couleurs Voltéo sur l'ancien squelette), en
+**clone brut d'un skin**, ou avec un **contraste cassé** = **bug d'init**.

@@ -1,13 +1,11 @@
 /**
- * /comparer/[produit] — comparateur côte à côte.
- * Sélecteurs dropdown + specs alignés en colonnes.
+ * /comparer/[produit] — comparateur côte à côte (style Voltéo).
  * Server Component — ComparateurSelector isolé en 'use client'.
  */
 
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import Balancer from 'react-wrap-balancer'
 import { getProduit, PRODUIT_SLUGS } from '@/lib/comparateur'
 import { ComparateurSelector } from '@/components/comparer/ComparateurSelector'
 import { currentYear } from '@/lib/utils/year'
@@ -32,13 +30,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     title: `Comparateur ${data.label} ${year} — quel modèle choisir ? | ${niche.siteName}`,
     description: data.description,
     alternates: { canonical: `${SITE_URL}/comparer/${produit}` },
-    openGraph: {
-      title: `Comparateur ${data.label} ${year}`,
-      description: data.description,
-      url: `${SITE_URL}/comparer/${produit}`,
-      siteName: niche.siteName,
-      type: 'website',
-    },
+    openGraph: { title: `Comparateur ${data.label} ${year}`, description: data.description, url: `${SITE_URL}/comparer/${produit}`, siteName: niche.siteName, type: 'website' },
   }
 }
 
@@ -55,8 +47,7 @@ export default async function ComparateurProduitPage({ params }: { params: Param
   const year = currentYear()
 
   const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE_URL },
       { '@type': 'ListItem', position: 2, name: 'Comparateur', item: `${SITE_URL}/comparer` },
@@ -66,120 +57,43 @@ export default async function ComparateurProduitPage({ params }: { params: Param
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <main id="main-content">
-        {/* Hero */}
-        <section
-          style={{
-            maxWidth: '960px',
-            margin: '0 auto',
-            padding: 'var(--space-12) var(--space-6) var(--space-6)',
-          }}
-        >
-          <nav aria-label="Fil d'Ariane" style={{ marginBottom: 'var(--space-5)' }}>
-            <ol style={{ display: 'flex', gap: 'var(--space-2)', listStyle: 'none', fontSize: '13px', color: 'var(--text-muted)', flexWrap: 'wrap' }}>
-              <li><Link href="/" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Accueil</Link></li>
-              <li aria-hidden="true">›</li>
-              <li><Link href="/comparer" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Comparateur</Link></li>
-              <li aria-hidden="true">›</li>
-              <li aria-current="page" style={{ color: 'var(--text-secondary)' }}>{data.label}</li>
-            </ol>
-          </nav>
+        <section className="section" style={{ paddingBottom: 24 }}>
+          <div className="wrap" style={{ maxWidth: 960 }}>
+            <nav className="crumb" aria-label="Fil d'Ariane">
+              <Link href="/">Accueil</Link><span className="sep">/</span>
+              <Link href="/comparer">Comparateur</Link><span className="sep">/</span>
+              <span className="cur">{data.label}</span>
+            </nav>
 
-          {/* Sélecteur familles */}
-          <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap', marginBottom: 'var(--space-8)' }}>
-            {AUTRES_PRODUITS.map((p) => (
-              <Link
-                key={p.slug}
-                href={`/comparer/${p.slug}`}
-                style={{
-                  fontSize: '13px',
-                  fontWeight: p.slug === produit ? 700 : 400,
-                  color: p.slug === produit ? 'var(--bg-primary)' : 'var(--text-secondary)',
-                  background: p.slug === produit ? 'var(--accent-1)' : 'transparent',
-                  border: '1px solid',
-                  borderColor: p.slug === produit ? 'var(--accent-1)' : 'var(--glass-border)',
-                  borderRadius: 'var(--radius-full)',
-                  padding: 'var(--space-1) var(--space-4)',
-                  textDecoration: 'none',
-                }}
-              >
-                {p.label}
-              </Link>
-            ))}
+            <div className="filter-bar" style={{ margin: '20px 0 28px' }}>
+              {AUTRES_PRODUITS.map((p) => (
+                <Link key={p.slug} href={`/comparer/${p.slug}`} className={`chip${p.slug === produit ? ' active' : ''}`}>{p.label}</Link>
+              ))}
+            </div>
+
+            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 4vw, 44px)', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.1, marginBottom: 12 }}>
+              Comparateur {data.label} {year}
+            </h1>
+            <p style={{ fontSize: 15, color: 'var(--ink-2)', maxWidth: 520, lineHeight: 1.6, marginBottom: 8 }}>{data.description}</p>
+            <p style={{ fontSize: 13, color: 'var(--ink-3)' }}>Sélectionne les modèles à comparer côte à côte.</p>
           </div>
-
-          <h1
-            style={{
-              fontFamily: 'var(--next-font-display), system-ui, sans-serif',
-              fontSize: 'clamp(24px, 4vw, 44px)',
-              fontWeight: 800,
-              color: 'var(--text-primary)',
-              lineHeight: 1.1,
-              marginBottom: 'var(--space-3)',
-            }}
-          >
-            <Balancer>Comparateur {data.label} {year}</Balancer>
-          </h1>
-          <p style={{ fontSize: '15px', color: 'var(--text-secondary)', maxWidth: '520px', lineHeight: 1.6, marginBottom: 'var(--space-2)' }}>
-            {data.description}
-          </p>
-          <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-            Sélectionne les modèles à comparer côte à côte.
-          </p>
         </section>
 
-        {/* Comparateur interactif */}
-        <section
-          style={{
-            maxWidth: '960px',
-            margin: '0 auto',
-            padding: '0 var(--space-6) var(--space-16)',
-          }}
-        >
-          <ComparateurSelector
-            modeles={data.modeles}
-            specsLabels={data.specsLabels}
-          />
+        <section className="section" style={{ paddingTop: 0 }}>
+          <div className="wrap" style={{ maxWidth: 960 }}>
+            <ComparateurSelector modeles={data.modeles} specsLabels={data.specsLabels} />
 
-          <p style={{ marginTop: 'var(--space-8)', fontSize: '12px', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-            Prix indicatifs. Les liens {niche.defaultStore} sont des liens affiliés
-            — le prix que tu paies reste identique.
-          </p>
-
-          {/* CTA vers le quiz */}
-          <div
-            style={{
-              marginTop: 'var(--space-8)',
-              padding: 'var(--space-6)',
-              background: 'var(--surface-2)',
-              border: '1px solid var(--glass-border)',
-              borderRadius: 'var(--radius-lg)',
-              textAlign: 'center',
-            }}
-          >
-            <p style={{ fontSize: '15px', color: 'var(--text-secondary)', marginBottom: 'var(--space-3)' }}>
-              Tu hésites encore ? Réponds à 4 questions pour trouver ton modèle.
+            <p style={{ marginTop: 32, fontSize: 12, color: 'var(--ink-3)', lineHeight: 1.5 }}>
+              Prix indicatifs. Les liens {niche.defaultStore} sont des liens affiliés — le prix que tu paies reste identique.
             </p>
-            <Link
-              href={`/choisir/${produit}`}
-              style={{
-                display: 'inline-block',
-                background: 'var(--accent-4)',
-                color: '#fff',
-                fontWeight: 700,
-                fontSize: '14px',
-                padding: 'var(--space-3) var(--space-6)',
-                borderRadius: 'var(--radius-md)',
-                textDecoration: 'none',
-              }}
-            >
-              Faire le quiz →
-            </Link>
+
+            <div style={{ marginTop: 32, padding: 24, background: 'var(--cream-2)', border: '1px solid var(--line)', borderRadius: 'var(--r-lg)', textAlign: 'center' }}>
+              <p style={{ fontSize: 15, color: 'var(--ink-2)', marginBottom: 12 }}>Tu hésites encore ? Réponds à 4 questions pour trouver ton modèle.</p>
+              <Link href={`/choisir/${produit}`} className="btn primary">Faire le quiz →</Link>
+            </div>
           </div>
         </section>
       </main>

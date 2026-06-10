@@ -1,0 +1,19 @@
+/* ============================================================
+   PACK VERTICALE — Automobile
+   Charger après le skin :  …theme-vN.css → vertical-auto.css
+
+   Catégorie       → slot   |  Vocabulaire type
+   --------------------------------------------------------------
+   Citadine        → cat-1  |  conso, prix catalogue, autonomie
+   SUV / familiale → cat-2  |  coffre, places, remorquage
+   Électrique      → cat-3  |  autonomie WLTP, recharge, kWh/100km
+   Utilitaire      → cat-4  |  charge utile, volume, TVA récup.
+   Premium / sport → cat-5  |  0–100, finition, options
+   ============================================================ */
+:root {
+  --elec:  #2563EB;  --elec-soft:  #DBE6FF;   /* Citadine */
+  --gaz:   #E0524D;  --gaz-soft:   #FBDAD7;   /* SUV / familiale */
+  --green: #1AA35F;  --green-soft: #D6F2E1;   /* Électrique */
+  --water: #F5A623;  --water-soft: #FCEBCC;   /* Utilitaire */
+  --mobi:  #8B5CF6;  --mobi-soft:  #EBE2FF;   /* Premium / sport */
+}

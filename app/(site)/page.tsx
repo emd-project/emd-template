@@ -1,14 +1,12 @@
 import { MagazineHome } from '@/components/home/MagazineHome'
-// import { ComparateurHome } from '@/components/home/ComparateurHome' // archétype comparateur (à venir)
+import { ComparateurHome } from '@/components/home/ComparateurHome'
 import { niche } from '@/niche.config'
 
 /**
- * Home — par défaut archétype « magazine » (structure Voltéo).
- * L'archétype comparateur (hero split + estimateur + table) arrivera via
- * `niche.style.hero === 'split'` quand ComparateurHome sera porté.
+ * Home — archétype piloté par niche.style.hero :
+ *  - 'split'            → comparateur (hero split + outils)
+ *  - 'centered'/'minimal' (défaut) → magazine (mosaïque éditoriale)
  */
 export default function HomePage() {
-  // if (niche.style.hero === 'split') return <ComparateurHome />
-  void niche
-  return <MagazineHome />
+  return niche.style.hero === 'split' ? <ComparateurHome /> : <MagazineHome />
 }

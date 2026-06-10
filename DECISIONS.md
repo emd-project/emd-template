@@ -9,9 +9,11 @@
 - [x] Catégories dynamiques — 1 composant `CategorySection` générique au lieu de sections hardcodées
 - [x] CMS portable dans `packages/cms/` — copier tel quel entre sites
 
-## DA — composition à l'init
+## DA — à l'init (doctrine Voltéo)
 - [x] Si livrable Claude Design (`design-incoming/`) → `integrate-claude-design`.
-- [x] Sinon → `docs/AUTO-DESIGN.md` : composition d'une vraie DA depuis `lib/da-presets/` (161 presets) + barre qualité `docs/design-reference/`. Jamais les placeholders par défaut.
+- [x] Sinon → `docs/AUTO-DESIGN.md` : **choisir un skin Voltéo** (V1–V4) + template (comparateur/magazine/hybride) + verticale, **appliquer** le bloc prêt à coller (`docs/design-reference/volteo/DESIGN-NOTES.md`), puis **muter** (anti-footprint). Source design **unique** : `docs/design-reference/volteo/`. Jamais les placeholders par défaut, jamais un clone brut d'un skin.
+- [x] `lib/da-presets/` (161 presets) **rétrogradé en fallback** — uniquement si aucun skin ne convient (`docs/DA-PRESETS.md`).
+- [x] `docs/DA-ANTI-IA.md` recentré sur les garde-fous anti-IA + signature (catalogue 11 styles UI retiré, superseded par les skins).
 - [x] Archétypes pilotant la home + le hero : `comparateur` / `magazine` / `hybride` (cf. `niche.config.homeSections`).
 
 ## DA — stratégie images V2

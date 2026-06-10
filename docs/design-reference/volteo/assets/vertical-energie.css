@@ -1,0 +1,23 @@
+/* ============================================================
+   PACK VERTICALE — Énergie (RÉFÉRENCE / par défaut)
+   ------------------------------------------------------------
+   Un « pack verticale » redéfinit UNIQUEMENT les 5 slots d'accent
+   catégorie. Il se charge APRÈS le skin :
+     styles.css → [page].css → theme-vN.css → vertical-XXX.css
+   Le reste (structure, skin, composants) ne bouge pas.
+
+   Catégories          → slot   |  Vocabulaire type
+   --------------------------------------------------------------
+   Électricité         → cat-1  |  fournisseur, kWh, tarif, contrat
+   Gaz / chauffage     → cat-2  |  m³, chaudière, indexation
+   Énergie verte       → cat-3  |  biométhane, garanties d'origine
+   Eau                 → cat-4  |  distributeur, m³
+   Mobilité / bornes   → cat-5  |  recharge, borne, kWh
+   ============================================================ */
+:root {
+  --elec: #FFB400;  --elec-soft:  #FFF1CE;
+  --gaz:  #FF6B35;  --gaz-soft:   #FFE2D6;
+  --green:#1AA35F;  --green-soft: #D6F2E1;
+  --water:#2D8FE0;  --water-soft: #D7ECFB;
+  --mobi: #7C5CFF;  --mobi-soft:  #E6DEFF;
+}

@@ -154,8 +154,9 @@ export type NicheConfig = {
 }
 
 // ─── Valeurs par défaut (placeholder) ───────────────────────────────────
-// Ces valeurs permettent au site de build avec un template vierge. Elles sont
-// remplacées par init-site lors du bootstrap d'un nouveau site forké.
+// Ces valeurs permettent au site de build avec un template vierge. Le défaut
+// visuel est le skin V1 Voltéo (clair, magazine). Elles sont remplacées par
+// init-site lors du bootstrap (skin choisi + muté) — cf. docs/AUTO-DESIGN.md.
 
 export const niche: NicheConfig = {
   siteName: 'emd-template',
@@ -180,12 +181,14 @@ export const niche: NicheConfig = {
   comparator: { enabled: true, criteria: [] },
   simulator: { enabled: true, title: '', description: '' },
 
+  // Défaut = skin V1 Voltéo « Électrique » (clair) · archétype magazine (hero centered).
+  // 'split' → home comparateur ; 'centered'/'minimal' → home magazine.
   style: {
-    mode: 'dark',
-    hero: 'split',
-    effects: 'aurora',
+    mode: 'light',
+    hero: 'centered',
+    effects: 'subtle',
     cards: 'bordered',
-    uiStyle: '',
+    uiStyle: 'electrique',
   },
   palette: {
     accent1: '#FF3D57',
@@ -200,7 +203,7 @@ export const niche: NicheConfig = {
     textSecondary: '#9090A8',
     textMuted: '#55556A',
   },
-  fonts: { display: 'Unbounded', body: 'Space Grotesk' },
+  fonts: { display: 'Bricolage Grotesque', body: 'Hanken Grotesk' },
 
   author: { name: '', slug: '', title: '', bio: '', tone: [], noGo: [], formulations: [] },
 

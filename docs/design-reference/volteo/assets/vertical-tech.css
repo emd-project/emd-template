@@ -1,0 +1,19 @@
+/* ============================================================
+   PACK VERTICALE — Tech & high-tech (smartphones, ordis, audio…)
+   Charger après le skin :  …theme-vN.css → vertical-tech.css
+
+   Catégorie        → slot   |  Vocabulaire type
+   --------------------------------------------------------------
+   Smartphones      → cat-1  |  écran, puce, autonomie, stockage
+   Ordinateurs      → cat-2  |  RAM, SSD, GPU, ports
+   Montres / wear   → cat-3  |  capteurs, autonomie, compatibilité
+   Audio / casques  → cat-4  |  réduction de bruit, codec, autonomie
+   Accessoires      → cat-5  |  charge, compatibilité, garantie
+   ============================================================ */
+:root {
+  --elec:  #0A84FF;  --elec-soft:  #D6EAFF;   /* Smartphones */
+  --gaz:   #5E5CE6;  --gaz-soft:   #E2E1FB;   /* Ordinateurs */
+  --green: #FF375F;  --green-soft: #FFD9E1;   /* Montres */
+  --water: #FF9F0A;  --water-soft: #FFEBCC;   /* Audio */
+  --mobi:  #30D158;  --mobi-soft:  #D2F6DC;   /* Accessoires */
+}

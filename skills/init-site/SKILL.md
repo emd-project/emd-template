@@ -1,7 +1,7 @@
 ---
 name: init-site
-version: 3.1.0
-description: Bootstrap d'un nouveau site forké du template emd-template, SANS init-spec wizard (interview en chat). Lance UN interview groupé par blocs (Bloc 0 marché+langues d'abord, puis voix, mots-clés, calendrier, concurrents, FAQ, mentions, auteur), écrit niche.config.ts + tous les content/* + personas auto-dérivés, PUIS — étapes non sautables — applique un skin Voltéo (DA) via docs/AUTO-DESIGN.md, génère les images structurelles via le MCP nano-mentionbox, et crée la scheduled task de rédaction. À utiliser une fois après "Use this template" quand il n'y a PAS d'init-spec.md. Triggers — « initialise ce site », « configure ce site », « setup le site », « bootstrap le site », « init-site », « lance la conf ». Trigger implicite — première rédaction sur un site visiblement non configuré (niche.config.ts.market vide ou content/ avec TODO). Le routeur nouveau-site appelle ce skill quand aucun init-spec.md n'est présent.
+version: 3.2.0
+description: Bootstrap d'un nouveau site forké du template emd-template, SANS init-spec wizard (interview en chat). Lance UN interview groupé par blocs (Bloc 0 marché+langues d'abord, puis voix, mots-clés, calendrier, concurrents, FAQ, mentions, auteur), écrit niche.config.ts + tous les content/* + personas auto-dérivés, PUIS — étapes non sautables — applique un skin Voltéo (structure + DA) via docs/AUTO-DESIGN.md, génère les images structurelles via le MCP nano-mentionbox, et crée la scheduled task de rédaction. À utiliser une fois après "Use this template" quand il n'y a PAS d'init-spec.md. Triggers — « initialise ce site », « configure ce site », « setup le site », « bootstrap le site », « init-site », « lance la conf ». Trigger implicite — première rédaction sur un site visiblement non configuré (niche.config.ts.market vide ou content/ avec TODO). Le routeur nouveau-site appelle ce skill quand aucun init-spec.md n'est présent.
 allowed-tools:
   - Read
   - Write
@@ -18,7 +18,7 @@ allowed-tools:
 
 Ce skill remplit en une passe toute la config éditoriale du site, **puis** applique la DA et génère les images. Économie de tokens vs déclencher 5 skills séparément, et cohérence garantie (audience définie une fois, réutilisée partout ; locales + marché définis AVANT tout).
 
-> **Nouveau en v3** : l'init ne s'arrête plus à la config. Il **applique une vraie DA** (étape 8, skin Voltéo) et **génère les images structurelles** (étape 9) — ces étapes ne sont PAS optionnelles. Un site qui sort de l'init avec le thème par défaut (`#FF3D57`, dark/aurora, logo `emd·template`) OU avec des placeholders d'images est un **échec d'init**.
+> **Nouveau en v3** : l'init ne s'arrête plus à la config. Il **applique une vraie DA** (étape 8, skin Voltéo : structure + tokens) et **génère les images structurelles** (étape 9) — ces étapes ne sont PAS optionnelles. Un site qui sort de l'init avec le thème par défaut (`#FF3D57`, dark/aurora, logo `emd·template`), avec la **structure de pages par défaut**, OU avec des placeholders d'images est un **échec d'init**.
 
 ## Pré-requis (vérifier au démarrage)
 
@@ -117,13 +117,14 @@ Si nom propre → dérouler le gabarit `docs/AUTHOR-template.md`. Sinon sauter.
 
 Exécuter **`docs/AUTO-DESIGN.md`** (doctrine Voltéo). Si `design-incoming/` contient un livrable Claude Design → déléguer plutôt à `integrate-claude-design`. Sinon, **poser les 3 choix** puis appliquer :
 
-1. **Template** — archétype (comparateur / magazine / hybride) depuis l'intent dominant des clusters → pilote `niche.style.hero` + `homeSections`.
+1. **Template** — archétype (comparateur / magazine / hybride) depuis l'intent dominant des clusters → pilote `niche.style.hero` + `homeSections` + **la structure des pages**.
 2. **Skin** — proposer V1 Électrique / V2 Éditorial / V3 Suisse-Minimal / V4 Premium-sombre selon le ton de la niche ; l'utilisateur valide (ou « laisse Claude choisir »).
 3. **Verticale** — énergie / assurance / auto / tech / custom → couleurs de catégorie.
-4. **Appliquer** le **bloc prêt à coller** du skin (`docs/design-reference/volteo/DESIGN-NOTES.md` §5) dans `niche.palette` / `niche.fonts` / `niche.style` ; reporter la verticale (§4) dans les accents catégorie ; reporter rayons + correctifs (§3b — V3 angles 0/zéro ombre, V4 sections sombres) dans `app/globals.css`.
-5. **Muter** (teinte de marque, fonts, rayons — DESIGN-NOTES §6) pour rester unique, écrire `niche.signature` (anchor/oneRule/inspiration/forbidden/components — cf. `docs/DA-ANTI-IA.md`), puis dérouler la **checklist** (DESIGN-NOTES §7).
+4. **Reproduire la STRUCTURE (NON négociable)** — reconstruire les composants du moteur (`components/`, `app/`) pour produire **les sections + l'ordre** des pages HTML de référence du template choisi (`docs/design-reference/volteo/DESIGN-NOTES.md` §0) : `home-comparateur.html` **ou** `home-magazine.html` (home), `hub-categorie.html` (`/blog` + `/blog/[categorie]`), `article.html` (`/blog/[categorie]/[slug]`). Appliquer seulement les couleurs sur le squelette par défaut du moteur = bug d'init.
+5. **Appliquer les tokens** — copier le **bloc prêt à coller** du skin (`…/DESIGN-NOTES.md` §5) dans `niche.palette` / `niche.fonts` / `niche.style` ; reporter la verticale (§4) dans les accents catégorie ; reporter rayons + correctifs (§3b — V3 angles 0/zéro ombre, V4 sections sombres) dans `app/globals.css`.
+6. **Muter** (teinte de marque, fonts, rayons — DESIGN-NOTES §6) pour rester unique, écrire `niche.signature` (anchor/oneRule/inspiration/forbidden/components — cf. `docs/DA-ANTI-IA.md`), puis dérouler la **checklist** (DESIGN-NOTES §7).
 
-**NE JAMAIS** garder la palette/fonts par défaut (`#FF3D57`, Unbounded/Space Grotesk, dark+aurora), **ni** sortir en **clone brut d'un skin** = bug d'init. (Fallback `lib/da-presets/` uniquement si aucun skin ne colle — cf. `docs/DA-PRESETS.md`.)
+**NE JAMAIS** garder la palette/fonts par défaut (`#FF3D57`, Unbounded/Space Grotesk, dark+aurora), **ni** la **structure de pages par défaut** du moteur (héritage pré-Voltéo), **ni** sortir en **clone brut d'un skin** = bug d'init. (Fallback `lib/da-presets/` uniquement si aucun skin ne colle — cf. `docs/DA-PRESETS.md`.)
 
 ## Étape 9 — Images structurelles (MCP nano-mentionbox) — OBLIGATOIRE, NON SAUTABLE
 
@@ -145,7 +146,7 @@ Init terminé.
 - content/ton-of-voice.md ✓ · mots-cles ✓ · personas ✓ (auto) · calendrier ✓ · concurrents ✓ · faq-base ✓
 - content/pages/mentions-legales.yaml ✓ (+ variantes locales si N langues)
 - docs/AUTHOR-[slug].md ✓ (si auteur)
-- DA appliquée ✓ : template [x] · skin [Vn] · verticale [x] · muté (plus de thème par défaut, pas de clone)
+- DA appliquée ✓ : template [x] · skin [Vn] · verticale [x] · structure Voltéo reproduite · muté (plus de thème ni de structure par défaut, pas de clone)
 - Images structurelles ✓ : hero + fonds catégories (+ auteur) générés et poussés
 - Scheduled task ✓ (si confirmée)
 
@@ -158,7 +159,7 @@ Prochaines étapes : pnpm dev → vérifier rendu · déploiement Vercel
 ## Règles strictes
 
 - **Bloc 0 OBLIGATOIRE en PREMIER** : aucun autre bloc avant que market/locales/defaultLocale/localePrefix soient écrits.
-- **Étapes 8 (DA) et 9 (images) NON SAUTABLES** : un site qui sort en thème par défaut, en clone brut d'un skin, ou en placeholders = échec d'init.
+- **Étapes 8 (DA) et 9 (images) NON SAUTABLES** : un site qui sort en thème par défaut, en **structure de pages par défaut**, en clone brut d'un skin, ou en placeholders = échec d'init.
 - **NE JAMAIS inventer** une réponse manquante → `TODO` explicite.
 - **Bloc par bloc**, un seul message utilisateur par bloc. Réutiliser les données entre blocs.
 - **Personas auto-dérivés** (pas de bloc d'interview dédié).

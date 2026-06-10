@@ -1,9 +1,10 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════════════════
-   DA TEMPLATE — TOUTES CES VALEURS DOIVENT ÊTRE REMPLACÉES À L'INIT
-   Le prompt d'init (docs/PROMPT-INIT.md) propose une palette + fonts
-   adaptées à la niche et réécrit cette section.
+   DA TEMPLATE — TOUTES CES VALEURS SONT REMPLACÉES À L'INIT
+   L'init (docs/AUTO-DESIGN.md) applique un skin Voltéo
+   (docs/design-reference/volteo/DESIGN-NOTES.md) et réécrit cette section :
+   --accent-*, --bg-*, --text-*, --radius-*, --shadow-* + correctifs clair/sombre.
    ═══════════════════════════════════════════════════════════════════════ */
 
 @theme {

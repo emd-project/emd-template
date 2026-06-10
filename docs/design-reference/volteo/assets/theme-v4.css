@@ -1,0 +1,72 @@
+/* ============================================================
+   SKIN V4 — « Premium sombre »
+   Mode sombre · grande typo · accent lumineux · haut de gamme
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --cream: #0C1118; --cream-2: #121B28; --paper: #141E2D;
+  --ink: #EAF0F8; --ink-2: #A7B4C6; --ink-3: #6E7E93;
+  --line: #25313F; --line-2: #1B2531;
+  --primary: #7C9CFF; --primary-d: #5E82FF; --primary-soft: #1E2A45; --spark: #CCFF48;
+  --r-sm: 10px; --r: 16px; --r-lg: 22px; --r-xl: 30px;
+  --shadow-sm: 0 2px 10px rgba(0,0,0,.45);
+  --shadow: 0 18px 44px -18px rgba(0,0,0,.7);
+  --shadow-lg: 0 36px 80px -30px rgba(0,0,0,.8);
+  --font-display: 'Sora', system-ui, sans-serif;
+  --font-body: 'Hanken Grotesk', system-ui, sans-serif;
+}
+
+h1, h2, h3, h4 { letter-spacing: -.025em; }
+
+/* --- Surfaces qui utilisaient --ink comme FOND (à re-noircir en sombre) --- */
+.footer { background: #070C14; }
+.topbar { background: #070C14; }
+.magnav a.home { background: var(--primary); color: #06101F; }
+.magnav a.home:hover { background: var(--primary-d); }
+.side-head { background: #1A2536; color: #fff; }
+.data-table th { background: #1A2536; color: #fff; }
+.door-mag { background: linear-gradient(160deg, #0A1322, #131E30); }
+
+/* --- Texte sur boutons/encarts clairs --- */
+.btn-white { color: #0A1322; }
+.news[style*="--ink"] { background: #101B2C !important; }
+
+/* --- Lisibilité des badges sur fond sombre --- */
+.tag.gaz { color: #E08A5B; }
+.tag.elec { color: #C79A3A; }
+
+/* --- Le sélecteur d'image garde un placeholder clair (zone photo) --- */
+.post .post-img.ph, .feat-img.ph, .art-cover.ph { background: repeating-linear-gradient(135deg, #233047 0 16px, #2B3A54 16px 32px); }
+
+/* ============================================================
+   Sections qui utilisaient --ink / --primary comme FOND plein
+   (en mode sombre, --ink devient clair → on les re-noircit)
+   ============================================================ */
+/* Comparateur : estimateur, quiz, table, stats */
+.tool { background: var(--cream-2); }
+.tool-right { background: linear-gradient(160deg, #18263C, #0C1219); border-left-color: var(--line); }
+.quiz-cta { background: var(--cream-2); }
+.stats { background: var(--cream-2); }
+.ctab.on { background: var(--primary); color: #07101F; border-color: var(--primary); }
+.ctab.on .pip { background: #07101F; }
+
+/* Hub : puce de filtre active */
+.chip.on { background: var(--primary); color: #07101F; border-color: var(--primary); }
+
+/* Boutons : texte foncé sur l'accent lumineux */
+.btn-primary { color: #08111F; }
+.btn-primary:hover { color: #07101F; }
+.btn-accent { color: #07101F; }
+.btn-accent:hover { color: #07101F; }
+
+/* Cartes flottantes du hero (étaient en blanc dur) */
+.mini-card { background: var(--paper); border-color: var(--line); }
+.field input:focus, .field select:focus { background: var(--paper); }
+
+/* Encart promo magazine (gradient d'accent → trop clair en sombre) */
+.promo { background: linear-gradient(150deg, #243A66, #131D31); }
+.promo .pblob { background: var(--primary); opacity: .22; }
+
+/* Pictos callout sur accent clair */
+.callout .c-ic { color: #07101F; }

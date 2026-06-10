@@ -1,0 +1,36 @@
+/* ============================================================
+   SKIN V2 — « Éditorial »
+   Serif fort · angles nets · papier chaud · esprit presse
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600;6..72,700;6..72,800&display=swap');
+
+:root {
+  --cream: #FBF7F0; --cream-2: #F1E8D9; --paper: #FFFFFF;
+  --ink: #1B1813; --ink-2: #4A443A; --ink-3: #8A8173;
+  --line: #E4D9C6; --line-2: #EFE7D8;
+  --primary: #9E2B25; --primary-d: #7E211C; --primary-soft: #F3DAD4; --spark: #C8922F;
+  --r-sm: 2px; --r: 3px; --r-lg: 4px; --r-xl: 6px;
+  --shadow-sm: 0 1px 2px rgba(27,24,19,.06);
+  --shadow: 0 10px 26px -16px rgba(27,24,19,.22);
+  --shadow-lg: 0 24px 54px -28px rgba(27,24,19,.30);
+  --font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-body: 'Hanken Grotesk', system-ui, sans-serif;
+}
+
+/* Titres serif, contraste typographique marqué */
+h1, h2, h3, h4 { letter-spacing: -.01em; }
+.hero h1, .hub-hero h1, .art-hero h1, .portal-intro h1, .mcard.feat-big h2 { letter-spacing: -.015em; }
+
+/* Boutons & badges : rectangulaires, presse */
+.btn { border-radius: 4px; font-weight: 700; letter-spacing: .01em; }
+.tag, .chip, .magpill { border-radius: 3px !important; }
+
+/* Filets éditoriaux plus présents */
+.eyebrow { letter-spacing: .18em; }
+.cat-label { border-radius: 3px 3px 0 0 !important; }
+
+/* Liens de contenu soulignés (presse) */
+.prose a, .post .post-body h3 { text-underline-offset: 3px; }
+
+/* Newsletter en accent chaud plutôt que vert */
+.news { background: var(--primary); }

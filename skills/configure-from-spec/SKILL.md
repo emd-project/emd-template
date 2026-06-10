@@ -1,7 +1,7 @@
 ---
 name: configure-from-spec
-version: 2.5.0
-description: Configure un nouveau site fork-é depuis emd-template À PARTIR D'UN FICHIER SPEC pré-rempli par le wizard nano-mentionbox. Lit `init-spec.md` à la racine du repo, analyse les exports Semrush bruts dans `semrush-exports/` pour clusteriser les mots-clés et déterminer l'arborescence du site (categories), écrit `niche.config.ts` + tous les fichiers `content/*` (dont `content/personas.md` auto-dérivé) + `docs/AUTHOR-*` en miroir dans toutes les locales, délègue à `integrate-claude-design` si `design-incoming/` contient des fichiers OU exécute `docs/AUTO-DESIGN.md` pour composer une vraie DA si aucun design n'est fourni, génère les images structurelles via le MCP nano-mentionbox, génère un `content/calendrier-edito.md` avec 50 articles classés par priorité, et crée la scheduled task de rédaction quotidienne selon `docs/SCHEDULED-TASK-REDACTION.md`. À utiliser dans CE cas et CE cas SEULEMENT : un init-spec.md fraîchement poussé par le wizard est présent à la racine du repo et l'utilisateur dit explicitement « configure le site depuis init-spec.md », « configure depuis la spec », « init from spec », « lance la configuration », « setup le repo ». Ne JAMAIS utiliser pour un site déjà configuré (niche.config.ts.market défini → utiliser init-site classique pour amender). Ne JAMAIS proposer ce skill si init-spec.md n'existe pas — proposer init-site à la place.
+version: 2.6.0
+description: Configure un nouveau site fork-é depuis emd-template À PARTIR D'UN FICHIER SPEC pré-rempli par le wizard nano-mentionbox. Lit `init-spec.md` à la racine du repo, analyse les exports Semrush bruts dans `semrush-exports/` pour clusteriser les mots-clés et déterminer l'arborescence du site (categories), écrit `niche.config.ts` + tous les fichiers `content/*` (dont `content/personas.md` auto-dérivé) + `docs/AUTHOR-*` en miroir dans toutes les locales, délègue à `integrate-claude-design` si `design-incoming/` contient des fichiers OU exécute `docs/AUTO-DESIGN.md` pour appliquer un skin Voltéo si aucun design n'est fourni, génère les images structurelles via le MCP nano-mentionbox, génère un `content/calendrier-edito.md` avec 50 articles classés par priorité, et crée la scheduled task de rédaction quotidienne selon `docs/SCHEDULED-TASK-REDACTION.md`. À utiliser dans CE cas et CE cas SEULEMENT : un init-spec.md fraîchement poussé par le wizard est présent à la racine du repo et l'utilisateur dit explicitement « configure le site depuis init-spec.md », « configure depuis la spec », « init from spec », « lance la configuration », « setup le repo ». Ne JAMAIS utiliser pour un site déjà configuré (niche.config.ts.market défini → utiliser init-site classique pour amender). Ne JAMAIS proposer ce skill si init-spec.md n'existe pas — proposer init-site à la place.
 allowed-tools:
   - Read
   - Write
@@ -15,8 +15,12 @@ allowed-tools:
   - mcp__nano-mentionbox__github_push_images
 ---
 
-# configure-from-spec v2.5 — Configurer un site depuis un init-spec.md du wizard
+# configure-from-spec v2.6 — Configurer un site depuis un init-spec.md du wizard
 
+> **Changement v2.5 → v2.6** : étape 12 (Design) passe à la **doctrine Voltéo** — lire `skin` + `vertical`
+> du bloc `## Design`, appliquer le **bloc prêt à coller** du skin, puis muter (au lieu de composer via
+> `composePreset`). Source design unique : `docs/design-reference/volteo/`.
+>
 > **Changement v2.4 → v2.5** : **Chemin wizard = zéro question.** La présence d'`init-spec.md`
 > vaut consentement : le skill déroule TOUT d'une traite — y compris la création de la scheduled
 > task (étape 13) — **sans demander de confirmation**. Il ne s'arrête QUE sur un vrai bloqueur
@@ -25,8 +29,6 @@ allowed-tools:
 >
 > **Changement v2.3 → v2.4** : MCP nano-mentionbox déclaré dans `allowed-tools` ; étape 7bis écrit
 > `content/personas.md` auto-dérivé (exigé par `seo-geo-redaction`).
->
-> **Changement v2.2 → v2.3** : étape 13 (scheduled task) pointe vers `docs/SCHEDULED-TASK-REDACTION.md`.
 
 Ce skill prend en entrée un `init-spec.md` à la racine + (optionnel) des exports Semrush dans `semrush-exports/` + (optionnel) un dossier `design-incoming/`. Il produit une configuration complète du site en un seul commit atomique, **sans interview**.
 
@@ -120,16 +122,26 @@ Bloc 6 + variantes locales si N langues.
 
 ---
 
-## Étape 12 — Design : intégrer le livrable OU composer une DA auto
+## Étape 12 — Design : intégrer le livrable OU appliquer un skin Voltéo
 
 ```bash
 ls -la design-incoming/ 2>/dev/null
 ```
 
 - **`design-incoming/` non vide** → déléguer à `integrate-claude-design` (NE PAS `unzip`, déjà extrait).
-- **`design-incoming/` vide** → exécuter `docs/AUTO-DESIGN.md` : lire le bloc `## Design` (archétype + mood + brandColor + mode), choisir l'archétype (comparateur/magazine/hybride), composer la DA via `composePreset()` sur `lib/da-presets/`, écrire palette + fonts + `niche.style` + `niche.signature`. **JAMAIS** les placeholders par défaut.
+- **`design-incoming/` vide** → exécuter `docs/AUTO-DESIGN.md` (**doctrine Voltéo**). Lire le bloc `## Design`
+  de la spec (`archetype`, `skin`, `vertical`, `brandColor`) puis :
+  1. **Template** depuis `archetype` (comparateur/magazine/hybride) → `niche.style.hero` + `homeSections`.
+  2. **Appliquer le skin** : copier le **bloc prêt à coller** du `skin` (V1–V4) depuis
+     `docs/design-reference/volteo/DESIGN-NOTES.md` §5 dans `niche.palette`/`niche.fonts`/`niche.style` ;
+     reporter la `vertical` (§4) dans les accents catégorie ; reporter rayons + correctifs (§3b — V3
+     angles 0/zéro ombre, V4 sections sombres) dans `app/globals.css`.
+  3. Si `skin`/`vertical` valent `auto` ou manquent → les **déduire** de la niche (intent des clusters).
+  4. **Muter** (teinte/fonts/rayons — §6), écrire `niche.signature` (anchor/oneRule/forbidden — `docs/DA-ANTI-IA.md`),
+     dérouler la **checklist** (§7). **JAMAIS** les placeholders par défaut, **ni** un clone brut du skin.
+     (Fallback `lib/da-presets/` seulement si aucun skin ne colle — `docs/DA-PRESETS.md`.)
 
-**Images structurelles (les deux cas)** : après la DA, générer hero + fonds par catégorie via `mcp__nano-mentionbox__generate_image` (fire-and-poll → `wait_for_image`), prompts de `prompts/` + `lib/image-slots.ts` alignés sur la DA, push WebP via `mcp__nano-mentionbox__github_push_images` sous `public/images/`. Cf. `docs/IMAGES-WORKFLOW.md`. Site neuf en placeholders = bug.
+**Images structurelles (les deux cas)** : après la DA, générer hero + fonds par catégorie via `mcp__nano-mentionbox__generate_image` (fire-and-poll → `wait_for_image`), prompts + `lib/image-slots.ts` alignés sur le **skin appliqué**, push WebP via `mcp__nano-mentionbox__github_push_images` sous `public/images/`. Cf. `docs/IMAGES-WORKFLOW.md`. Site neuf en placeholders = bug.
 
 ⚠️ Le design NE DOIT PAS écraser `niche.config.ts.categories` (issu des clusters Semrush).
 
@@ -147,7 +159,7 @@ ls -la design-incoming/ 2>/dev/null
 ---
 
 ## Étape 14 — PROGRESS.md + DECISIONS.md
-Documenter la DA retenue (archétype, palette, fonts, mode), les images générées, les corrections silencieuses faites à l'étape 2.
+Documenter la DA retenue (template, skin, verticale, mutations), les images générées, les corrections silencieuses faites à l'étape 2.
 
 ## Étape 15 — Commit atomique
 UN commit, message Conventional Commits anglais.
@@ -157,7 +169,7 @@ UN commit, message Conventional Commits anglais.
 ✓ Site bootstrappé (zéro question — spec wizard).
 Marché : [market] · Locales : [...] · Clusters : K (N keywords)
 Categories : 6 · Personas : [N] (auto) · Calendrier : 50 articles
-Design : intégré OU DA composée (archétype + palette + fonts)
+Design : intégré OU skin Voltéo appliqué ([template] · [Vn] · [verticale] · muté)
 Images structurelles : générées · Scheduled task : [repoName]-article-daily (cron 0 8 * * *)
 Repo : https://github.com/[owner]/[name]
 Prochaines étapes : valider categories · pnpm dev · déploiement Vercel · Run now sur la tâche
@@ -170,8 +182,8 @@ Prochaines étapes : valider categories · pnpm dev · déploiement Vercel · Ru
 - **NE JAMAIS exécuter** sans `init-spec.md`.
 - **NE JAMAIS écraser** un `niche.config.ts` rempli sans STOP.
 - **Chemin wizard = zéro question** : ne s'arrêter QUE sur les 4 pré-requis bloqueurs. Tout le reste se décide et se note, sans demander.
-- **NE JAMAIS laisser la palette/fonts par défaut** ni un site en placeholders.
+- **NE JAMAIS laisser la palette/fonts par défaut**, ni un **clone brut d'un skin**, ni un site en placeholders.
 - **TOUJOURS** un commit atomique · miroir strict si `locales.length >= 2` · categories dérivées des clusters Semrush · scheduled task depuis le gabarit canonique.
 
 ## Lien avec les autres skills / docs
-`nouveau-site` (routeur) · `init-site` (chemin sans spec, AVEC confirmations) · `integrate-claude-design` (étape 12 cas A) · `docs/AUTO-DESIGN.md` · `docs/IMAGES-WORKFLOW.md` · `docs/SCHEDULED-TASK-REDACTION.md` · `seo-geo-redaction` + `ton-of-voice` + `humaniser-fr` (rédaction).
+`nouveau-site` (routeur) · `init-site` (chemin sans spec, AVEC confirmations) · `integrate-claude-design` (étape 12 cas A) · `docs/AUTO-DESIGN.md` (doctrine Voltéo) · `docs/design-reference/volteo/DESIGN-NOTES.md` · `docs/IMAGES-WORKFLOW.md` · `docs/SCHEDULED-TASK-REDACTION.md` · `seo-geo-redaction` + `ton-of-voice` + `humaniser-fr` (rédaction).

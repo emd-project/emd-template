@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>document.documentElement.classList.add('js')</script>
+<title>Voltéo — Comparateur d'énergie en Belgique</title>
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="assets/home.css">
+<link rel="stylesheet" href="assets/theme-v1.css">
+<meta name="x-skin" content="V1">
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav class="nav">
+  <div class="wrap">
+    <a href="home-comparateur.html" class="logo">
+      <span class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H13l0-8Z" fill="#FF6B35"/></svg></span>
+      <span class="word">Volté<span class="dot">o</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="#categories">Comparer</a>
+      <a href="#estimateur">Estimer</a>
+      <a href="#offres">Offres</a>
+      <a href="hub-categorie.html">Conseils</a>
+      <a href="#aide">Aide</a>
+    </div>
+    <div class="nav-cta">
+      <a href="#hero-form" class="btn btn-accent" style="padding:11px 22px;font-size:15px;">Comparer<span class="arr">→</span></a>
+    </div>
+    <button class="nav-burger" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="mobile-menu">
+  <a href="#categories">Comparer</a>
+  <a href="#estimateur">Estimer</a>
+  <a href="#offres">Offres</a>
+  <a href="hub-categorie.html">Conseils</a>
+  <a href="#aide">Aide</a>
+  <a href="#hero-form" class="btn btn-accent btn-lg">Comparer maintenant →</a>
+</div>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="hero-bg"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+  <div class="wrap">
+    <div class="hero-text">
+      <span class="eyebrow hero-eyebrow">Comparateur indépendant · Belgique</span>
+      <h1>Changez d'énergie.<br>Gardez <span class="hl">vos économies.</span></h1>
+      <p class="hero-sub">Électricité, gaz, gaz vert, eau, bornes de recharge. Comparez tous les fournisseurs belges en 2 minutes et économisez jusqu'à <strong>490 €/an</strong>. Gratuit, neutre, sans engagement.</p>
+
+      <form class="quick" id="hero-form" autocomplete="off">
+        <h3><span class="spark">⚡</span> Trouvez votre meilleure offre</h3>
+        <div class="quick-row" id="quickForm">
+          <div class="field">
+            <label for="cp">Code postal</label>
+            <input type="text" id="cp" inputmode="numeric" maxlength="4" placeholder="1000" value="1000">
+          </div>
+          <div class="field">
+            <label for="type">Énergie</label>
+            <select id="type">
+              <option>Électricité + Gaz</option>
+              <option>Électricité seule</option>
+              <option>Gaz seul</option>
+              <option>Gaz vert</option>
+              <option>Eau</option>
+              <option>Borne de recharge</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg">Comparer les offres <span class="arr">→</span></button>
+        <div class="quick-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1AA35F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 100 % gratuit · 38 fournisseurs · aucune donnée revendue</div>
+      </form>
+    </div>
+
+    <div class="hero-visual">
+      <div class="bill-card bill-main">
+        <div class="bill-head"><span class="who">Votre facture annuelle</span><span class="tag green"><span class="pip"></span>Optimisée</span></div>
+        <div class="bill-label">Avec Voltéo</div>
+        <div class="bill-amt"><span class="cur">€</span>1 284</div>
+        <div class="bar-track"><div class="bar-fill" style="width:62%;background:var(--green);"></div></div>
+        <div class="bill-rows">
+          <div class="br"><span class="nm"><span class="ic" style="background:var(--elec-soft);color:#966400;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H13l0-8Z"/></svg></span>Électricité</span><strong>948 €</strong></div>
+          <div class="br"><span class="nm"><span class="ic" style="background:var(--gaz-soft);color:var(--primary-d);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 3-2 4-2 7a2 2 0 0 0 4 0c2 2 3 4 3 6a5 5 0 0 1-10 0c0-4 5-6 5-13Z"/></svg></span>Gaz</span><strong>336 €</strong></div>
+        </div>
+      </div>
+      <div class="mini-card">
+        <span class="av"><svg viewBox="0 0 24 24" fill="#966400"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H13l0-8Z"/></svg></span>
+        <span class="t">Offre trouvée<b>Eoluz · Fixe 1 an</b></span>
+      </div>
+      <div class="save-chip">
+        <div class="lbl">Vous économisez</div>
+        <div class="val">−490 €/an</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ CONFIANCE ============ -->
+<section class="trust">
+  <div class="wrap">
+    <span class="lead">38 fournisseurs comparés</span>
+    <div class="marquee">
+      <div class="marquee-track">
+        <span class="prov">Eoluz</span><span class="prov">Lumio</span><span class="prov">Wattera</span><span class="prov">Belgaz</span><span class="prov">Vélia</span><span class="prov">Naturéo</span><span class="prov">Pilote</span><span class="prov">Hydro+</span>
+        <span class="prov">Eoluz</span><span class="prov">Lumio</span><span class="prov">Wattera</span><span class="prov">Belgaz</span><span class="prov">Vélia</span><span class="prov">Naturéo</span><span class="prov">Pilote</span><span class="prov">Hydro+</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CATÉGORIES ============ -->
+<section class="section" id="categories">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Que voulez-vous comparer ?</span>
+      <h2>Une énergie, une couleur,<br>le meilleur prix.</h2>
+      <p>Choisissez votre catégorie. On scanne le marché belge en temps réel et on ne garde que les offres qui valent vraiment le coup.</p>
+    </div>
+    <div class="cat-grid">
+      <a href="#offres" class="cat c-elec reveal d1"><span class="glow"></span>
+        <span class="cat-ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H13l0-8Z"/></svg></span>
+        <h3>Électricité</h3><p>Tarifs fixes ou variables, heures pleines/creuses, tarif prosumer.</p>
+        <span class="go">Comparer <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+      <a href="#offres" class="cat c-gaz reveal d2"><span class="glow"></span>
+        <span class="cat-ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 3-2 4-2 7a2 2 0 0 0 4 0c2 2 3 4 3 6a5 5 0 0 1-10 0c0-4 5-6 5-13Z"/></svg></span>
+        <h3>Gaz naturel</h3><p>Comparez le prix du kWh et les frais fixes des fournisseurs.</p>
+        <span class="go">Comparer <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+      <a href="#offres" class="cat c-green reveal d3"><span class="glow"></span>
+        <span class="cat-ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21c0-6 3-11 9-12-1 7-4 11-9 12Zm0 0c0-5-2-8-7-9 1 5 3 8 7 9Z"/></svg></span>
+        <h3>Gaz vert</h3><p>Biométhane 100 % belge, garanties d'origine et neutralité CO₂.</p>
+        <span class="go">Comparer <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+      <a href="#offres" class="cat c-greenelec reveal d1"><span class="glow"></span>
+        <span class="cat-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a4 4 0 0 1 4-4h9a3 3 0 1 0-3-3"/><path d="M3 18h11a3 3 0 1 1-3 3"/></svg></span>
+        <h3>Énergie verte</h3><p>Électricité 100 % renouvelable, éolien et solaire belges.</p>
+        <span class="go">Comparer <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+      <a href="#offres" class="cat c-water reveal d2"><span class="glow"></span>
+        <span class="cat-ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2s7 8 7 13a7 7 0 0 1-14 0c0-5 7-13 7-13Z"/></svg></span>
+        <h3>Eau</h3><p>Tarifs de distribution par région et conseils pour réduire la conso.</p>
+        <span class="go">Comparer <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+      <a href="#offres" class="cat c-mobi reveal d3"><span class="glow"></span>
+        <span class="cat-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M9 7h6M12 11v4M10 15h4"/></svg></span>
+        <h3>Bornes & mobilité</h3><p>Recharge à domicile, tarifs nuit et abonnements bornes publiques.</p>
+        <span class="go">Comparer <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMMENT ÇA MARCHE ============ -->
+<section class="section how">
+  <div class="wrap">
+    <div class="sec-head center reveal">
+      <span class="eyebrow" style="margin:0 auto;">Simple comme bonjour</span>
+      <h2>Économiser prend 2 minutes</h2>
+      <p style="margin:0 auto;">Pas de paperasse, pas de coupure, pas de pression commerciale. On s'occupe de tout.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal d1"><span class="line"></span><div class="num">1</div><h3>Dites-nous votre conso</h3><p>Code postal, type d'énergie et consommation approximative. Pas de facture ? On l'estime pour vous.</p></div>
+      <div class="step reveal d2"><span class="line"></span><div class="num">2</div><h3>Comparez en toute neutralité</h3><p>On classe les 38 fournisseurs par prix réel, services et avis clients. Sans favoritisme ni offre cachée.</p></div>
+      <div class="step reveal d3"><div class="num">3</div><h3>Changez en 1 clic</h3><p>On gère la résiliation et le transfert. Zéro coupure d'énergie, votre nouveau contrat démarre tout seul.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ESTIMATEUR (OUTIL) ============ -->
+<section class="section" id="estimateur">
+  <div class="wrap">
+    <div class="tool reveal">
+      <div class="tool-grid">
+        <div class="tool-left">
+          <span class="eyebrow">Outil · Estimateur d'économies</span>
+          <h2>Combien pouvez-vous économiser ?</h2>
+          <p>Glissez les curseurs selon votre logement. On calcule l'écart entre le tarif moyen du marché et la meilleure offre disponible.</p>
+
+          <div class="toggle-row">
+            <button class="toggle" data-profile="appart">Appartement</button>
+            <button class="toggle on" data-profile="maison">Maison</button>
+            <button class="toggle" data-profile="pro">Indépendant</button>
+          </div>
+
+          <div class="slider-block">
+            <div class="sl-top">
+              <span class="lab"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H13l0-8Z"/></svg> Électricité / an</span>
+              <span class="val" id="elecVal">3 500 kWh</span>
+            </div>
+            <input type="range" id="elecRange" min="800" max="9000" step="100" value="3500">
+          </div>
+
+          <div class="slider-block">
+            <div class="sl-top">
+              <span class="lab"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 3-2 4-2 7a2 2 0 0 0 4 0c2 2 3 4 3 6a5 5 0 0 1-10 0c0-4 5-6 5-13Z"/></svg> Gaz / an</span>
+              <span class="val" id="gasVal">14 000 kWh</span>
+            </div>
+            <input type="range" id="gasRange" min="0" max="35000" step="500" value="14000">
+          </div>
+        </div>
+
+        <div class="tool-right">
+          <div class="result-card">
+            <div class="rl">Économie estimée par an</div>
+            <div class="big" id="saveBig"><span class="cur">€</span>0</div>
+            <p class="sub">en passant du tarif moyen du marché à la meilleure offre Voltéo.</p>
+            <div class="result-meta">
+              <div class="rm"><div class="n" id="costNow">—</div><div class="l">Tarif marché</div></div>
+              <div class="rm"><div class="n" id="costAfter">—</div><div class="l">Meilleure offre</div></div>
+            </div>
+            <a href="#hero-form" class="btn btn-accent btn-lg" style="width:100%;">Voir mes offres réelles <span class="arr">→</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TABLE COMPARATIVE ============ -->
+<section class="section" id="offres" style="background:var(--cream-2);">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Comparatif côte-à-côte</span>
+      <h2>Les meilleures offres du moment</h2>
+      <p>Classées par coût réel sur un an pour un ménage type. Mises à jour quotidiennement.</p>
+    </div>
+    <div class="compare-tabs reveal d1">
+      <button class="ctab on" data-cat="elec"><span class="pip"></span>Électricité</button>
+      <button class="ctab" data-cat="gaz"><span class="pip"></span>Gaz</button>
+      <button class="ctab" data-cat="green"><span class="pip"></span>Gaz vert</button>
+    </div>
+    <div class="offers reveal d2" id="offersWrap"></div>
+  </div>
+</section>
+
+<!-- ============ STATS ============ -->
+<section class="section stats">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div class="stat reveal"><div class="n"><span data-count="490" data-prefix="" data-suffix=" €">0 €</span></div><div class="l">économisés en moyenne / an</div></div>
+      <div class="stat reveal d1"><div class="n"><span data-count="38">0</span></div><div class="l">fournisseurs comparés</div></div>
+      <div class="stat reveal d2"><div class="n"><span data-count="127000" data-suffix="+">0</span></div><div class="l">ménages accompagnés</div></div>
+      <div class="stat reveal d3"><div class="n"><span data-count="2">0</span> min</div><div class="l">pour tout comparer</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section class="section">
+  <div class="wrap">
+    <div class="quiz-cta reveal">
+      <span class="qc-blob"></span>
+      <div class="qc-text">
+        <span class="eyebrow" style="color:var(--mobi);">Quiz · 6 questions</span>
+        <h2>Pas sûr du contrat fait pour vous ?</h2>
+        <p>Fixe ou variable ? Vert ou classique ? Répondez à 6 questions et recevez la recommandation taillée pour votre profil — en 60 secondes.</p>
+        <a href="#" class="btn btn-accent btn-lg">Faire le quiz <span class="arr">→</span></a>
+      </div>
+      <div class="quiz-card">
+        <div class="quiz-q"><span class="qn">3</span> Vous préférez une facture…</div>
+        <div class="quiz-opts">
+          <div class="quiz-opt"><span class="box"></span>Stable toute l'année, même un peu plus chère</div>
+          <div class="quiz-opt"><span class="box"></span>Au plus bas, quitte à ce qu'elle varie</div>
+          <div class="quiz-opt"><span class="box"></span>100 % verte avant tout</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BLOG TEASER ============ -->
+<section class="section" id="conseils" style="background:var(--cream-2);">
+  <div class="wrap">
+    <div class="blog-head">
+      <div class="sec-head reveal" style="margin-bottom:0;">
+        <span class="eyebrow">Le mag Voltéo</span>
+        <h2>Conseils pour payer moins</h2>
+      </div>
+      <a href="hub-categorie.html" class="btn btn-ghost reveal d1">Tous les articles <span class="arr">→</span></a>
+    </div>
+    <div class="posts">
+      <a href="article.html" class="post reveal d1">
+        <div class="ph post-img"><span>photo · compteur</span></div>
+        <div class="post-body">
+          <span class="tag elec"><span class="pip"></span>Électricité</span>
+          <h3>Tarif fixe ou variable en 2026 : que choisir ?</h3>
+          <p>Le grand match de l'année décrypté avec des chiffres concrets pour la Belgique.</p>
+          <div class="post-meta">8 min de lecture · 12 mai 2026</div>
+        </div>
+      </a>
+      <a href="hub-categorie.html" class="post reveal d2">
+        <div class="ph post-img"><span>photo · radiateur</span></div>
+        <div class="post-body">
+          <span class="tag gaz"><span class="pip"></span>Gaz</span>
+          <h3>10 gestes qui réduisent vraiment votre facture de gaz</h3>
+          <p>On a testé chaque astuce et chiffré les économies réelles, sans bla-bla.</p>
+          <div class="post-meta">6 min de lecture · 28 avril 2026</div>
+        </div>
+      </a>
+      <a href="hub-categorie.html" class="post reveal d3">
+        <div class="ph post-img"><span>photo · éoliennes</span></div>
+        <div class="post-body">
+          <span class="tag green"><span class="pip"></span>Énergie verte</span>
+          <h3>Gaz vert : arnaque marketing ou vrai geste écolo ?</h3>
+          <p>Garanties d'origine, biométhane, compensation… on sépare le vrai du faux.</p>
+          <div class="post-meta">7 min de lecture · 15 avril 2026</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NEWSLETTER ============ -->
+<section class="section" id="aide">
+  <div class="wrap">
+    <div class="news reveal">
+      <h2>L'alerte qui vous fait économiser</h2>
+      <p>Une fois par mois, on vous prévient quand une offre vraiment meilleure que la vôtre apparaît. Rien d'autre.</p>
+      <form class="news-form">
+        <input type="email" placeholder="votre@email.be" required>
+        <button type="submit" class="btn btn-primary">S'inscrire</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="home-comparateur.html" class="logo"><span class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H13l0-8Z" fill="#fff"/></svg></span><span class="word">Voltéo</span></a>
+        <p class="footer-blurb">Le comparateur d'énergie indépendant en Belgique. Neutre, gratuit, et 100 % du côté du consommateur.</p>
+      </div>
+      <div class="footer-col"><h4>Comparer</h4><ul><li><a href="#offres">Électricité</a></li><li><a href="#offres">Gaz</a></li><li><a href="#offres">Gaz vert</a></li><li><a href="#offres">Eau</a></li><li><a href="#offres">Bornes de recharge</a></li></ul></div>
+      <div class="footer-col"><h4>Ressources</h4><ul><li><a href="hub-categorie.html">Le mag</a></li><li><a href="#estimateur">Estimateur</a></li><li><a href="#">Quiz contrat</a></li><li><a href="#">Glossaire énergie</a></li></ul></div>
+      <div class="footer-col"><h4>Voltéo</h4><ul><li><a href="#">Qui sommes-nous</a></li><li><a href="#">Notre méthode</a></li><li><a href="#">Contact</a></li><li><a href="#">Aide & FAQ</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Voltéo · Comparateur indépendant agréé · Bruxelles, Belgique</span>
+      <div class="footer-social">
+        <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5A2.5 2.5 0 1 1 0 3.5a2.5 2.5 0 0 1 4.98 0ZM0 8h5v16H0V8Zm7.5 0h4.8v2.2h.07c.67-1.2 2.3-2.5 4.73-2.5 5.06 0 6 3.3 6 7.6V24h-5v-7.1c0-1.7 0-3.9-2.4-3.9s-2.7 1.85-2.7 3.77V24h-5V8Z"/></svg></a>
+        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
+        <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 22v-9h3l.5-4H13V7c0-1.1.3-1.9 2-1.9h2V1.5C16.6 1.4 15.4 1.3 14 1.3 11 1.3 9 3.1 9 6.5V9H6v4h3v9h4Z"/></svg></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/main.js"></script>
+<script src="assets/home.js"></script>
+</body>
+</html>

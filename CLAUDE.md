@@ -23,28 +23,36 @@ Moteur de sites éditoriaux multi-niches · Stack : Next.js ~16.2.1 + Tailwind v
 Langue : FR par défaut · i18n piloté par niche.config.ts (locales/market) — cf. skills/init-site
 Configuration centralisée dans `niche.config.ts`
 
-## Skills locaux
-Voir [`skills/README.md`](skills/README.md) pour la liste des skills bundlés avec le template.
+## Rendu serveur (SEO) — JS minimal, HTML complet
+Tout le contenu (home, comparateur, hub, articles) doit être dans le **HTML rendu serveur** : Server
+Components par défaut, SSR/SSG, **JS minimal**. `curl -s <url>` doit retourner le H1 et le texte
+**sans JS**. Animations en **CSS** — on ne cache JAMAIS du contenu en attendant le JS. `'use client'`
+seulement pour un îlot interactif isolé (toggle thème, menu mobile, carousel) — jamais sur `page.tsx`,
+jamais pour *afficher* du contenu.
+**Port Voltéo** : on reproduit la structure en **RSC + `next/image`** ; les scripts statiques de Voltéo
+(`main.js`, `home.js`, compteurs, read-progress, theme-switch…) **ne sont PAS repris tels quels** —
+le décoratif passe en CSS, le vraiment interactif devient un petit client component isolé.
 
 ## DA & images
-DA : typographie configurable · effets aurora/noise CSS · SVG inline · composition selon `niche.style.mode`
+DA : typographie configurable · effets CSS · SVG inline · composition selon `niche.style.mode`
 Toute section visuellement vide est un bug de DA. Claude Code a toute latitude — documenter dans DECISIONS.md.
 
 ## DA à l'init (sans livrable Claude Design)
 Lors d'un init (`configure-from-spec` OU `init-site`), si `design-incoming/` est vide, **NE JAMAIS garder
-la palette/fonts par défaut** de `niche.config.ts` (rouge `#FF3D57`, fonts Unbounded/Space Grotesk).
+la palette/fonts par défaut** de `niche.config.ts`.
 Exécuter **`docs/AUTO-DESIGN.md`** : **choisir un skin Voltéo** (V1–V4) + un **template** (comparateur/
-magazine) + une **verticale**, copier le **bloc prêt à coller** depuis
-**`docs/design-reference/volteo/DESIGN-NOTES.md`**, reporter rayons/correctifs dans `app/globals.css`,
-puis **muter** (teinte/fonts/rayons — anti-footprint). Source design **unique** : `docs/design-reference/volteo/`.
-Un site qui sort de l'init avec le thème par défaut, **ou en clone brut d'un skin**, est un **bug d'init**.
+magazine) + une **verticale**, **reproduire la STRUCTURE** des pages de référence
+(`docs/design-reference/volteo/DESIGN-NOTES.md` §0), copier le **bloc prêt à coller** (§5), reporter
+rayons/correctifs dans `app/globals.css`, puis **muter** (teinte/fonts/rayons — anti-footprint).
+Source design **unique** : `docs/design-reference/volteo/`. Un site qui sort de l'init avec le thème
+par défaut, **en structure par défaut**, **ou en clone brut d'un skin**, est un **bug d'init**.
 
-## Images (V2 — le site s'anime)
-La doctrine « no image » V1 est morte. À l'init, après AUTO-DESIGN, **générer les images structurelles**
-(hero + fonds par catégorie) via `mcp__nano-mentionbox__generate_image` à partir des prompts de
-`lib/image-slots.ts`, alignés sur la DA composée, puis push WebP sous `public/images/`. Articles :
-`cover` + `mid` par la tâche quotidienne. Détail complet : **`docs/IMAGES-WORKFLOW.md`**.
-Un site neuf qui reste en placeholders = bug. `next/image` uniquement · `alt` descriptif FR + EN.
+## Images — SOBRE à l'init (plafond strict)
+À l'init, après AUTO-DESIGN, générer **AU PLUS ~5 images** : le(s) visuel(s) du **hero** de la home +
+la **couverture du hub** `/blog`. **INTERDIT** de générer une image par catégorie ni par article à
+l'init (sur-génération = lent, coûteux, générique). Le reste se génère **à la demande** (fine-tuning)
+ou par la **tâche de rédaction quotidienne** (`cover` + `mid` d'article). Mieux vaut **5 images bien
+placées que 15 fades**. `next/image` uniquement · `alt` descriptif FR + EN. Cf. `docs/IMAGES-WORKFLOW.md`.
 
 ## Assets autorisés
 Images : `public/images/` (structurelles) · `public/blog/[categorie]/[slug]/` (articles) — générées (IA) ou commitées
@@ -54,8 +62,9 @@ OG : générées via app/opengraph-image.tsx
 Jamais : picsum · unsplash · placeholder.com · images hotlinkées depuis un CDN tiers
 
 ## Fonts
-Next.js variables : `--next-font-primary` (Space Grotesk) · `--next-font-display` (configurable) · `--next-font-mono` (JetBrains Mono)
-Tailwind theme : `--font-primary` → `var(--next-font-primary)` · idem pour display et mono
+Next.js variables : `--next-font-primary` · `--next-font-display` · `--next-font-mono` (via next/font)
+Défaut Voltéo V1 : Hanken Grotesk (primary) + Bricolage Grotesque (display). `--font-body`/`--font-display`
+(design-system Voltéo) sont branchées dessus dans `app/styles/volteo.css`.
 
 ## Liens affiliés
 TOUT lien Amazon dans le code ou le contenu MDX doit passer par addAffiliateTag() ou le composant <AffiliateLink>.
@@ -74,14 +83,14 @@ Pour personnaliser un site : modifier uniquement `niche.config.ts`, pas les comp
 
 ## Filtre qualité — avant chaque commit
 - [ ] tsc --noEmit · next lint · vitest run
-- [ ] Images via next/image uniquement (pas de `<img>` nu) · alt obligatoire
+- [ ] Images via next/image uniquement (pas de `<img>` nu) · alt obligatoire · **≤ ~5 images à l'init**
+- [ ] **curl -s retourne le H1 + le contenu SANS JS** (rendu serveur, JS minimal)
 - [ ] Variables CSS · zéro hardcode · composants < 150 lignes
 - [ ] Secrets hors repo · CSP sans unsafe-eval
 - [ ] zéro fonts.googleapis.com · adjustFontFallback:true
 - [ ] Article : byline + AuthorCard + JSON-LD author (sans photo)
 - [ ] Tous les liens Amazon passent par addAffiliateTag() ou <AffiliateLink>
-- [ ] curl retourne H1 sans JS
-- [ ] Chaque section a un fond traité documenté dans DECISIONS.md
+- [ ] Structure Voltéo reproduite (home/hub/article) — pas le squelette par défaut
 - [ ] prefers-reduced-motion respecté sur toutes les animations
 - [ ] Contraste texte/fond vérifié pour chaque effet DA (selon le mode clair/sombre)
 - [ ] middleware.ts présent et actif

@@ -1,0 +1,68 @@
+/* ============================================================
+   VOLTÉO — Layout hub / catégorie blog (chargé globalement)
+   ============================================================ */
+
+/* ---------- Breadcrumb ---------- */
+.crumb { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; color: var(--ink-3); margin-bottom: 26px; flex-wrap: wrap; }
+.crumb a:hover { color: var(--ink); }
+.crumb .sep { opacity: .5; }
+.crumb .cur { color: var(--ink); }
+
+/* ---------- Hero hub ---------- */
+.hub-hero { position: relative; overflow: hidden; padding: 40px 0 56px; background: var(--cream-2); border-bottom: 1px solid var(--line); }
+.hub-hero .glow { position: absolute; width: 420px; height: 420px; border-radius: 50%; filter: blur(90px); opacity: .4; top: -180px; right: -60px; background: var(--primary); }
+.hub-hero .wrap { position: relative; z-index: 1; }
+.hub-hero .kicker { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 18px; }
+.hub-hero h1 { font-size: clamp(38px, 5.6vw, 64px); font-weight: 800; letter-spacing: -.035em; max-width: 760px; }
+.hub-hero .lead { font-size: 19px; color: var(--ink-2); max-width: 560px; margin-top: 18px; }
+.hub-hero .meta { display: flex; gap: 22px; margin-top: 26px; font-size: 14.5px; font-weight: 600; color: var(--ink-2); flex-wrap: wrap; }
+.hub-hero .meta span { display: inline-flex; align-items: center; gap: 8px; }
+
+/* ---------- Barre de filtres (sticky) ---------- */
+.filter-bar { position: sticky; top: var(--nav-h); z-index: 40; background: color-mix(in srgb, var(--cream) 90%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+.filter-bar .wrap { display: flex; align-items: center; gap: 14px; padding-top: 16px; padding-bottom: 16px; overflow-x: auto; scrollbar-width: none; }
+.filter-bar .wrap::-webkit-scrollbar { display: none; }
+.chip { flex: none; padding: 9px 17px; border-radius: 100px; border: 1.5px solid var(--line); background: var(--paper); font-weight: 700; font-size: 14.5px; color: var(--ink-2); transition: all .15s; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+.chip .pip { width: 8px; height: 8px; border-radius: 50%; }
+.chip:hover { border-color: var(--ink-3); }
+.chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+/* ---------- Article à la une ---------- */
+.featured { display: grid; grid-template-columns: 1.15fr .85fr; gap: 0; background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-xl); overflow: hidden; box-shadow: var(--shadow); transition: transform .25s, box-shadow .25s; }
+.featured:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.featured .feat-img { position: relative; overflow: hidden; min-height: 360px; }
+.featured .feat-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.featured .feat-img .ph { position: absolute; inset: 0; }
+.featured .feat-body { padding: 44px; display: flex; flex-direction: column; justify-content: center; }
+.featured .feat-flag { display: inline-flex; margin-bottom: 16px; }
+.featured h2 { font-size: clamp(26px, 3vw, 38px); font-weight: 800; letter-spacing: -.025em; margin-bottom: 14px; }
+.featured p { font-size: 16px; color: var(--ink-2); margin-bottom: 22px; max-width: 460px; }
+.featured .feat-meta { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-3); font-weight: 600; margin-top: auto; flex-wrap: wrap; }
+
+/* ---------- En-tête de liste + images de carte ---------- */
+.list-head { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 28px; gap: 16px; flex-wrap: wrap; }
+.list-head h3 { font-size: 26px; font-weight: 800; }
+.list-head .count { font-size: 14.5px; color: var(--ink-3); font-weight: 600; }
+.post .post-img { position: relative; overflow: hidden; }
+.post .post-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+/* ---------- Bandeau guides ---------- */
+.guides { background: var(--cream-2); }
+.guide-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.guide { background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 24px; transition: transform .2s, box-shadow .2s; display: flex; flex-direction: column; gap: 12px; }
+.guide:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.guide .g-ic { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; }
+.guide h4 { font-size: 17px; font-weight: 700; font-family: var(--font-display); }
+.guide .g-count { font-size: 12.5px; font-weight: 700; color: var(--ink-3); margin-top: auto; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 980px) {
+  .featured { grid-template-columns: 1fr; }
+  .featured .feat-img { min-height: 240px; }
+  .featured .feat-body { padding: 32px; }
+  .guide-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 620px) {
+  .guide-grid { grid-template-columns: 1fr; }
+  .featured .feat-body { padding: 28px 22px; }
+}

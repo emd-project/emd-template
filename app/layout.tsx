@@ -5,6 +5,7 @@ import { niche } from '@/niche.config'
 import { t } from '@/lib/i18n'
 import './globals.css'
 import './styles/volteo.css'
+import './styles/volteo-magazine.css'
 
 // ── Fonts — défaut V1 Voltéo (Hanken Grotesk + Bricolage Grotesque) ──
 //    Remplacées à l'init par les fonts du skin choisi pour la niche.

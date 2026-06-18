@@ -645,7 +645,7 @@ body {
   color: var(--text-primary);
 }
 .prose-article blockquote {
-  border-left: 3px solid var(--accent-4);
+  border-left: 3px solid var(--accent-1);
   padding-left: var(--space-5);
   color: var(--text-secondary);
   font-style: italic;
@@ -680,7 +680,7 @@ body {
   line-height: 1.5;
 }
 .prose-article thead {
-  background: var(--accent-4);
+  background: var(--accent-1);
 }
 .prose-article th {
   padding: var(--space-3) var(--space-4);
@@ -690,7 +690,7 @@ body {
   font-size: 11px;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: #FFFFFF;
+  color: var(--bg-primary);
   white-space: nowrap;
 }
 .prose-article tbody tr:nth-child(odd) td {
@@ -776,7 +776,7 @@ body {
 .article-hero-band {
   background: radial-gradient(
     ellipse 130% 100% at 50% 0%,
-    rgba(91, 63, 223, 0.10) 0%,
+    color-mix(in srgb, var(--accent-1) 10%, transparent) 0%,
     transparent 70%
   );
 }

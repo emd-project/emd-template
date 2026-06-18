@@ -12,6 +12,12 @@
  *    else EN self.
  *  - Copy is written in English inline (t() is locked to niche.defaultLocale = fr).
  *  - Internal hrefs are built under /en/blog (articleHref() emits FR /blog paths).
+ *
+ * i18n (block 2c) :
+ *  - The sticky-TOC "Compare now" CTA targeted /en/comparer/[categorie], a route
+ *    that does NOT exist yet → masked behind EN_COMPARATOR_ENABLED to avoid a dead
+ *    link. Flip the flag to true (and ship /en/comparer) to restore it. FR behaviour
+ *    is unaffected (this file is EN-only).
  */
 
 import { notFound } from 'next/navigation'
@@ -26,6 +32,12 @@ import { articleSlugEnToFr } from '@/lib/i18n/article-slugs'
 import { niche } from '@/niche.config'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://${niche.domain}`
+
+/**
+ * The EN comparator tree (/en/comparer/...) does not exist yet. Keep the TOC CTA
+ * masked until it ships so the EN article emits zero dead links. FR is untouched.
+ */
+const EN_COMPARATOR_ENABLED = false
 import { AISummarize } from '@/components/blog/AISummarize'
 import { Tip } from '@/components/blog/Tip'
 import { Warning } from '@/components/blog/Warning'
@@ -203,7 +215,8 @@ export default async function ArticlePageEn({ params }: { params: Params }) {
                   {meta.faq && meta.faq.length > 0 && <li><a href="#faq-section" className="sidebar-toc-link">FAQ</a></li>}
                   {related.length > 0 && <li><a href="#related-section" className="sidebar-toc-link">Related</a></li>}
                 </ul>
-                {niche.comparator.enabled && (
+                {/* i18n (block 2c): masked until /en/comparer ships → no dead link. */}
+                {EN_COMPARATOR_ENABLED && niche.comparator.enabled && (
                   <div className="toc-cta">
                     <p>Compare the best {catLabel} options.</p>
                     <Link href={`/en/comparer/${categorie}`} className="btn btn-accent">Compare now</Link>

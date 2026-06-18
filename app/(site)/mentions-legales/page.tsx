@@ -1,6 +1,7 @@
 /**
  * /mentions-legales — Mentions légales (style Voltéo).
  * Valeurs remplacées à l'init. noindex : page légale.
+ * Note : EMD n'a aucune affiliation — pas de section « liens affiliés ».
  */
 
 import Link from 'next/link'
@@ -54,7 +55,7 @@ export default function MentionsLegalesPage() {
           </p>
         </section>
 
-        <section style={{ marginBottom: 36 }}>
+        <section>
           <h2 style={h2}>Données personnelles</h2>
           <p style={block}>
             Les informations relatives à la collecte et au traitement des données personnelles sont
@@ -62,16 +63,6 @@ export default function MentionsLegalesPage() {
             <Link href="/confidentialite" style={{ color: 'var(--primary-d)', textDecoration: 'underline' }}>
               politique de confidentialité
             </Link>.
-          </p>
-        </section>
-
-        <section>
-          <h2 style={h2}>Liens affiliés</h2>
-          <p style={block}>
-            Certains liens présents sur {niche.siteName} sont des liens affiliés vers {niche.defaultStore}.
-            Si vous effectuez un achat après avoir cliqué sur l&rsquo;un de ces liens, {niche.siteName}
-            peut percevoir une commission, sans aucun surcoût pour vous. Le contenu éditorial n&rsquo;est
-            jamais influencé par les partenariats commerciaux.
           </p>
         </section>
       </div>

@@ -16,7 +16,7 @@
     "legalNotice": "Mentions légales",
     "privacy": "Confidentialité",
     "independent": "Site indépendant.",
-    "affiliateDisclaimer": "Liens affiliés {store}. En achetant via nos liens, vous soutenez le site sans surcoût."
+    "editor": "Site édité par MentionBox SRL."
   },
   "hero": {
     "eyebrow": "Guides indépendants · Comparatifs honnêtes"
@@ -97,13 +97,13 @@
     "tocTitle": "Dans cet article",
     "tocSummary": "En bref",
     "tocFaq": "FAQ",
-    "tocRelated": "Articles li\u00e9s",
+    "tocRelated": "Articles liés",
     "toolPromo": "Comparer les {label}",
-    "toolPromoCta": "Lancer le comparateur \u2192"
+    "toolPromoCta": "Lancer le comparateur →"
   },
   "authorCard": {
-    "viewAllArticles": "Voir tous les articles \u2192",
-    "viewProfile": "Voir le profil \u2192"
+    "viewAllArticles": "Voir tous les articles →",
+    "viewProfile": "Voir le profil →"
   },
   "common": {
     "skipToContent": "Aller au contenu principal"

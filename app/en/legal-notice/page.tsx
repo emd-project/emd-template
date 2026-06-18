@@ -2,6 +2,7 @@
  * /en/legal-notice — Legal notice (EN mirror of /mentions-legales, Voltéo style).
  * Static. noindex: legal page. Company data is identical to the FR version
  * (legal facts: MentionBox SRL, BE 0784.700.405…), only the copy is translated.
+ * Note: EMD has no affiliation — no « affiliate links » section.
  */
 
 import Link from 'next/link'
@@ -75,15 +76,6 @@ export default function LegalNoticePage() {
             <Link href="/en/privacy" style={{ color: 'var(--primary-d)', textDecoration: 'underline' }}>
               privacy policy
             </Link>.
-          </p>
-        </section>
-
-        <section style={{ marginBottom: 36 }}>
-          <h2 style={h2}>Affiliate links</h2>
-          <p style={block}>
-            Some links on {niche.siteName} are affiliate links to {niche.defaultStore}. If you make a
-            purchase after clicking one of these links, {niche.siteName} may earn a commission at no
-            extra cost to you. Editorial content is never influenced by commercial partnerships.
           </p>
         </section>
 

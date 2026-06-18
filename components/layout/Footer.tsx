@@ -8,6 +8,9 @@
  * layout qui le monte (app/en/layout.tsx → `<Footer locale="en" />`). Le FR est
  * inchangé : `<Footer />` sans prop retombe sur defaultLocale.
  * Les hrefs internes sont préfixés par la locale active via `localePath` (no-op FR).
+ *
+ * Dé-affiliation : EMD n'a aucune affiliation — la ligne disclaimer affilié a été
+ * retirée au profit d'une mention neutre d'éditeur (`footer.editor`).
  */
 import Link from 'next/link'
 import { niche, localePath } from '@/niche.config'
@@ -74,7 +77,7 @@ export function Footer({ locale = niche.defaultLocale }: { locale?: string }) {
         <div className="footer-bottom">
           <span>© {currentYear()} {niche.siteName} — {tl(locale, 'footer.independent')}</span>
           <span style={{ textAlign: 'right' }}>
-            {tl(locale, 'footer.affiliateDisclaimer', { store: niche.defaultStore })}
+            {tl(locale, 'footer.editor')}
           </span>
         </div>
       </div>

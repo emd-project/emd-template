@@ -16,7 +16,7 @@
     "legalNotice": "Legal notice",
     "privacy": "Privacy policy",
     "independent": "Independent site.",
-    "affiliateDisclaimer": "Affiliate links {store}. Buying through our links supports the site at no extra cost."
+    "editor": "Published by MentionBox SRL."
   },
   "hero": {
     "eyebrow": "Independent guides · Honest comparisons"
@@ -99,11 +99,11 @@
     "tocFaq": "FAQ",
     "tocRelated": "Related articles",
     "toolPromo": "Compare {label}",
-    "toolPromoCta": "Launch comparator \u2192"
+    "toolPromoCta": "Launch comparator →"
   },
   "authorCard": {
-    "viewAllArticles": "View all articles \u2192",
-    "viewProfile": "View profile \u2192"
+    "viewAllArticles": "View all articles →",
+    "viewProfile": "View profile →"
   },
   "common": {
     "skipToContent": "Skip to main content"

@@ -1,12 +1,13 @@
 /**
- * AffiliateButton — CTA affilié Amazon avec micro-animation hover CSS.
+ * AffiliateButton — CTA lien externe propre (dé-affiliation).
+ * EMD n'a aucune affiliation : plus de tag ni de rel="nofollow sponsored".
+ * Rend un lien externe propre (rel="noopener noreferrer", target="_blank").
  * Variants : primary (--accent-1) | secondary (--bg-surface-2) | ghost.
- * Icône ExternalLink lucide-react inline.
+ * Icône ExternalLink lucide-react inline. Nom/export/props conservés.
  * Server Component — hover via CSS :hover (pas de JS).
  */
 
 import { ExternalLink } from 'lucide-react'
-import { addAffiliateTag } from '@/lib/utils/affiliate'
 
 type AffiliateButtonVariant = 'primary' | 'secondary' | 'ghost'
 
@@ -51,8 +52,8 @@ export function AffiliateButton({
 }: AffiliateButtonProps) {
   return (
     <a
-      href={addAffiliateTag(href)}
-      rel="nofollow sponsored noopener"
+      href={href}
+      rel="noopener noreferrer"
       target="_blank"
       className={className}
       style={{

@@ -1,10 +1,12 @@
 /**
- * AffiliateLink — tout lien Amazon passe par addAffiliateTag().
- * rel="nofollow sponsored noopener" obligatoire.
+ * AffiliateLink — lien externe propre (dé-affiliation).
+ *
+ * EMD n'a aucune affiliation. Ce composant rend désormais un simple lien externe
+ * (rel="noopener noreferrer", target="_blank") SANS tag ni rel d'affiliation
+ * ("nofollow sponsored" retiré). Le nom/export/props sont conservés pour que tout
+ * le MDX et le JSX qui l'utilise (ProductCTA, AutoProductCTAs…) compile toujours.
  * Server Component.
  */
-
-import { addAffiliateTag } from '@/lib/utils/affiliate'
 
 type AffiliateLinkProps = {
   href: string
@@ -16,8 +18,8 @@ type AffiliateLinkProps = {
 export function AffiliateLink({ href, children, className, style }: AffiliateLinkProps) {
   return (
     <a
-      href={addAffiliateTag(href)}
-      rel="nofollow sponsored noopener"
+      href={href}
+      rel="noopener noreferrer"
       target="_blank"
       className={className}
       style={style}

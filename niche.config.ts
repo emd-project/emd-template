@@ -224,8 +224,11 @@ export const niche: NicheConfig = {
   // Bloc 0 d'init-site — placeholders à remplacer impérativement
   market: 'BE',                  // À choisir : 'BE' | 'FR' | 'CA' | 'CH' | string
   defaultLocale: 'fr',
-  locales: ['fr'],               // 1 langue par défaut. Étendre via init-site.
-  // localePrefix omis tant que 1 seule locale. Imposé à 'as-needed' dès N >= 2.
+  // i18n actif : FR (défaut, sans préfixe) + EN (sous /en). L'arbre EN vit dans
+  // app/en/ (frère disjoint des routes FR sous app/(site)/). Le routing reste
+  // explicite par dossier — pas de middleware i18n, pas de [locale] dynamique.
+  locales: ['fr', 'en'],
+  localePrefix: 'as-needed',
 
   vercelRegion: 'fra1',
   repo: '',

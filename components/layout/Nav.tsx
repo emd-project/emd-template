@@ -7,8 +7,10 @@
  *
  * i18n (bloc 4) :
  *  - Nav partagée FR/EN (montée par app/(site)/layout.tsx ET app/en/layout.tsx).
- *  - `LangSwitchPair` monté (additif), conditionné à `isMultilingual()` : affiche
- *    FR | EN côte à côte, langue courante en évidence (cf. LangSwitch.tsx).
+ *  - `LangSwitch` monté (additif), conditionné à `isMultilingual()` : affiche
+ *    UNIQUEMENT la langue cible (sur FR → bouton EN ; sur EN → bouton FR), qui
+ *    pointe vers la page équivalente (cf. LangSwitch.tsx ; grisé si l'article
+ *    n'a pas encore de traduction).
  *  - Hrefs locale-aware : sur une page EN (pathname sous /en) les liens internes
  *    sont préfixés `/en` via `localePath()` → pas de « bounce » vers le FR.
  *  - LIBELLÉS locale-aware (additif) : la locale est déduite du path et les
@@ -20,7 +22,7 @@ import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { niche, isMultilingual, localePath } from '@/niche.config'
 import { tl } from '@/lib/i18n'
-import { LangSwitchPair } from '@/components/layout/LangSwitch'
+import { LangSwitch } from '@/components/layout/LangSwitch'
 
 /** Locale active déduite du chemin (préfixe /en → 'en', sinon defaultLocale). */
 function localeFromPath(pathname: string): string {
@@ -37,6 +39,8 @@ export function Nav() {
   const [scrolled, setScrolled] = useState(false)
 
   const locale = localeFromPath(pathname || '/')
+  /** Langue CIBLE du switch = l'autre langue que la courante. */
+  const targetLocale: 'fr' | 'en' = locale === 'en' ? 'fr' : 'en'
   /** Préfixe les hrefs internes par la locale active (no-op en FR). */
   const lp = (href: string) => localePath(locale, href)
   const homeHref = lp('/')
@@ -90,7 +94,7 @@ export function Nav() {
 
           <div className="nav-cta" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             {isMultilingual() && (
-              <LangSwitchPair className="nav-lang" />
+              <LangSwitch to={targetLocale} className="nav-lang" />
             )}
             <Link href={lp('/comparer')} className="btn btn-accent" style={{ padding: '11px 22px', fontSize: '15px' }}>
               {tl(locale, 'nav.compare')}<span className="arr">→</span>
@@ -114,7 +118,7 @@ export function Nav() {
         ))}
         <Link href={lp('/comparer')} className="btn btn-accent btn-lg">{tl(locale, 'nav.compare')} →</Link>
         {isMultilingual() && (
-          <LangSwitchPair className="mobile-lang" />
+          <LangSwitch to={targetLocale} className="mobile-lang" />
         )}
       </div>
     </>

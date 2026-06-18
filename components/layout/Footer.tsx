@@ -1,32 +1,21 @@
 /**
  * Footer — Voltéo : footer-top (marque + 3 colonnes) + footer-bottom.
  * Server Component — zéro JS. Données issues de niche.config.
+ *
+ * i18n (additif) : accepte une prop optionnelle `locale` (défaut = defaultLocale).
+ * Les libellés passent par `tl(locale, …)` (≡ `t()` en FR). Footer reste un Server
+ * Component (pas de `usePathname`) : la locale est fournie EXPLICITEMENT par le
+ * layout qui le monte (app/en/layout.tsx → `<Footer locale="en" />`). Le FR est
+ * inchangé : `<Footer />` sans prop retombe sur defaultLocale.
+ * Les hrefs internes sont préfixés par la locale active via `localePath` (no-op FR).
  */
 import Link from 'next/link'
-import { niche } from '@/niche.config'
-import { t } from '@/lib/i18n'
+import { niche, localePath } from '@/niche.config'
+import { tl } from '@/lib/i18n'
 
 function currentYear() {
   return new Date().getFullYear()
 }
-
-const COL_OUTILS = [
-  { href: '/comparer', label: t('nav.compare') },
-  ...(niche.quiz.enabled ? [{ href: '/quiz', label: t('tools.quiz.eyebrow') }] : []),
-  ...(niche.simulator.enabled ? [{ href: '/simulateur', label: t('nav.simulator') }] : []),
-  { href: '/deals', label: niche.dealWord.charAt(0).toUpperCase() + niche.dealWord.slice(1) },
-]
-
-const COL_BLOG = niche.categories.slice(0, 5).map((cat) => ({
-  href: `/blog/${cat.slug}`,
-  label: cat.label,
-}))
-
-const COL_APROPOS = [
-  ...(niche.author.slug ? [{ href: `/auteurs/${niche.author.slug}`, label: t('footer.author') }] : []),
-  { href: '/mentions-legales', label: t('footer.legalNotice') },
-  { href: '/confidentialite', label: t('footer.privacy') },
-]
 
 function FooterCol({ title, links }: { title: string; links: { href: string; label: string }[] }) {
   if (links.length === 0) return null
@@ -42,13 +31,33 @@ function FooterCol({ title, links }: { title: string; links: { href: string; lab
   )
 }
 
-export function Footer() {
+export function Footer({ locale = niche.defaultLocale }: { locale?: string }) {
+  const lp = (href: string) => localePath(locale, href)
+
+  const colOutils = [
+    { href: lp('/comparer'), label: tl(locale, 'nav.compare') },
+    ...(niche.quiz.enabled ? [{ href: lp('/quiz'), label: tl(locale, 'tools.quiz.eyebrow') }] : []),
+    ...(niche.simulator.enabled ? [{ href: lp('/simulateur'), label: tl(locale, 'nav.simulator') }] : []),
+    { href: lp('/deals'), label: niche.dealWord.charAt(0).toUpperCase() + niche.dealWord.slice(1) },
+  ]
+
+  const colBlog = niche.categories.slice(0, 5).map((cat) => ({
+    href: lp(`/blog/${cat.slug}`),
+    label: cat.label,
+  }))
+
+  const colApropos = [
+    ...(niche.author.slug ? [{ href: lp(`/auteurs/${niche.author.slug}`), label: tl(locale, 'footer.author') }] : []),
+    { href: lp('/mentions-legales'), label: tl(locale, 'footer.legalNotice') },
+    { href: lp('/confidentialite'), label: tl(locale, 'footer.privacy') },
+  ]
+
   return (
     <footer className="footer">
       <div className="wrap">
         <div className="footer-top">
           <div className="footer-brand">
-            <Link href="/" className="logo" aria-label={`${niche.siteName} — accueil`}>
+            <Link href={lp('/')} className="logo" aria-label={`${niche.siteName} — accueil`}>
               <span className="mark" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H13l0-8Z" fill="#fff" /></svg>
               </span>
@@ -57,15 +66,15 @@ export function Footer() {
             <p className="footer-blurb">{niche.tagline}</p>
           </div>
 
-          <FooterCol title={t('footer.tools')} links={COL_OUTILS} />
-          {COL_BLOG.length > 0 && <FooterCol title={t('nav.blog')} links={COL_BLOG} />}
-          <FooterCol title={t('footer.about')} links={COL_APROPOS} />
+          <FooterCol title={tl(locale, 'footer.tools')} links={colOutils} />
+          {colBlog.length > 0 && <FooterCol title={tl(locale, 'nav.blog')} links={colBlog} />}
+          <FooterCol title={tl(locale, 'footer.about')} links={colApropos} />
         </div>
 
         <div className="footer-bottom">
-          <span>© {currentYear()} {niche.siteName} — {t('footer.independent')}</span>
+          <span>© {currentYear()} {niche.siteName} — {tl(locale, 'footer.independent')}</span>
           <span style={{ textAlign: 'right' }}>
-            {t('footer.affiliateDisclaimer', { store: niche.defaultStore })}
+            {tl(locale, 'footer.affiliateDisclaimer', { store: niche.defaultStore })}
           </span>
         </div>
       </div>

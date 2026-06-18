@@ -39,8 +39,8 @@ export function ProConTable({
       {/* Pour */}
       <div
         style={{
-          background: 'rgba(61,255,192,0.06)',
-          border: '1px solid rgba(61,255,192,0.20)',
+          background: 'color-mix(in srgb, var(--accent-3) 6%, transparent)',
+          border: '1px solid color-mix(in srgb, var(--accent-3) 20%, transparent)',
           borderRadius: 'var(--radius-md)',
           padding: 'var(--space-4) var(--space-5)',
         }}
@@ -85,8 +85,8 @@ export function ProConTable({
       {/* Contre */}
       <div
         style={{
-          background: 'rgba(255,61,87,0.05)',
-          border: '1px solid rgba(255,61,87,0.18)',
+          background: 'color-mix(in srgb, var(--accent-1) 5%, transparent)',
+          border: '1px solid color-mix(in srgb, var(--accent-1) 18%, transparent)',
           borderRadius: 'var(--radius-md)',
           padding: 'var(--space-4) var(--space-5)',
         }}

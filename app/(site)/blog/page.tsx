@@ -33,7 +33,15 @@ export function generateMetadata(): Metadata {
   return {
     title: `${t('nav.blog')} ${year} | ${niche.siteName}`,
     description: t('blog.heroSubtitle'),
-    alternates: { canonical: `${SITE_URL}/blog` },
+    // hreflang réciproque (bloc 4) : la hub FR pointe vers son miroir EN (/en/blog).
+    alternates: {
+      canonical: `${SITE_URL}/blog`,
+      languages: {
+        fr: `${SITE_URL}/blog`,
+        en: `${SITE_URL}/en/blog`,
+        'x-default': `${SITE_URL}/blog`,
+      },
+    },
     openGraph: {
       title: `${t('nav.blog')} ${year}`,
       description: t('blog.heroSubtitle'),

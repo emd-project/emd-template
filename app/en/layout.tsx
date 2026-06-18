@@ -7,8 +7,8 @@
  * (lang="fr") ; on pose ici lang="en" via un conteneur `display: contents`
  * qui n'introduit aucune boîte dans le flux (le chrome Voltéo reste intact).
  *
- * Raffinement EN du chrome (nav/footer rédigés en anglais, liens /en/*) =
- * incrément ultérieur. Ici : sûr, minimal, compile.
+ * Libellés EN : la Nav déduit la locale du path (usePathname → /en) ; le Footer
+ * est un Server Component, on lui passe donc `locale="en"` EXPLICITEMENT.
  */
 import { Nav } from '@/components/layout/Nav'
 import { Footer } from '@/components/layout/Footer'
@@ -18,7 +18,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
     <div lang="en" style={{ display: 'contents' }}>
       <Nav />
       {children}
-      <Footer />
+      <Footer locale="en" />
     </div>
   )
 }

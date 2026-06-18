@@ -7,27 +7,20 @@
  *
  * i18n (bloc 4) :
  *  - Nav partagée FR/EN (montée par app/(site)/layout.tsx ET app/en/layout.tsx).
- *  - `LangSwitch` monté (additif), conditionné à `isMultilingual()` : bascule
- *    page↔page FR⇄EN sans 404 (cf. components/layout/LangSwitch.tsx).
+ *  - `LangSwitchPair` monté (additif), conditionné à `isMultilingual()` : affiche
+ *    FR | EN côte à côte, langue courante en évidence (cf. LangSwitch.tsx).
  *  - Hrefs locale-aware : sur une page EN (pathname sous /en) les liens internes
  *    sont préfixés `/en` via `localePath()` → pas de « bounce » vers le FR.
- *  - Les LIBELLÉS restent FR pour l'instant (t() est verrouillé sur
- *    niche.defaultLocale = fr et ne peut pas localiser l'EN — même convention
- *    que les pages app/en/*). Acceptable : seuls les liens deviennent locale-aware.
+ *  - LIBELLÉS locale-aware (additif) : la locale est déduite du path et les
+ *    libellés passent par `tl(locale, …)` (≡ `t()` en FR, EN sur /en). Le FR reste
+ *    identique (defaultLocale inchangé) ; seul l'EN gagne ses libellés.
  */
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { niche, isMultilingual, localePath } from '@/niche.config'
-import { t } from '@/lib/i18n'
-import { LangSwitch } from '@/components/layout/LangSwitch'
-
-const LINKS = [
-  { href: '/comparer', label: t('nav.compare') },
-  { href: '/blog', label: t('nav.blog') },
-  { href: '/deals', label: niche.dealWord.charAt(0).toUpperCase() + niche.dealWord.slice(1) },
-  ...(niche.simulator.enabled ? [{ href: '/simulateur', label: t('nav.simulator') }] : []),
-]
+import { tl } from '@/lib/i18n'
+import { LangSwitchPair } from '@/components/layout/LangSwitch'
 
 /** Locale active déduite du chemin (préfixe /en → 'en', sinon defaultLocale). */
 function localeFromPath(pathname: string): string {
@@ -48,6 +41,16 @@ export function Nav() {
   const lp = (href: string) => localePath(locale, href)
   const homeHref = lp('/')
 
+  // Libellés locale-aware : construits au rendu (dépendent de `locale`).
+  // `dealWord` = vocabulaire de niche (locale-agnostique) → inchangé.
+  const dealLabel = niche.dealWord.charAt(0).toUpperCase() + niche.dealWord.slice(1)
+  const LINKS = [
+    { href: '/comparer', label: tl(locale, 'nav.compare') },
+    { href: '/blog', label: tl(locale, 'nav.blog') },
+    { href: '/deals', label: dealLabel },
+    ...(niche.simulator.enabled ? [{ href: '/simulateur', label: tl(locale, 'nav.simulator') }] : []),
+  ]
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8)
     onScroll()
@@ -67,7 +70,7 @@ export function Nav() {
 
   return (
     <>
-      <nav className={`nav${scrolled ? ' scrolled' : ''}`} aria-label={t('nav.mainNav')}>
+      <nav className={`nav${scrolled ? ' scrolled' : ''}`} aria-label={tl(locale, 'nav.mainNav')}>
         <div className="wrap">
           <Link href={homeHref} className="logo" aria-label={`${niche.siteName} — accueil`}>
             <span className="mark" aria-hidden="true">
@@ -87,19 +90,16 @@ export function Nav() {
 
           <div className="nav-cta" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             {isMultilingual() && (
-              <span className="nav-lang" aria-label="Language" style={{ display: 'inline-flex', gap: 6 }}>
-                <LangSwitch to="fr" />
-                <LangSwitch to="en" />
-              </span>
+              <LangSwitchPair className="nav-lang" />
             )}
             <Link href={lp('/comparer')} className="btn btn-accent" style={{ padding: '11px 22px', fontSize: '15px' }}>
-              {t('nav.compare')}<span className="arr">→</span>
+              {tl(locale, 'nav.compare')}<span className="arr">→</span>
             </Link>
           </div>
 
           <button
             className="nav-burger"
-            aria-label={open ? t('nav.closeMenu') : t('nav.openMenu')}
+            aria-label={open ? tl(locale, 'nav.closeMenu') : tl(locale, 'nav.openMenu')}
             aria-expanded={open}
             onClick={() => setOpen((o) => !o)}
           >
@@ -108,16 +108,13 @@ export function Nav() {
         </div>
       </nav>
 
-      <div className={`mobile-menu${open ? ' open' : ''}`} role="dialog" aria-label={t('nav.mobileMenu')}>
+      <div className={`mobile-menu${open ? ' open' : ''}`} role="dialog" aria-label={tl(locale, 'nav.mobileMenu')}>
         {LINKS.map(({ href, label }) => (
           <Link key={href} href={lp(href)}>{label}</Link>
         ))}
-        <Link href={lp('/comparer')} className="btn btn-accent btn-lg">{t('nav.compare')} →</Link>
+        <Link href={lp('/comparer')} className="btn btn-accent btn-lg">{tl(locale, 'nav.compare')} →</Link>
         {isMultilingual() && (
-          <span className="mobile-lang" style={{ display: 'inline-flex', gap: 8, marginTop: 8 }}>
-            <LangSwitch to="fr" />
-            <LangSwitch to="en" />
-          </span>
+          <LangSwitchPair className="mobile-lang" />
         )}
       </div>
     </>

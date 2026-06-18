@@ -2,7 +2,8 @@
  * AISummarize — bloc "En bref" en haut d'article + liens "Résumer avec IA".
  * Résumé 3–5 bullets fournis dans le frontmatter MDX.
  * Liens vers ChatGPT, Claude, Mistral, Perplexity, Grok avec prompt pré-rempli.
- * DA : border-left 3px --accent-4 (violet) · bg --bg-surface · label Syne smallcaps.
+ * DA : border-left 3px --accent-1 (accent primaire du site) · bg --bg-surface ·
+ * label Syne smallcaps. Tout est token-driven → s'adapte à la DA de chaque site.
  * Server Component.
  */
 
@@ -41,7 +42,7 @@ export function AISummarize({ points, articleTitle, articleUrl }: AISummarizePro
       aria-label="Résumé de l'article"
       style={{
         background: 'var(--bg-surface)',
-        borderLeft: '3px solid var(--accent-4)',
+        borderLeft: '3px solid var(--accent-1)',
         borderRadius: '0 var(--radius-md) var(--radius-md) 0',
         padding: 'var(--space-5) var(--space-6)',
         marginBottom: 'var(--space-8)',
@@ -55,7 +56,7 @@ export function AISummarize({ points, articleTitle, articleUrl }: AISummarizePro
           fontWeight: 800,
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
-          color: 'var(--accent-4)',
+          color: 'var(--accent-1)',
           marginBottom: 'var(--space-3)',
         }}
       >
@@ -83,7 +84,7 @@ export function AISummarize({ points, articleTitle, articleUrl }: AISummarizePro
             }}
           >
             <span
-              style={{ color: 'var(--accent-4)', flexShrink: 0, fontWeight: 700 }}
+              style={{ color: 'var(--accent-1)', flexShrink: 0, fontWeight: 700 }}
               aria-hidden="true"
             >
               →

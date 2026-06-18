@@ -2,48 +2,67 @@
    VOLTÉO — Design system par défaut du moteur (base partagée)
    Skin par défaut : V1 « Électrique ». Un skin (theme-vN) ou l'init
    surcharge ces tokens. Fonts via next/font (--next-font-*).
+
+   ── Incrément 1 (consolidation DA) ──────────────────────────
+   Les tokens legacy ci-dessous sont désormais des ALIAS des tokens
+   canoniques de globals.css (var(--…)). Les noms legacy sont conservés
+   pour que tout le CSS qui les consomme suive automatiquement la DA
+   pilotée par niche.config.palette → globals.css.
+   Seules les VALEURS changent ici ; aucun composant n'est modifié.
+   Tokens sans équivalent globals clair : conservés tels quels (cf. notes).
    ============================================================ */
 
 :root {
-  /* --- Tokens de base : valeurs par défaut = skin V1 « Électrique » --- */
-  --cream: #EDF1F8;
-  --cream-2: #DFE6F2;
-  --paper: #FFFFFF;
-  --ink: #0D1626;
-  --ink-2: #3A465B;
-  --ink-3: #7B8799;
-  --line: #D3DCEC;
-  --line-2: #E2E8F4;
+  /* --- Fonds : alias des bg globals --- */
+  --cream:   var(--bg-primary);    /* fond de page */
+  --cream-2: var(--bg-surface-2);  /* surface secondaire / hover */
+  --paper:   var(--bg-surface);    /* surface de carte */
 
-  /* --- Signature (variable selon le skin) --- */
-  --primary: #3D5AFE;
-  --primary-d: #2A3FDE;
-  --primary-soft: #E0E4FF;
-  --spark: #CCFF48;
+  /* --- Texte : alias des text globals --- */
+  --ink:   var(--text-primary);
+  --ink-2: var(--text-secondary);
+  --ink-3: var(--text-muted);
 
-  /* --- Une couleur par catégorie (verticale énergie par défaut) --- */
+  /* --- Bordures : alias de border globals --- */
+  --line:   var(--border);
+  --line-2: var(--border);         /* pas de "border subtile" dans globals → border */
+
+  /* --- Signature : alias accent-1 (+ nuances via color-mix) --- */
+  --primary:      var(--accent-1);
+  --primary-d:    color-mix(in srgb, var(--accent-1) 78%, #000);   /* nuance foncée */
+  --primary-soft: color-mix(in srgb, var(--accent-1) 14%, #fff);   /* nuance claire */
+  --spark:        var(--accent-2);  /* highlight secondaire */
+
+  /* --- Une couleur par catégorie (verticale énergie par défaut) ---
+     Pas d'équivalent globals sémantique pour ces teintes nommées + leurs
+     variantes -soft (consommées en dur par .tag.elec/.gaz/… et les blobs).
+     → conservées telles quelles (incrément 1). Les slots génériques
+     --cat-1..5 ci-dessous, eux, sont aliasés sur --accent-1..5. */
   --elec: #FFB400;       --elec-soft: #FFF1CE;
   --gaz: #FF6B35;        --gaz-soft: #FFE2D6;
   --green: #1AA35F;      --green-soft: #D6F2E1;
   --water: #2D8FE0;      --water-soft: #D7ECFB;
   --mobi: #7C5CFF;       --mobi-soft: #E6DEFF;
 
-  /* --- Slots d'accent catégorie génériques (redéfinis par un pack verticale) --- */
-  --cat-1: var(--elec);   --cat-1-soft: var(--elec-soft);
-  --cat-2: var(--gaz);    --cat-2-soft: var(--gaz-soft);
-  --cat-3: var(--green);  --cat-3-soft: var(--green-soft);
-  --cat-4: var(--water);  --cat-4-soft: var(--water-soft);
-  --cat-5: var(--mobi);   --cat-5-soft: var(--mobi-soft);
+  /* --- Slots d'accent catégorie : alias accent-1..5 globals --- */
+  --cat-1: var(--accent-1);   --cat-1-soft: color-mix(in srgb, var(--accent-1) 15%, #fff);
+  --cat-2: var(--accent-2);   --cat-2-soft: color-mix(in srgb, var(--accent-2) 15%, #fff);
+  --cat-3: var(--accent-3);   --cat-3-soft: color-mix(in srgb, var(--accent-3) 15%, #fff);
+  --cat-4: var(--accent-4);   --cat-4-soft: color-mix(in srgb, var(--accent-4) 15%, #fff);
+  --cat-5: var(--accent-5);   --cat-5-soft: color-mix(in srgb, var(--accent-5) 15%, #fff);
 
-  /* --- Forme --- */
-  --r-sm: 10px;
-  --r: 16px;
-  --r-lg: 24px;
-  --r-xl: 34px;
-  --shadow-sm: 0 2px 8px rgba(28,24,20,.06);
-  --shadow: 0 12px 32px -12px rgba(28,24,20,.18);
-  --shadow-lg: 0 30px 70px -28px rgba(28,24,20,.34);
+  /* --- Forme : alias des radius globals --- */
+  --r-sm: var(--radius-sm);
+  --r:    var(--radius-md);
+  --r-lg: var(--radius-lg);
+  --r-xl: var(--radius-xl);
 
+  /* --- Ombres : alias des shadow globals --- */
+  --shadow-sm: var(--shadow-sm);
+  --shadow:    var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+
+  /* --- Layout : pas d'équivalent globals → conservés --- */
   --maxw: 1200px;
   --nav-h: 76px;
 

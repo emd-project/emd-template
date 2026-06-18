@@ -4,9 +4,6 @@
  * LangSwitch — bascule FR ⇄ EN vers la PAGE ÉQUIVALENTE (jamais une 404, jamais un
  * « bounce » silencieux vers l'accueil).
  *
- * BLOC 1 (fondation additive) : ce composant existe et compile, mais n'est monté
- * NULLE PART (le montage dans la Nav = bloc 4, après création de l'arbre `app/en/`).
- *
  * Routing emd-template = `localePrefix: 'as-needed'` :
  *  - locale par défaut (FR) → routes SANS préfixe   : /blog/[cat]/[slug]
  *  - autres locales (EN)    → routes AVEC préfixe    : /en/blog/[cat]/[slug]
@@ -15,6 +12,10 @@
  *  - Pages statiques (mêmes routes dans toutes les locales) → swap du préfixe locale.
  *  - Article traduit (slug présent dans lib/i18n/article-slugs.ts) → version traduite.
  *  - Article SANS traduction connue → lien rendu DÉSACTIVÉ (grisé), jamais une 404.
+ *
+ * Affichage : `LangSwitchPair` montre les DEUX langues côte à côte (ex. FR | EN).
+ * La langue courante est mise en évidence et non cliquable ; l'autre est un lien
+ * vers la page équivalente (ou désactivée/grisée si l'article n'est pas traduit).
  *
  * La table lib/i18n/article-slugs.ts est tenue à jour par la tâche de rédaction
  * quotidienne. cf. emd-methodo/references/i18n-multilingue.md
@@ -69,24 +70,116 @@ function resolve(pathname: string, target: string): Resolved {
   return { href: localePath(target, rest), available: true }
 }
 
+const ITEM_BASE = {
+  fontSize: '13px',
+  fontWeight: 700,
+  borderRadius: '100px',
+  padding: '7px 13px',
+  textTransform: 'uppercase' as const,
+}
+
+/** Locale active déduite du chemin courant. */
+function currentLocale(pathname: string): string {
+  return stripLocale(pathname).locale
+}
+
+type ItemProps = { to: 'fr' | 'en'; current: boolean }
+
+/** Un seul libellé de langue (courant = évidence non-cliquable ; sinon lien/grisé). */
+function LangItem({ to, current }: ItemProps) {
+  const pathname = usePathname() || '/'
+
+  if (current) {
+    return (
+      <span
+        aria-current="true"
+        className="lang-item lang-current"
+        style={{
+          ...ITEM_BASE,
+          color: 'var(--text-primary, var(--text-secondary))',
+          background: 'var(--bg-surface-2, var(--bg-surface))',
+          border: '1px solid var(--accent-1, var(--line, var(--text-muted)))',
+        }}
+      >
+        {to.toUpperCase()}
+      </span>
+    )
+  }
+
+  const { href, available } = resolve(pathname, to)
+
+  if (!available) {
+    return (
+      <span
+        aria-disabled="true"
+        title={to === 'en' ? 'No translation yet for this article' : 'Pas encore de traduction pour cet article'}
+        className="lang-item lang-disabled"
+        style={{
+          ...ITEM_BASE,
+          color: 'var(--text-muted)',
+          border: '1px solid var(--line, var(--text-muted))',
+          opacity: 0.5,
+          cursor: 'not-allowed',
+        }}
+      >
+        {to.toUpperCase()}
+      </span>
+    )
+  }
+
+  return (
+    <Link
+      href={href}
+      hrefLang={to}
+      aria-label={to === 'en' ? 'Switch to English' : 'Passer au français'}
+      className="lang-item"
+      style={{
+        ...ITEM_BASE,
+        color: 'var(--text-secondary)',
+        border: '1px solid var(--line, var(--text-muted))',
+      }}
+    >
+      {to.toUpperCase()}
+    </Link>
+  )
+}
+
+/**
+ * LangSwitchPair — affiche les DEUX langues côte à côte (FR | EN).
+ * La langue courante est mise en évidence (non cliquable) ; l'autre est un lien
+ * vers la page équivalente, ou désactivée si l'article n'est pas traduit.
+ */
+export function LangSwitchPair({ className }: { className?: string }) {
+  const pathname = usePathname() || '/'
+  const active = currentLocale(pathname)
+
+  return (
+    <span
+      className={className}
+      aria-label="Language"
+      style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+    >
+      <LangItem to="fr" current={active === 'fr'} />
+      <span aria-hidden="true" style={{ color: 'var(--text-muted)', fontSize: '13px' }}>|</span>
+      <LangItem to="en" current={active === 'en'} />
+    </span>
+  )
+}
+
 type Props = { to: 'fr' | 'en'; className?: string }
 
 /**
- * Bouton de bascule vers la locale `to`, pointant sur la page équivalente.
- * Si la page courante est un article non traduit, le lien est désactivé (jamais 404).
+ * LangSwitch — bouton de bascule simple vers la locale `to` (conservé pour
+ * rétro-compatibilité). Préférer `LangSwitchPair` pour afficher les deux langues.
  */
 export function LangSwitch({ to, className }: Props) {
   const pathname = usePathname() || '/'
   const { href, available } = resolve(pathname, to)
 
   const baseStyle = {
-    fontSize: '13px',
-    fontWeight: 700,
+    ...ITEM_BASE,
     color: 'var(--text-secondary)',
     border: '1px solid var(--line, var(--text-muted))',
-    borderRadius: '100px',
-    padding: '7px 13px',
-    textTransform: 'uppercase' as const,
   }
 
   if (!available) {

@@ -7,7 +7,11 @@
  *   t('article.readingTime', { min: 5 })  → "5 min de lecture"
  *   t('footer.affiliateDisclaimer', { store: 'Amazon' }) → "Liens affiliés Amazon..."
  *
- * La locale est lue depuis niche.defaultLocale.
+ * `t()` lit la locale depuis niche.defaultLocale (FR) — comportement HISTORIQUE,
+ * inchangé. Pour localiser le « chrome » (Nav/Footer) sur les routes /en, utiliser
+ * `tl(locale, key, vars)` qui prend la locale EXPLICITEMENT (détectée via le path
+ * côté composant). `tl('fr', …)` ≡ `t(…)`.
+ *
  * Fichiers de traduction dans content/translations/[locale].json.
  */
 
@@ -30,6 +34,34 @@ function get(obj: Record<string, unknown>, path: string): string {
   return typeof current === 'string' ? current : path
 }
 
+/** Interpole `{var}` dans une chaîne. */
+function interpolate(value: string, vars?: Record<string, string | number>): string {
+  if (!vars) return value
+  let out = value
+  for (const [k, v] of Object.entries(vars)) {
+    out = out.replace(`{${k}}`, String(v))
+  }
+  return out
+}
+
+/**
+ * Traduit une clé dans une locale EXPLICITE (additif, non couplé à defaultLocale).
+ * Fallback : locale demandée → defaultLocale → fr. Sûr pour le chrome locale-aware.
+ *
+ * @param locale Locale cible ('fr' | 'en' | …)
+ * @param key    Clé en dot-notation (ex: 'nav.blog')
+ * @param vars   Variables à interpoler (ex: { store: 'Amazon' })
+ */
+export function tl(locale: string, key: string, vars?: Record<string, string | number>): string {
+  const messages = ALL_MESSAGES[locale] ?? ALL_MESSAGES[niche.defaultLocale] ?? ALL_MESSAGES.fr
+  const value = get(messages as unknown as Record<string, unknown>, key)
+  // Si la clé manque dans la locale cible, fallback au FR plutôt que d'afficher la clé brute.
+  if (value === key && messages !== ALL_MESSAGES.fr) {
+    return interpolate(get(ALL_MESSAGES.fr as unknown as Record<string, unknown>, key), vars)
+  }
+  return interpolate(value, vars)
+}
+
 /**
  * Traduit une clé avec interpolation optionnelle.
  *
@@ -40,15 +72,8 @@ function get(obj: Record<string, unknown>, path: string): string {
 export function t(key: string, vars?: Record<string, string | number>): string {
   const locale = niche.defaultLocale
   const messages = ALL_MESSAGES[locale] ?? ALL_MESSAGES.fr
-  let value = get(messages as unknown as Record<string, unknown>, key)
-
-  if (vars) {
-    for (const [k, v] of Object.entries(vars)) {
-      value = value.replace(`{${k}}`, String(v))
-    }
-  }
-
-  return value
+  const value = get(messages as unknown as Record<string, unknown>, key)
+  return interpolate(value, vars)
 }
 
 /** Retourne la locale courante. */

@@ -1,6 +1,7 @@
 /**
  * /confidentialite — Politique de confidentialité (style Voltéo).
- * Valeurs remplacées à l'init. noindex : page légale.
+ * Responsable du traitement en dur : MentionBox SRL (même entité pour tous les sites EMD).
+ * noindex : page légale.
  */
 
 import type { Metadata } from 'next'
@@ -28,8 +29,9 @@ export default function ConfidentialitePage() {
         <section style={{ marginBottom: 36 }}>
           <h2 style={h2}>Responsable du traitement</h2>
           <div style={block}>
-            <p>Nom : [À compléter]</p>
-            <p>Email : [À compléter]</p>
+            <p>Société : MentionBox SRL (BE 0784.700.405)</p>
+            <p>Siège social : Rue Blanche-Eau 15, 6950 Nassogne, Belgique</p>
+            <p>Email : emd@mentionbox.be</p>
             <p>Site : {niche.siteName} — https://{niche.domain}</p>
           </div>
         </section>
@@ -67,12 +69,12 @@ export default function ConfidentialitePage() {
             <li>Droit d&rsquo;opposition au traitement</li>
             <li>Droit à la portabilité de vos données</li>
           </ul>
-          <p style={{ ...block, marginTop: 12 }}>Pour exercer ces droits, contactez-nous à l&rsquo;adresse indiquée ci-dessus.</p>
+          <p style={{ ...block, marginTop: 12 }}>Pour exercer ces droits, contactez-nous à l&rsquo;adresse e-mail indiquée ci-dessus. Vous pouvez également introduire une réclamation auprès de l&rsquo;Autorité de protection des données (APD/GBA) en Belgique.</p>
         </section>
 
         <section>
           <h2 style={h2}>Contact</h2>
-          <p style={block}>Pour toute question relative à cette politique, contactez-nous par email à [À compléter].</p>
+          <p style={block}>Pour toute question relative à cette politique, contactez-nous par email à emd@mentionbox.be.</p>
         </section>
       </div>
     </main>

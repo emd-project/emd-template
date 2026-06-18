@@ -1,6 +1,7 @@
 /**
  * /mentions-legales — Mentions légales (style Voltéo).
- * Valeurs remplacées à l'init. noindex : page légale.
+ * Infos éditeur en dur : même entité (MentionBox SRL) pour tous les sites EMD.
+ * noindex : page légale.
  * Note : EMD n'a aucune affiliation — pas de section « liens affiliés ».
  */
 
@@ -29,10 +30,11 @@ export default function MentionsLegalesPage() {
           <h2 style={h2}>Éditeur du site</h2>
           <div style={block}>
             <p>Site : {niche.siteName} — https://{niche.domain}</p>
-            <p>Nom / Raison sociale : [À compléter]</p>
-            <p>Adresse : [À compléter]</p>
-            <p>Email : [À compléter]</p>
-            <p>Directeur de la publication : [À compléter]</p>
+            <p>Société : MentionBox SRL — société à responsabilité limitée (SRL) de droit belge</p>
+            <p>Numéro d&rsquo;entreprise : BE 0784.700.405</p>
+            <p>Siège social : Rue Blanche-Eau 15, 6950 Nassogne, Belgique</p>
+            <p>Email : emd@mentionbox.be</p>
+            <p>Directeur de la publication : MentionBox SRL</p>
           </div>
         </section>
 

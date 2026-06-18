@@ -866,9 +866,9 @@ body {
   }
 }
 
-/* AI provider links hover */
+/* AI provider links hover — accent primaire du site (token-driven, suit la DA) */
 .ai-provider-link:hover {
-  border-color: var(--accent-4) !important;
+  border-color: var(--accent-1) !important;
   color: var(--text-primary) !important;
 }
 

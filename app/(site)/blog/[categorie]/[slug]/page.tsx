@@ -12,6 +12,7 @@ import remarkGfm from 'remark-gfm'
 import { remarkAmazonAffiliate } from '@/lib/plugins/remarkAmazonAffiliate'
 import { processShortcodes } from '@/lib/content/shortcodes'
 import { getAllArticles, getArticleRaw, articleExists, getRelatedArticles, articleHref, formatDate } from '@/lib/blog'
+import { articleSlugFrToEn } from '@/lib/i18n/article-slugs'
 import { currentYear } from '@/lib/utils/year'
 import { niche } from '@/niche.config'
 import { t } from '@/lib/i18n'
@@ -59,10 +60,23 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   if (!articleExists(categorie, slug)) return {}
   const { meta } = getArticleRaw(categorie, slug)
   const year = currentYear()
+
+  // hreflang réciproque (bloc 4) : on n'émet l'alternate EN que si une traduction
+  // est connue (articleSlugFrToEn). x-default = FR (canonique). Additif.
+  const enSlug = articleSlugFrToEn[slug] ?? null
+  const languages: Record<string, string> = {
+    fr: `${SITE_URL}/blog/${categorie}/${slug}`,
+    'x-default': `${SITE_URL}/blog/${categorie}/${slug}`,
+  }
+  if (enSlug) languages.en = `${SITE_URL}/en/blog/${categorie}/${enSlug}`
+
   return {
     title: `${meta.title} ${year} | ${niche.siteName}`,
     description: meta.description,
-    alternates: { canonical: `${SITE_URL}/blog/${categorie}/${slug}` },
+    alternates: {
+      canonical: `${SITE_URL}/blog/${categorie}/${slug}`,
+      languages,
+    },
     openGraph: {
       title: meta.title,
       description: meta.description,

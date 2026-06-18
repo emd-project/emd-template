@@ -1,19 +1,19 @@
-import { niche } from '@/niche.config'
+/**
+ * affiliate.ts — NEUTRALISÉ (dé-affiliation).
+ *
+ * Le modèle économique EMD n'a AUCUNE affiliation : la monétisation passe par
+ * la vente de mentions, pas par des liens affiliés. addAffiliateTag est donc un
+ * pass-through : il retourne l'URL telle quelle, sans ajouter de tag.
+ *
+ * On conserve la fonction (et sa signature) pour ne casser aucun appelant
+ * existant (AffiliateLink, AffiliateButton, StickyCTA, article-ctas,
+ * remarkAmazonAffiliate). Tout continue de compiler.
+ */
 
-const AMAZON_TAG = process.env.NEXT_PUBLIC_AMAZON_TAG ?? niche.affiliateTag
-const AMAZON_DOMAINS = /amazon\.(fr|com|co\.uk|de|es|it)/i
-
+/**
+ * Retourne l'URL inchangée. Aucun paramètre d'affiliation n'est ajouté.
+ * (Anciennement : injectait un tag Amazon `?tag=`.)
+ */
 export function addAffiliateTag(href: string): string {
-  if (!AMAZON_TAG) return href
-  try {
-    const url = new URL(href)
-    if (AMAZON_DOMAINS.test(url.hostname)) {
-      url.searchParams.set('tag', AMAZON_TAG)
-      url.searchParams.delete('ref')
-      return url.toString()
-    }
-  } catch {
-    // Invalid URL — return as-is
-  }
   return href
 }

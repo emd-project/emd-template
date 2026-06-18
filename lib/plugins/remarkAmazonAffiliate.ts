@@ -1,16 +1,15 @@
-import { visit } from 'unist-util-visit'
-import type { Node } from 'unist'
-import { addAffiliateTag } from '@/lib/utils/affiliate'
+/**
+ * remarkAmazonAffiliate — NEUTRALISÉ (dé-affiliation).
+ *
+ * EMD n'a aucune affiliation. Ce plugin remark ne tague plus les liens : il est
+ * conservé comme no-op pour ne pas casser son import dans le pipeline MDX
+ * (app/(site)/[article]/page.tsx). Les liens des articles MDX restent intacts.
+ */
 
-interface LinkNode extends Node {
-  type: 'link'
-  url: string
-}
+import type { Node } from 'unist'
 
 export function remarkAmazonAffiliate() {
-  return (tree: Node) => {
-    visit(tree, 'link', (node: LinkNode) => {
-      node.url = addAffiliateTag(node.url)
-    })
+  return (_tree: Node) => {
+    // no-op : aucun tag d'affiliation n'est injecté.
   }
 }

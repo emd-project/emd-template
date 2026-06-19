@@ -87,7 +87,7 @@ export default async function ComparateurProduitPage({ params }: { params: Param
             <ComparateurSelector modeles={data.modeles} specsLabels={data.specsLabels} />
 
             <p style={{ marginTop: 32, fontSize: 12, color: 'var(--ink-3)', lineHeight: 1.5 }}>
-              Prix indicatifs. Les liens {niche.defaultStore} sont des liens affiliés — le prix que tu paies reste identique.
+              Prix indicatifs, sourcés et datés. Comparatif neutre et indépendant, sans lien affilié.
             </p>
 
             <div style={{ marginTop: 32, padding: 24, background: 'var(--cream-2)', border: '1px solid var(--line)', borderRadius: 'var(--r-lg)', textAlign: 'center' }}>

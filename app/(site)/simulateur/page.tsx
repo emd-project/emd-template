@@ -1,12 +1,12 @@
 /**
  * /simulateur — Simulateur de cycles de prix (style Voltéo).
  * Données statiques. Server Component · ISR 86400s.
+ * Modèle EMD = MENTION, pas d'affiliation : aucun CTA d'achat affilié.
  */
 
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { currentYear } from '@/lib/utils/year'
-import { AffiliateLink } from '@/components/ui/AffiliateLink'
 import { niche } from '@/niche.config'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://${niche.domain}`
@@ -25,7 +25,9 @@ export function generateMetadata(): Metadata {
 
 type CyclePrix = {
   modele: string; lancement: string; prixLancement: number; prixActuel: number
-  prochaineAnnonce: string; recommandation: 'acheter' | 'attendre' | 'deal'; amazonUrl: string
+  prochaineAnnonce: string; recommandation: 'acheter' | 'attendre' | 'deal'
+  /** Lien NEUTRE éventuel (source officielle / fiche). '' ou absent = aucun lien. Jamais affilié. */
+  sourceUrl?: string
 }
 
 const CYCLES: CyclePrix[] = []
@@ -96,14 +98,16 @@ export default function SimulateurPage() {
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
                         <span style={{ fontSize: 12, fontWeight: 700, color: '#fff', background: rec.color, padding: '6px 14px', borderRadius: 100 }}>{rec.label}</span>
-                        <AffiliateLink href={c.amazonUrl} style={{ fontSize: 12, fontWeight: 600, color: 'var(--primary-d)', textDecoration: 'underline' }}>Voir sur {niche.defaultStore} →</AffiliateLink>
+                        {c.sourceUrl ? (
+                          <a href={c.sourceUrl} target="_blank" rel="noopener noreferrer nofollow" style={{ fontSize: 12, fontWeight: 600, color: 'var(--primary-d)', textDecoration: 'underline' }}>Voir la fiche officielle →</a>
+                        ) : null}
                       </div>
                     </article>
                   )
                 })}
               </div>
             )}
-            <p style={{ marginTop: 24, fontSize: 12, color: 'var(--ink-3)', lineHeight: 1.5 }}>Prix indicatifs. Mise à jour régulière.</p>
+            <p style={{ marginTop: 24, fontSize: 12, color: 'var(--ink-3)', lineHeight: 1.5 }}>Prix indicatifs, sourcés et datés. Mise à jour régulière. Aucun lien affilié.</p>
           </div>
         </section>
       </main>

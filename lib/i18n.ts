@@ -39,7 +39,7 @@ function interpolate(value: string, vars?: Record<string, string | number>): str
   if (!vars) return value
   let out = value
   for (const [k, v] of Object.entries(vars)) {
-    out = out.replace(`{${k}}`, String(v))
+    out = out.split(`{${k}}`).join(String(v))
   }
   return out
 }

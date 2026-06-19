@@ -6,7 +6,7 @@
  */
 
 import Link from 'next/link'
-import { t } from '@/lib/i18n'
+import { tl } from '@/lib/i18n'
 
 type AuthorBylineProps = {
   authorSlug: string
@@ -14,10 +14,12 @@ type AuthorBylineProps = {
   publishedAt: string        // ISO 8601 : "2026-03-23"
   updatedAt?: string
   readingTimeMin?: number
+  /** Locale active (défaut fr). */
+  locale?: string
 }
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('fr-FR', {
+function formatDate(iso: string, locale: string): string {
+  return new Date(iso).toLocaleDateString(locale === 'en' ? 'en-GB' : 'fr-FR', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -30,6 +32,7 @@ export function AuthorByline({
   publishedAt,
   updatedAt,
   readingTimeMin,
+  locale = 'fr',
 }: AuthorBylineProps) {
   const displayDate = updatedAt && updatedAt !== publishedAt ? updatedAt : publishedAt
 
@@ -44,7 +47,7 @@ export function AuthorByline({
         color: 'var(--text-secondary)',
       }}
     >
-      <span>{t('article.by')}</span>
+      <span>{tl(locale, 'article.by')}</span>
       <Link
         href={`/auteurs/${authorSlug}`}
         style={{
@@ -61,15 +64,15 @@ export function AuthorByline({
       {readingTimeMin !== undefined && (
         <>
           <span aria-hidden="true">·</span>
-          <span>{t('article.readingTime', { min: readingTimeMin })}</span>
+          <span>{tl(locale, 'article.readingTime', { min: readingTimeMin })}</span>
         </>
       )}
 
       <span aria-hidden="true">·</span>
 
       <time dateTime={displayDate}>
-        {updatedAt && updatedAt !== publishedAt ? t('article.updatedOn') : ''}
-        {formatDate(displayDate)}
+        {updatedAt && updatedAt !== publishedAt ? tl(locale, 'article.updatedOn') : ''}
+        {formatDate(displayDate, locale)}
       </time>
     </div>
   )

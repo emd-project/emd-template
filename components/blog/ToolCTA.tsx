@@ -5,6 +5,7 @@
  */
 import Link from 'next/link'
 import { niche, categoryAccent } from '@/niche.config'
+import { tl } from '@/lib/i18n'
 
 type Tool = {
   href: string
@@ -14,41 +15,43 @@ type Tool = {
   accentVar: string
 }
 
-function buildTools(): Record<string, Tool> {
+function buildTools(locale: string): Record<string, Tool> {
   const tools: Record<string, Tool> = {}
   niche.categories.forEach((cat, i) => {
     tools[cat.slug] = {
       href: `/comparer/${cat.slug}`,
-      label: `Comparateur ${cat.label}`,
-      description: `Compare tous les ${cat.label.toLowerCase()} côte à côte.`,
-      cta: 'Comparer maintenant →',
+      label: tl(locale, 'toolCTA.comparator', { label: cat.label }),
+      description: tl(locale, 'toolCTA.comparatorDesc', { label: cat.label.toLowerCase() }),
+      cta: tl(locale, 'toolCTA.compareNow'),
       accentVar: categoryAccent(i),
     }
   })
   // Default tools
   tools['deals'] = {
     href: '/simulateur',
-    label: 'Simulateur',
-    description: `Simulez le coût réel de votre ${niche.entity}.`,
-    cta: 'Utiliser le simulateur →',
+    label: tl(locale, 'toolCTA.simulator'),
+    description: tl(locale, 'toolCTA.simulatorDesc', { entity: niche.entity }),
+    cta: tl(locale, 'toolCTA.useSimulator'),
     accentVar: 'var(--accent-1)',
   }
   return tools
 }
 
-const FALLBACK: Tool = {
-  href: '/comparer',
-  label: 'Comparateur',
-  description: `Comparez les ${niche.entities} côte à côte.`,
-  cta: 'Comparer maintenant →',
-  accentVar: 'var(--accent-1)',
+function buildFallback(locale: string): Tool {
+  return {
+    href: '/comparer',
+    label: tl(locale, 'toolCTA.fallbackLabel'),
+    description: tl(locale, 'toolCTA.fallbackDesc', { entities: niche.entities }),
+    cta: tl(locale, 'toolCTA.compareNow'),
+    accentVar: 'var(--accent-1)',
+  }
 }
 
-type Props = { categorie: string }
+type Props = { categorie: string; locale?: string }
 
-export function ToolCTA({ categorie }: Props) {
-  const tools = buildTools()
-  const tool = tools[categorie] ?? FALLBACK
+export function ToolCTA({ categorie, locale = 'fr' }: Props) {
+  const tools = buildTools(locale)
+  const tool = tools[categorie] ?? buildFallback(locale)
 
   return (
     <Link

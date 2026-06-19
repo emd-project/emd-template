@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from 'react'
 import { addAffiliateTag } from '@/lib/utils/affiliate'
+import { tl } from '@/lib/i18n'
 
 export type StickyCTAItem = {
   label: string
@@ -17,9 +18,11 @@ export type StickyCTAItem = {
 type Props = {
   items: StickyCTAItem[]
   message?: string
+  /** Locale active (défaut fr). */
+  locale?: string
 }
 
-export function StickyCTA({ items, message }: Props) {
+export function StickyCTA({ items, message, locale = 'fr' }: Props) {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
@@ -36,7 +39,7 @@ export function StickyCTA({ items, message }: Props) {
   return (
     <div
       role="complementary"
-      aria-label="Offre produit"
+      aria-label={tl(locale, 'product.stickyAriaLabel')}
       style={{
         position: 'fixed',
         bottom: 'var(--space-4)',

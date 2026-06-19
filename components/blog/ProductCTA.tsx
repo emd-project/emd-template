@@ -10,6 +10,7 @@
 
 import Image from 'next/image'
 import { AffiliateLink } from '@/components/ui/AffiliateLink'
+import { tl } from '@/lib/i18n'
 
 type ProductCTAProps = {
   name: string
@@ -18,9 +19,11 @@ type ProductCTAProps = {
   image?: string
   badge?: string
   hook?: string
+  /** Locale active (défaut fr). */
+  locale?: string
 }
 
-export function ProductCTA({ name, price, url, image, badge, hook }: ProductCTAProps) {
+export function ProductCTA({ name, price, url, image, badge, hook, locale = 'fr' }: ProductCTAProps) {
   return (
     <div style={{ margin: 'var(--space-10) 0' }}>
       <div className="comparateur-card-wrap">
@@ -87,7 +90,7 @@ export function ProductCTA({ name, price, url, image, badge, hook }: ProductCTAP
 
             {/* CTA button */}
             <AffiliateLink href={url} style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)', background: 'linear-gradient(135deg, var(--aurora-1), var(--aurora-2))', color: '#fff', fontWeight: 700, fontSize: '14px', padding: 'var(--space-3) var(--space-8)', textDecoration: 'none', whiteSpace: 'nowrap', letterSpacing: '0.02em' }}>
-              Voir le prix →
+              {tl(locale, 'product.viewPrice')}
             </AffiliateLink>
           </div>
         </div>

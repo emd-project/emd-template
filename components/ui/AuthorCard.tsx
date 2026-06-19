@@ -6,7 +6,7 @@
  */
 
 import Link from 'next/link'
-import { t } from '@/lib/i18n'
+import { tl } from '@/lib/i18n'
 
 type AuthorCardVariant = 'inline' | 'full'
 
@@ -15,6 +15,8 @@ type AuthorCardProps = {
   authorName?: string
   bio: string
   variant?: AuthorCardVariant
+  /** Locale active (défaut fr). */
+  locale?: string
 }
 
 function Monogram({ size, initial = '?' }: { size: number; initial?: string }) {
@@ -53,6 +55,7 @@ export function AuthorCard({
   authorName = '',
   bio,
   variant = 'inline',
+  locale = 'fr',
 }: AuthorCardProps) {
   const isInline = variant === 'inline'
 
@@ -100,7 +103,7 @@ export function AuthorCard({
               textDecoration: 'none',
             }}
           >
-            {t('authorCard.viewAllArticles')}
+            {tl(locale, 'authorCard.viewAllArticles')}
           </Link>
         )}
       </div>

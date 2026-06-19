@@ -3,8 +3,9 @@
  * Usage MDX : <Warning>Texte ici</Warning>
  */
 import type { ReactNode } from 'react'
+import { tl } from '@/lib/i18n'
 
-export function Warning({ children }: { children: ReactNode }) {
+export function Warning({ children, locale = 'fr' }: { children: ReactNode; locale?: string }) {
   return (
     <aside
       role="note"
@@ -25,7 +26,7 @@ export function Warning({ children }: { children: ReactNode }) {
           margin: '0 0 var(--space-2)',
         }}
       >
-        Attention
+        {tl(locale, 'callout.warning')}
       </p>
       <div style={{ color: 'var(--text-secondary)', fontSize: '15px', lineHeight: 1.65 }}>
         {children}

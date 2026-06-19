@@ -5,19 +5,22 @@
  */
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
+import { tl } from '@/lib/i18n'
 
 type Props = {
   currentPage: number
   totalPages: number
   /** Base URL sans query string — ex: "/blog" ou "/blog/categorie" */
   basePath: string
+  /** Locale active (défaut fr) — localise les libellés d'accessibilité. */
+  locale?: string
 }
 
 function pageHref(basePath: string, page: number) {
   return page === 1 ? basePath : `${basePath}?page=${page}`
 }
 
-export function Pagination({ currentPage, totalPages, basePath }: Props) {
+export function Pagination({ currentPage, totalPages, basePath, locale = 'fr' }: Props) {
   if (totalPages <= 1) return null
 
   // Fenêtre de 5 pages autour de la page courante
@@ -37,10 +40,10 @@ export function Pagination({ currentPage, totalPages, basePath }: Props) {
   }
 
   return (
-    <nav aria-label="Pagination" style={{ display: 'flex', gap: 'var(--space-2)', justifyContent: 'center', alignItems: 'center', padding: 'var(--space-8) 0' }}>
+    <nav aria-label={tl(locale, 'pagination.label')} style={{ display: 'flex', gap: 'var(--space-2)', justifyContent: 'center', alignItems: 'center', padding: 'var(--space-8) 0' }}>
       {/* Précédent */}
       {currentPage > 1 ? (
-        <Link href={pageHref(basePath, currentPage - 1)} aria-label="Page précédente" style={{ ...btnBase, color: 'var(--text-secondary)', background: 'transparent' }}>
+        <Link href={pageHref(basePath, currentPage - 1)} aria-label={tl(locale, 'pagination.previous')} style={{ ...btnBase, color: 'var(--text-secondary)', background: 'transparent' }}>
           ←
         </Link>
       ) : (
@@ -89,7 +92,7 @@ export function Pagination({ currentPage, totalPages, basePath }: Props) {
 
       {/* Suivant */}
       {currentPage < totalPages ? (
-        <Link href={pageHref(basePath, currentPage + 1)} aria-label="Page suivante" style={{ ...btnBase, color: 'var(--text-secondary)', background: 'transparent' }}>
+        <Link href={pageHref(basePath, currentPage + 1)} aria-label={tl(locale, 'pagination.next')} style={{ ...btnBase, color: 'var(--text-secondary)', background: 'transparent' }}>
           →
         </Link>
       ) : (

@@ -6,7 +6,6 @@
 import Link from 'next/link'
 import { AuthorByline } from '@/components/ui/AuthorByline'
 import { AuthorCard } from '@/components/ui/AuthorCard'
-import { AffiliateLink } from '@/components/ui/AffiliateLink'
 import { COMPARATEURS } from '@/lib/comparateur'
 import { niche } from '@/niche.config'
 import type { ChoisirProductContent } from '@/lib/choisir-content'
@@ -17,12 +16,12 @@ type Props = {
   publishedAt: string
 }
 
-/** Resolve Amazon URL from comparateur data by matching model name in card title. */
-function findAmazonUrl(produit: string, modeleName: string): string | null {
+/** Résout un lien NEUTRE (source officielle/marque) depuis les données comparateur, ou null. Jamais affilié. */
+function findSourceUrl(produit: string, modeleName: string): string | null {
   const data = COMPARATEURS[produit]
   if (!data) return null
   const modele = data.modeles.find((m) => modeleName.includes(m.nom) || m.nom.includes(modeleName))
-  return modele?.amazonUrl || 'https://amzn.to/4c4vSyD'
+  return modele?.sourceUrl || null
 }
 
 const sectionStyle: React.CSSProperties = {
@@ -113,7 +112,7 @@ export function ChoisirEditorial({ content, produit, publishedAt }: Props) {
               }}
             >
               {section.table.rows.map((row, ri) => {
-                const amazonUrl = findAmazonUrl(produit, row[1])
+                const sourceUrl = findSourceUrl(produit, row[1])
                 return (
                   <div key={ri} className="comparateur-card-wrap">
                     <div
@@ -137,9 +136,11 @@ export function ChoisirEditorial({ content, produit, publishedAt }: Props) {
                           {row[3]}
                         </p>
                       )}
-                      {amazonUrl && (
-                        <AffiliateLink
-                          href={amazonUrl}
+                      {sourceUrl && (
+                        <a
+                          href={sourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer nofollow"
                           style={{
                             display: 'inline-block',
                             marginTop: 'var(--space-3)',
@@ -151,8 +152,8 @@ export function ChoisirEditorial({ content, produit, publishedAt }: Props) {
                             paddingBottom: '1px',
                           }}
                         >
-                          Voir le prix sur Amazon →
-                        </AffiliateLink>
+                          Voir la fiche officielle →
+                        </a>
                       )}
                     </div>
                   </div>

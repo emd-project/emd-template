@@ -130,44 +130,47 @@ Chaque direction est un **point de départ reconnaissable**, exprimé dans le sy
 
 ---
 
-# LOGO & FAVICON — mark SVG sur mesure
+# LOGO & FAVICON — symbole Gemini vectorisé en SVG
 
-> Le logo **n'est PAS une image raster Gemini.** Gemini est réservé aux **photos** (hero, couvertures).
-> Le logo et le favicon sont du **SVG vectoriel sur mesure**, net et scalable.
+> **Pipeline complet et validé : [`emd-methodo/references/logo-pipeline.md`](https://github.com/emd-project/emd-methodo/blob/main/references/logo-pipeline.md).** Résumé ci-dessous.
+> Le logo n'est **PAS un SVG dessiné à la main** (rendu géométrique générique = les vieux logos « nuls »),
+> ni un **raster collé tel quel**. On **génère le SYMBOLE avec Gemini**, on le **vectorise** en SVG propre,
+> et on l'**inline** dans le header + le favicon. Gemini reste aussi utilisé pour les **photos** (hero, couvertures).
 
 ## Composition du logo
 
-Le logo = **un MARK SVG sur mesure** + **le wordmark** :
+Le logo = **un MARK SVG** (symbole vectorisé) + **le wordmark** :
 
-- **Mark** = un **symbole géométrique conçu pour la niche**, accordé à l'**accent de marque** (`--accent-1`).
-  Net, vectoriel, **scalable** (lisible de 16px à grand format). Construit avec des formes simples
-  (cercles, segments, chevrons, grille) — pas de dégradé photo, pas de détail qui casse à petite taille.
-- **Wordmark** = le **nom du site** rendu dans la **font de titrage de la direction** (`--next-font-display`),
-  à côté ou sous le mark.
+- **Mark** = un **symbole conçu pour la niche, généré par Gemini** (bold, formes pleines, fort contraste,
+  **SANS texte**), puis **vectorisé** (`vtracer`, mode silhouette) en SVG **un seul `<path>`**,
+  **tintable** (`fill="currentColor"`), net de **16px** à grand format.
+- **Wordmark** = le **nom du site** en **texte CSS** dans la font de titrage (`--next-font-display`),
+  à côté/sous le mark — **JAMAIS dans l'image** (Gemini écrit mal → artefacts).
 
-## Intégration
+## Pipeline (résumé — détail dans `references/logo-pipeline.md`)
 
-- **Logo (mark + wordmark)** : posé **inline dans `components/.../Nav.tsx`** (slot dédié au mark, en SVG inline).
-  Les couleurs viennent des **tokens** (`fill`/`stroke` en `var(--accent-1)`, `var(--text-primary)`…) pour
-  suivre la DA et le mode automatiquement. **Pas de `<img>`**, pas de fichier raster.
-- **Favicon** = **la marque SEULE** (mark sans wordmark), **simplifiée pour rester lisible à 16px**,
-  écrite dans **`app/icon.svg`** (Next génère le favicon depuis ce fichier). Géométrie épurée, 1–2 couleurs
-  de tokens, pas de texte.
+1. `generate_image(filename="logo-<site>-mark", aspect_ratio="1:1", prompt="<concept niche> bold flat vector brand icon, single solid shape, high contrast black on white, centered, no text, no letters, no gradient, no 3d")` → `wait_for_image`.
+2. Sandbox : `pip install vtracer --break-system-packages` ; `convert <png> -background white -flatten -colorspace Gray -threshold 55% mark.png` ; `vtracer(... colormode='binary', mode='spline' ...)`.
+3. Nettoyage → `fill="currentColor"` + `viewBox` + retrait des width/height fixes (SVG inline-ready).
+4. **Contrôle de lisibilité réduit à 16px** (favicon).
+
+## Intégration (câblage réel)
+
+- **Logo** : le SVG nettoyé **inline dans `components/.../Nav.tsx`**, tinté par tokens (`color: var(--accent-1)`),
+  + **wordmark en texte CSS**. **Pas de `<img>`**, pas de raster.
+- **Favicon** = le **même mark** (sans wordmark) écrit dans **`app/icon.svg`** (Next génère le favicon). Pas de texte.
 
 ## Unicité (anti-footprint)
 
-- Le mark est **unique par site** : jamais le même symbole ni le même concept qu'un autre site du réseau.
-- Le concept du mark découle de la **niche** + de l'**accent de marque** ; on le trace par site comme le
-  reste de l'assemblage.
+- Le mark est **unique par site** : concept de symbole différent de tout autre site du réseau, dérivé de la
+  **niche** + de l'**accent de marque**.
 
-### Exemples de concepts de mark par type de niche
+### Concepts de mark par type de niche (inspiration du prompt Gemini)
 
-- **Finance / assurance / banque** : bouclier abstrait, colonne/pilier stylisé, chevron ascendant (croissance),
-  segments empilés (équilibre/portefeuille).
+- **Finance / assurance / banque** : bouclier abstrait, pilier/colonne, chevron ascendant, segments empilés.
 - **Énergie / mobilité / télécom** : éclair géométrisé, nœud + arcs (réseau), onde/signal, flèche de flux.
-- **Lifestyle / famille / maison / santé** : toit/maison minimal, feuille ou pousse, arc protecteur,
-  cœur géométrisé, cercles concentriques (lien/soin).
+- **Lifestyle / famille / maison / santé** : toit minimal, feuille/pousse, arc protecteur, cercles concentriques.
 - **Tech / premium / high-tech** : monogramme géométrique, prisme/facette, grille de points, orbite/anneau.
 
-> Choisir **2–3 pistes** au moment du preview, en retenir **une** distincte de tout autre site, et la
-> décliner en favicon (mark seul, simplifié 16px).
+> Générer **2–3 symboles** (varier le filename `-v2`/`-v3`), retenir **un** distinct de tout autre site, puis
+> le décliner en favicon (mark seul, vérifié lisible à 16px).

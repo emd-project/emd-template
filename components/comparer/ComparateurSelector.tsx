@@ -4,10 +4,13 @@
  * ComparateurSelector — comparaison côte à côte style Apple.
  * Sélecteurs dropdown pour choisir les modèles à comparer.
  * 'use client' isolé — la page /comparer reste Server Component.
+ *
+ * Modèle EMD = MENTION, pas d'affiliation : pas de bouton d'achat affilié.
+ * Le seul lien éventuel est NEUTRE (source officielle/marque) via `sourceUrl`,
+ * rendu uniquement s'il est renseigné.
  */
 
 import { useState } from 'react'
-import { AffiliateLink } from '@/components/ui/AffiliateLink'
 import type { ModeleComparateur } from '@/lib/comparateur'
 
 type Props = {
@@ -236,38 +239,44 @@ export function ComparateurSelector({ modeles, specsLabels }: Props) {
         ))}
       </div>
 
-      {/* CTA row */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: `repeat(${selected.length}, 1fr)`,
-          gap: 'var(--space-4)',
-          marginTop: 'var(--space-6)',
-        }}
-      >
-        {selectedModeles.map((m, i) => (
-          <div key={i} style={{ textAlign: 'center' }}>
-            <AffiliateLink
-                href={m.amazonUrl || 'https://amzn.to/4c4vSyD'}
-                style={{
-                  display: 'inline-block',
-                  background: 'var(--accent-1)',
-                  color: '#fff',
-                  fontWeight: 700,
-                  fontSize: '13px',
-                  padding: 'var(--space-3) var(--space-5)',
-                  borderRadius: 'var(--radius-md)',
-                  textDecoration: 'none',
-                  width: '100%',
-                  maxWidth: '220px',
-                  textAlign: 'center',
-                }}
-              >
-                Voir le prix sur Amazon
-              </AffiliateLink>
-          </div>
-        ))}
-      </div>
+      {/* CTA row — lien NEUTRE vers la source officielle, uniquement si renseigné (pas d'affiliation) */}
+      {selectedModeles.some((m) => m.sourceUrl) && (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: `repeat(${selected.length}, 1fr)`,
+            gap: 'var(--space-4)',
+            marginTop: 'var(--space-6)',
+          }}
+        >
+          {selectedModeles.map((m, i) => (
+            <div key={i} style={{ textAlign: 'center' }}>
+              {m.sourceUrl ? (
+                <a
+                  href={m.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  style={{
+                    display: 'inline-block',
+                    background: 'var(--accent-1)',
+                    color: '#fff',
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    padding: 'var(--space-3) var(--space-5)',
+                    borderRadius: 'var(--radius-md)',
+                    textDecoration: 'none',
+                    width: '100%',
+                    maxWidth: '220px',
+                    textAlign: 'center',
+                  }}
+                >
+                  Voir la fiche officielle
+                </a>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

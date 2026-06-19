@@ -20,7 +20,7 @@ import { getCTAsForCategory } from '@/lib/article-ctas'
 import { getStandaloneArticle, getAllStandaloneSlugs } from '@/lib/articles'
 import { niche } from '@/niche.config'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://${niche.domain}`
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 import { Tip } from '@/components/blog/Tip'
 import { Warning } from '@/components/blog/Warning'
 import { Verdict } from '@/components/blog/Verdict'

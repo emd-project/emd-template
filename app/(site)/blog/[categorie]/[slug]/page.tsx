@@ -14,6 +14,7 @@ import { processShortcodes } from '@/lib/content/shortcodes'
 import { getAllArticles, getArticleRaw, articleExists, getRelatedArticles, articleHref, formatDate } from '@/lib/blog'
 import { articleSlugFrToEn } from '@/lib/i18n/article-slugs'
 import { currentYear } from '@/lib/utils/year'
+import { extractHeadings, slugify, type TocItem } from '@/lib/utils/headings'
 import { niche } from '@/niche.config'
 import { t } from '@/lib/i18n'
 
@@ -33,6 +34,7 @@ import { AutoProductCTAs } from '@/components/blog/AutoProductCTAs'
 import { ProductCarousel } from '@/components/blog/ProductCarousel'
 import { ReadingProgress } from '@/components/blog/ReadingProgress'
 import { FaqAccordion } from '@/components/blog/FaqAccordion'
+import { TableOfContents } from '@/components/blog/TableOfContents'
 import { getCTAsForCategory } from '@/lib/article-ctas'
 import { AuthorByline } from '@/components/ui/AuthorByline'
 import { AuthorCard } from '@/components/ui/AuthorCard'
@@ -49,6 +51,17 @@ const CAT_INDEX: Record<string, number> = Object.fromEntries(
 const CATEGORY_LABELS: Record<string, string> = Object.fromEntries(
   niche.categories.map((c) => [c.slug, c.label])
 )
+
+/** Texte brut d'un noeud React (pour générer l'id d'un titre rendu). */
+function nodeText(node: ReactNode): string {
+  if (node == null || typeof node === 'boolean') return ''
+  if (typeof node === 'string' || typeof node === 'number') return String(node)
+  if (Array.isArray(node)) return node.map(nodeText).join('')
+  if (typeof node === 'object' && 'props' in node) {
+    return nodeText((node as { props?: { children?: ReactNode } }).props?.children)
+  }
+  return ''
+}
 
 export async function generateStaticParams() {
   const articles = getAllArticles()
@@ -102,6 +115,8 @@ export default async function ArticlePage({ params }: { params: Params }) {
     components: {
       Tip, Warning, Verdict, ProConTable, PullQuote, StatCard, StatRow,
       CompareBar, CompareBarGroup, ProductCTA, ArticleImage, ProductCarousel,
+      h2: ({ children }: { children?: ReactNode }) => <h2 id={slugify(nodeText(children))}>{children}</h2>,
+      h3: ({ children }: { children?: ReactNode }) => <h3 id={slugify(nodeText(children))}>{children}</h3>,
       table: ({ children }: { children: ReactNode }) => (
         <div className="table-scroll-wrap"><table>{children}</table></div>
       ),
@@ -110,6 +125,14 @@ export default async function ArticlePage({ params }: { params: Params }) {
   const related = getRelatedArticles(categorie, slug, 3)
   const catLabel = CATEGORY_LABELS[categorie] ?? categorie
   const catCls = `c${CAT_INDEX[categorie] ?? 1}`
+
+  // Sommaire : ancres fixes (En bref) + sections de l'article (H2/H3) + FAQ + Liés.
+  const tocItems: TocItem[] = [
+    ...(meta.aiSummary && meta.aiSummary.length > 0 ? [{ id: 'en-bref', text: t('sidebar.tocSummary'), level: 2 } as TocItem] : []),
+    ...extractHeadings(content),
+    ...(meta.faq && meta.faq.length > 0 ? [{ id: 'faq-section', text: t('sidebar.tocFaq'), level: 2 } as TocItem] : []),
+    ...(related.length > 0 ? [{ id: 'related-section', text: t('sidebar.tocRelated'), level: 2 } as TocItem] : []),
+  ]
 
   const jsonLd = [
     {
@@ -179,12 +202,7 @@ export default async function ArticlePage({ params }: { params: Params }) {
 
               {/* Sommaire sticky */}
               <aside className="toc">
-                <div className="toc-title">{t('sidebar.tocTitle')}</div>
-                <ul>
-                  {meta.aiSummary && meta.aiSummary.length > 0 && <li><a href="#en-bref" className="sidebar-toc-link">{t('sidebar.tocSummary')}</a></li>}
-                  {meta.faq && meta.faq.length > 0 && <li><a href="#faq-section" className="sidebar-toc-link">{t('sidebar.tocFaq')}</a></li>}
-                  {related.length > 0 && <li><a href="#related-section" className="sidebar-toc-link">{t('sidebar.tocRelated')}</a></li>}
-                </ul>
+                <TableOfContents items={tocItems} title={t('sidebar.tocTitle')} />
                 {niche.comparator.enabled && (
                   <div className="toc-cta">
                     <p>{t('sidebar.toolPromo', { label: catLabel })}</p>

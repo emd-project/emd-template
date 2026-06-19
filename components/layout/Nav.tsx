@@ -92,7 +92,7 @@ export function Nav() {
             })}
           </div>
 
-          <div className="nav-cta" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div className="nav-cta">
             {isMultilingual() && (
               <LangSwitch to={targetLocale} className="nav-lang" />
             )}

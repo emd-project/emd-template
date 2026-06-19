@@ -32,7 +32,7 @@ import { articleSlugEnToFr } from '@/lib/i18n/article-slugs'
 import { extractHeadings, slugify, type TocItem } from '@/lib/utils/headings'
 import { niche } from '@/niche.config'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://${niche.domain}`
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
 /**
  * The EN comparator tree (/en/comparer/...) does not exist yet. Keep the TOC CTA

@@ -9,12 +9,14 @@ export const contentType = 'image/png'
 export default function OGImage() {
   const year = new Date().getFullYear()
   const domain = niche.domain.toUpperCase()
+  // Couleurs = palette du SITE (jamais celles du template en dur).
+  const p = niche.palette
 
   return new ImageResponse(
     (
       <div
         style={{
-          background: '#0A0A0F',
+          background: p.bgPrimary,
           width: '100%',
           height: '100%',
           display: 'flex',
@@ -31,7 +33,7 @@ export default function OGImage() {
             left: 0,
             right: 0,
             height: '4px',
-            background: 'linear-gradient(90deg, #FF3D57, #7B61FF, #3DFFC0)',
+            background: `linear-gradient(90deg, ${p.accent1}, ${p.accent4}, ${p.accent3})`,
           }}
         />
 
@@ -39,7 +41,7 @@ export default function OGImage() {
         <div
           style={{
             fontSize: 18,
-            color: '#FF3D57',
+            color: p.accent1,
             letterSpacing: '0.1em',
             textTransform: 'uppercase',
             marginBottom: 28,
@@ -54,7 +56,7 @@ export default function OGImage() {
           style={{
             fontSize: 72,
             fontWeight: 800,
-            color: '#F0F0F5',
+            color: p.textPrimary,
             lineHeight: 1.1,
             marginBottom: 24,
           }}
@@ -63,11 +65,11 @@ export default function OGImage() {
         </div>
 
         {/* Tagline */}
-        <div style={{ fontSize: 24, color: '#9090A8', fontWeight: 400 }}>
+        <div style={{ fontSize: 24, color: p.textSecondary, fontWeight: 400 }}>
           Comparateur · Quiz · Simulateur · {niche.dealWord.charAt(0).toUpperCase() + niche.dealWord.slice(1)}
         </div>
 
-        {/* Watermark number */}
+        {/* Watermark accent */}
         <div
           style={{
             position: 'absolute',
@@ -75,12 +77,12 @@ export default function OGImage() {
             bottom: '40px',
             fontSize: '280px',
             fontWeight: 800,
-            color: '#FFD23F',
+            color: p.accent2,
             opacity: 0.05,
             lineHeight: 1,
           }}
         >
-          10
+          ★
         </div>
       </div>
     ),

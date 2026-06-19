@@ -1,0 +1,109 @@
+---
+# article-model.mdx — MODEL ARTICLE (EN mirror of content/blog/guides/article-modele.mdx).
+# Strict mirror: same structure, English copy. Slug pair declared in lib/i18n/article-slugs.ts.
+# Delete on init of a new site (same as the FR seed).
+title: "Model article: structure, sidebar and table of contents"
+description: "A sample blog article showing the expected layout: automatic table of contents, sticky sidebar, editorial callouts and FAQ."
+featureImage: ""
+publishedAt: "2026-06-19"
+updatedAt: "2026-06-19"
+readingTimeMin: 6
+categorie: "guides"
+authorSlug: ""
+tags: ["model", "example", "structure"]
+aiSummary:
+  - "The sidebar table of contents builds itself from the H2/H3 headings."
+  - "The “Key takeaways” box comes from the aiSummary frontmatter field."
+  - "The FAQ and the tool CTA are appended automatically at the end."
+faq:
+  - q: "How is the table of contents generated?"
+    a: "Automatically from the H2 and H3 headings. Just structure the content with real headings."
+  - q: "Where does the “Key takeaways” box come from?"
+    a: "From the aiSummary frontmatter field: each bullet becomes a takeaway shown at the top of the article."
+  - q: "How do I add a FAQ?"
+    a: "Through the faq frontmatter field. It also emits FAQPage structured data, useful for SEO."
+stickyCta:
+  - label: "Open the comparator"
+    url: "/comparer"
+stickyCtaMessage: "Compare your options side by side"
+draft: false
+---
+
+## Introduction
+
+This article is a **model**. It is a reference for writing: it shows the blog layout
+(sticky sidebar + table of contents) and the editorial components available. The golden
+rule: well-structured headings produce a good table of contents and good SEO automatically.
+
+## How to read this page
+
+### The table of contents (sidebar)
+
+On the right (on large screens), the **sticky sidebar** shows the table of contents. It is
+built automatically from the `##` (H2) and `###` (H3) headings. Nothing to do manually:
+just write real headings, in order.
+
+### The “Key takeaways” box
+
+At the top of the article, the “Key takeaways” box reuses the `aiSummary` frontmatter field
+(3 to 5 bullets). It is what readers — and search engines — read first.
+
+## Editorial callouts
+
+<Tip>Use a tip for a practical, immediately actionable recommendation.</Tip>
+
+<Warning>Use a warning for an important caveat or a common mistake to avoid.</Warning>
+
+## Taking a clear stance
+
+<Verdict>Our recommendation in two or three sentences: what works, what works less well, and who this choice is right for.</Verdict>
+
+<PullQuote>A quote pulled from the text, set large to pace the reading and reinforce the point.</PullQuote>
+
+## Comparing visually
+
+<CompareBarGroup leftName="Option A" rightName="Option B">
+<CompareBar label="Performance" left="8.5" right="9.2" leftName="Option A" rightName="Option B" />
+<CompareBar label="Price" left="9.0" right="7.0" leftName="Option A" rightName="Option B" />
+<CompareBar label="Design" left="8.8" right="8.8" leftName="Option A" rightName="Option B" />
+</CompareBarGroup>
+
+### Pros and cons
+
+<ProConTable pros="First clear advantage|Second advantage|Third advantage" cons="First drawback|Second drawback" labelPro="Pros" labelCon="Cons" />
+
+## Highlighting figures
+
+<StatRow>
+<StatCard value="92%" label="Satisfaction" accent="1" />
+<StatCard value="4.8/5" label="Average rating" accent="2" />
+<StatCard value="2 min" label="To decide" accent="3" />
+</StatRow>
+
+## Recommending a product
+
+<ProductCTA name="Sample product" price="€299" url="/comparer" badge="Recommended" hook="A hook sentence: why this product, and for which profile." />
+
+## Comparison table (standard Markdown)
+
+| Criterion | Option A | Option B | Option C |
+|-----------|----------|----------|----------|
+| Price     | €299     | €399     | €499     |
+| Rating    | 4.5/5    | 4.2/5    | 4.8/5    |
+| Warranty  | 2 years  | 3 years  | 2 years  |
+
+## Images and carousels (syntax)
+
+These components need real assets. Copy the syntax and replace the paths/slugs:
+
+```mdx
+<ArticleImage src="/images/blog/my-image.webp" alt="Precise description" caption="Source: 2026 report" />
+
+<ProductCarousel products="product-slug-1,product-slug-2,product-slug-3" />
+```
+
+## Conclusion
+
+Structure with headings, fill in `aiSummary` and `faq`, add a couple of well-placed callouts:
+the engine does the rest (table of contents, sidebar, structured FAQ, tool CTA). To go further,
+point readers to the [comparator](/comparer) or the [quiz](/quiz).

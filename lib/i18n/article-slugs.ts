@@ -13,6 +13,7 @@
 /** Slugs d'articles FR → EN. Ex : 'meilleure-voiture-electrique-2026': 'best-electric-car-2026' */
 export const articleSlugFrToEn: Record<string, string> = {
   // rempli à la publication
+  'article-modele': 'article-model',
 }
 
 /** Réciproque EN → FR (dérivée automatiquement). */

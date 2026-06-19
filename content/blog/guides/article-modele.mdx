@@ -1,0 +1,111 @@
+---
+# article-modele.mdx — ARTICLE MODÈLE (démo de mise en page).
+# Montre la structure blog : sidebar sticky + sommaire auto (H2/H3) +
+# encadré « En bref » (aiSummary) + FAQ + composants éditoriaux MDX.
+# À SUPPRIMER lors de l'init d'un nouveau site (comme content/articles/_example.mdx).
+title: "Article modèle : structure, sidebar et sommaire"
+description: "Exemple d'article de blog montrant la mise en page attendue : sommaire automatique, sidebar collante, encadrés éditoriaux et FAQ."
+featureImage: ""
+publishedAt: "2026-06-19"
+updatedAt: "2026-06-19"
+readingTimeMin: 6
+categorie: "guides"
+authorSlug: ""
+tags: ["modèle", "exemple", "structure"]
+aiSummary:
+  - "Le sommaire de la sidebar se génère tout seul à partir des titres H2/H3."
+  - "L'encadré « En bref » provient du champ aiSummary du frontmatter."
+  - "La FAQ et le CTA outil s'ajoutent automatiquement en bas d'article."
+faq:
+  - q: "Comment le sommaire est-il généré ?"
+    a: "Automatiquement à partir des titres H2 et H3 de l'article. Il suffit de structurer le contenu avec de vrais titres."
+  - q: "D'où vient l'encadré « En bref » ?"
+    a: "Du champ aiSummary du frontmatter : chaque puce devient un point clé affiché en haut de l'article."
+  - q: "Comment ajouter une FAQ ?"
+    a: "Via le champ faq du frontmatter. Elle génère aussi le balisage structuré FAQPage utile au SEO."
+stickyCta:
+  - label: "Voir le comparateur"
+    url: "/comparer"
+stickyCtaMessage: "Comparez les options côte à côte"
+draft: false
+---
+
+## Introduction
+
+Cet article est un **modèle**. Il sert de référence pour la rédaction : il montre la
+mise en page d'un article de blog (sidebar collante + sommaire) et les composants
+éditoriaux disponibles. La règle d'or : un contenu bien structuré en titres produit
+automatiquement un bon sommaire et un bon SEO.
+
+## Comment lire cette page
+
+### Le sommaire (sidebar)
+
+À droite (sur grand écran), la **sidebar collante** affiche le sommaire. Il est
+construit automatiquement à partir des titres `##` (H2) et `###` (H3). Aucune action
+manuelle : il suffit d'écrire de vrais titres, dans l'ordre.
+
+### L'encadré « En bref »
+
+En haut de l'article, l'encadré « En bref » reprend le champ `aiSummary` du
+frontmatter (3 à 5 puces). C'est ce que le lecteur — et les moteurs — lisent en premier.
+
+## Les encadrés éditoriaux
+
+<Tip>Utilisez un conseil pour une recommandation pratique, actionnable tout de suite.</Tip>
+
+<Warning>Utilisez un avertissement pour une mise en garde importante ou une erreur fréquente à éviter.</Warning>
+
+## Donner un avis tranché
+
+<Verdict>Notre recommandation en deux ou trois phrases : ce qui est réussi, ce qui l'est moins, et pour qui ce choix est pertinent.</Verdict>
+
+<PullQuote>Une citation extraite du texte, mise en grand pour rythmer la lecture et renforcer le propos.</PullQuote>
+
+## Comparer visuellement
+
+<CompareBarGroup leftName="Option A" rightName="Option B">
+<CompareBar label="Performance" left="8.5" right="9.2" leftName="Option A" rightName="Option B" />
+<CompareBar label="Prix" left="9.0" right="7.0" leftName="Option A" rightName="Option B" />
+<CompareBar label="Design" left="8.8" right="8.8" leftName="Option A" rightName="Option B" />
+</CompareBarGroup>
+
+### Avantages et inconvénients
+
+<ProConTable pros="Premier avantage clair|Deuxième avantage|Troisième avantage" cons="Premier inconvénient|Deuxième inconvénient" />
+
+## Mettre en avant des chiffres
+
+<StatRow>
+<StatCard value="92%" label="Satisfaction" accent="1" />
+<StatCard value="4,8/5" label="Note moyenne" accent="2" />
+<StatCard value="2 min" label="Pour décider" accent="3" />
+</StatRow>
+
+## Recommander un produit
+
+<ProductCTA name="Produit exemple" price="299 €" url="/comparer" badge="Recommandé" hook="Une phrase d'accroche : pourquoi ce produit, pour quel profil." />
+
+## Tableau comparatif (Markdown standard)
+
+| Critère   | Option A | Option B | Option C |
+|-----------|----------|----------|----------|
+| Prix      | 299 €    | 399 €    | 499 €    |
+| Note      | 4,5/5    | 4,2/5    | 4,8/5    |
+| Garantie  | 2 ans    | 3 ans    | 2 ans    |
+
+## Images et carrousels (syntaxe)
+
+Ces composants ont besoin d'assets réels. Copiez-collez la syntaxe et remplacez les chemins/slugs :
+
+```mdx
+<ArticleImage src="/images/blog/mon-image.webp" alt="Description précise" caption="Source : rapport 2026" />
+
+<ProductCarousel products="slug-produit-1,slug-produit-2,slug-produit-3" />
+```
+
+## Conclusion
+
+Structurez en titres, remplissez `aiSummary` et `faq`, ajoutez 2-3 encadrés bien placés :
+le moteur s'occupe du reste (sommaire, sidebar, FAQ structurée, CTA outil). Pour aller plus
+loin, dirigez le lecteur vers le [comparateur](/comparer) ou le [quiz](/quiz).

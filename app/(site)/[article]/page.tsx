@@ -2,6 +2,7 @@
  * /[article] — articles standalone (ex-WordPress).
  * Sert les MDX depuis content/articles/[slug].mdx aux mêmes URLs que WordPress.
  * Intégré au système blog : apparaît dans listings, auteur, articles liés.
+ * Mise en page : hero visuel + corps 2 colonnes (sommaire sticky + prose MDX).
  * Server Component.
  */
 
@@ -15,10 +16,13 @@ import remarkGfm from 'remark-gfm'
 import { remarkAmazonAffiliate } from '@/lib/plugins/remarkAmazonAffiliate'
 import { processShortcodes } from '@/lib/content/shortcodes'
 import { getRelatedArticles, articleHref, CATEGORY_LABELS } from '@/lib/blog'
+import { extractHeadings, slugify, type TocItem } from '@/lib/utils/headings'
 import { AISummarize } from '@/components/blog/AISummarize'
+import { TableOfContents } from '@/components/blog/TableOfContents'
 import { getCTAsForCategory } from '@/lib/article-ctas'
 import { getStandaloneArticle, getAllStandaloneSlugs } from '@/lib/articles'
 import { niche } from '@/niche.config'
+import { t } from '@/lib/i18n'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 import { Tip } from '@/components/blog/Tip'
@@ -42,6 +46,17 @@ import type { ReactNode } from 'react'
 export const revalidate = 86400
 
 type Params = Promise<{ article: string }>
+
+/** Texte brut d'un noeud React (pour générer l'id d'un titre rendu). */
+function nodeText(node: ReactNode): string {
+  if (node == null || typeof node === 'boolean') return ''
+  if (typeof node === 'string' || typeof node === 'number') return String(node)
+  if (Array.isArray(node)) return node.map(nodeText).join('')
+  if (typeof node === 'object' && 'props' in node) {
+    return nodeText((node as { props?: { children?: ReactNode } }).props?.children)
+  }
+  return ''
+}
 
 export function generateStaticParams() {
   return getAllStandaloneSlugs().map((article) => ({ article }))
@@ -82,6 +97,8 @@ export default async function StandaloneArticlePage({ params }: { params: Params
     options: { mdxOptions: { remarkPlugins: [remarkGfm, remarkAmazonAffiliate] } },
     components: {
       Tip, Warning, Verdict, ProConTable, PullQuote, StatCard, StatRow, CompareBar, CompareBarGroup, ProductCTA, ArticleImage, ProductCarousel,
+      h2: ({ children }: { children?: ReactNode }) => <h2 id={slugify(nodeText(children))}>{children}</h2>,
+      h3: ({ children }: { children?: ReactNode }) => <h3 id={slugify(nodeText(children))}>{children}</h3>,
       table: ({ children }: { children: ReactNode }) => (
         <div className="table-scroll-wrap"><table>{children}</table></div>
       ),
@@ -90,6 +107,14 @@ export default async function StandaloneArticlePage({ params }: { params: Params
 
   const catLabel = CATEGORY_LABELS[meta.categorie] ?? meta.categorie
   const related = getRelatedArticles(meta.categorie, slug, 3)
+
+  // Sommaire : ancres fixes (En bref) + sections de l'article (H2/H3) + FAQ + Liés.
+  const tocItems: TocItem[] = [
+    ...(meta.aiSummary && meta.aiSummary.length > 0 ? [{ id: 'en-bref', text: t('sidebar.tocSummary'), level: 2 } as TocItem] : []),
+    ...extractHeadings(content),
+    ...(meta.faq && meta.faq.length > 0 ? [{ id: 'faq-section', text: t('sidebar.tocFaq'), level: 2 } as TocItem] : []),
+    ...(related.length > 0 ? [{ id: 'related-section', text: t('sidebar.tocRelated'), level: 2 } as TocItem] : []),
+  ]
 
   const jsonLd = [
     {
@@ -205,60 +230,74 @@ export default async function StandaloneArticlePage({ params }: { params: Params
 
           {/* featureImage n'est plus affichée ici — elle sert uniquement à l'OpenGraph (partage social). */}
 
-          <div style={{ maxWidth: '760px', margin: '0 auto', padding: '0 var(--space-6) var(--space-12)' }}>
-            {meta.aiSummary && meta.aiSummary.length > 0 && (
-              <AISummarize
-                points={meta.aiSummary}
-                articleTitle={meta.title}
-                articleUrl={`${SITE_URL}/${slug}`}
-              />
-            )}
+          {/* Corps : sommaire sticky + prose (mise en page 2 colonnes, comme l'article blog) */}
+          <div className="section" style={{ paddingTop: 48 }}>
+            <div className="art-wrap">
 
-            <div className="prose-article">{mdxContent}</div>
-            <AutoProductCTAs ctas={getCTAsForCategory(meta.categorie)} />
+              {/* Sommaire sticky */}
+              <aside className="toc">
+                <TableOfContents items={tocItems} title={t('sidebar.tocTitle')} />
+              </aside>
 
-            {/* FAQ */}
-            {meta.faq && meta.faq.length > 0 && (
-              <section aria-labelledby="faq-titre" style={{ marginTop: 'var(--space-12)' }}>
-                <h2 id="faq-titre" style={{ fontFamily: 'var(--next-font-display), system-ui, sans-serif', fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 'var(--space-6)' }}>
-                  <Balancer>Questions fréquentes</Balancer>
-                </h2>
-                <FaqAccordion items={meta.faq} />
-              </section>
-            )}
+              {/* Contenu */}
+              <div>
+                {meta.aiSummary && meta.aiSummary.length > 0 && (
+                  <section id="en-bref">
+                    <AISummarize
+                      points={meta.aiSummary}
+                      articleTitle={meta.title}
+                      articleUrl={`${SITE_URL}/${slug}`}
+                    />
+                  </section>
+                )}
 
-            {/* Continuer votre lecture */}
-            {related.length > 0 && (
-              <section aria-labelledby="related-titre" style={{ marginTop: 'var(--space-12)' }}>
-                <h2 id="related-titre" style={{ fontFamily: 'var(--next-font-display), system-ui, sans-serif', fontSize: 'clamp(18px, 2.5vw, 22px)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 'var(--space-5)' }}>
-                  <Balancer>Continuer votre lecture</Balancer>
-                </h2>
-                <ul role="list" style={{ display: 'flex', flexDirection: 'column', gap: 0, listStyle: 'none', borderTop: '1px solid var(--border)' }}>
-                  {related.map((a, i) => (
-                    <li key={a.slug} style={{ borderBottom: '1px solid var(--border)' }}>
-                      <Link href={articleHref(a)} className="related-link" style={{ textDecoration: 'none', display: 'flex', alignItems: 'baseline', gap: 'var(--space-4)', padding: 'var(--space-4) 0' }}>
-                        <span style={{ fontFamily: 'var(--next-font-mono), monospace', fontSize: '12px', color: 'var(--text-muted)', flexShrink: 0, minWidth: '24px' }}>
-                          {String(i + 1).padStart(2, '0')}
-                        </span>
-                        <span style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                          <span style={{ fontFamily: 'var(--next-font-primary), system-ui, sans-serif', fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.35 }}>
-                            {a.title}
-                          </span>
-                          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                            {CATEGORY_LABELS[a.categorie] ?? a.categorie} · {a.readingTimeMin} min
-                          </span>
-                        </span>
-                        <span style={{ color: 'var(--text-muted)', fontSize: '14px', flexShrink: 0 }} aria-hidden="true">→</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
+                <div className="prose-article">{mdxContent}</div>
+                <AutoProductCTAs ctas={getCTAsForCategory(meta.categorie)} />
 
-            {/* AuthorCard */}
-            <div style={{ marginTop: 'var(--space-10)' }}>
-              <AuthorCard authorSlug={niche.author.slug || 'auteur'} bio={niche.author.bio || ''} variant="inline" />
+                {/* FAQ */}
+                {meta.faq && meta.faq.length > 0 && (
+                  <section id="faq-section" aria-labelledby="faq-titre" style={{ marginTop: 'var(--space-12)' }}>
+                    <h2 id="faq-titre" style={{ fontFamily: 'var(--next-font-display), system-ui, sans-serif', fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 'var(--space-6)' }}>
+                      <Balancer>Questions fréquentes</Balancer>
+                    </h2>
+                    <FaqAccordion items={meta.faq} />
+                  </section>
+                )}
+
+                {/* Continuer votre lecture */}
+                {related.length > 0 && (
+                  <section id="related-section" aria-labelledby="related-titre" style={{ marginTop: 'var(--space-12)' }}>
+                    <h2 id="related-titre" style={{ fontFamily: 'var(--next-font-display), system-ui, sans-serif', fontSize: 'clamp(18px, 2.5vw, 22px)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 'var(--space-5)' }}>
+                      <Balancer>{t('article.relatedArticles')}</Balancer>
+                    </h2>
+                    <ul role="list" style={{ display: 'flex', flexDirection: 'column', gap: 0, listStyle: 'none', borderTop: '1px solid var(--border)' }}>
+                      {related.map((a, i) => (
+                        <li key={a.slug} style={{ borderBottom: '1px solid var(--border)' }}>
+                          <Link href={articleHref(a)} className="related-link" style={{ textDecoration: 'none', display: 'flex', alignItems: 'baseline', gap: 'var(--space-4)', padding: 'var(--space-4) 0' }}>
+                            <span style={{ fontFamily: 'var(--next-font-mono), monospace', fontSize: '12px', color: 'var(--text-muted)', flexShrink: 0, minWidth: '24px' }}>
+                              {String(i + 1).padStart(2, '0')}
+                            </span>
+                            <span style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                              <span style={{ fontFamily: 'var(--next-font-primary), system-ui, sans-serif', fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.35 }}>
+                                {a.title}
+                              </span>
+                              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                                {CATEGORY_LABELS[a.categorie] ?? a.categorie} · {a.readingTimeMin} min
+                              </span>
+                            </span>
+                            <span style={{ color: 'var(--text-muted)', fontSize: '14px', flexShrink: 0 }} aria-hidden="true">→</span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                )}
+
+                {/* AuthorCard */}
+                <div style={{ marginTop: 'var(--space-10)' }}>
+                  <AuthorCard authorSlug={niche.author.slug || 'auteur'} bio={niche.author.bio || ''} variant="inline" />
+                </div>
+              </div>
             </div>
           </div>
         </article>

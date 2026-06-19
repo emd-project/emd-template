@@ -1,6 +1,7 @@
 /**
  * /deals — Page Deals (style Voltéo).
  * Hero + watermark % · MarqueeStrip · DealsGrid · FAQ. ISR 900s. Server Component.
+ * Modèle EMD = MENTION, pas d'affiliation : promos/prix factuels, aucun lien affilié.
  */
 
 import Link from 'next/link'
@@ -39,7 +40,7 @@ const MARQUEE_ITEMS = ['Sélection mise à jour chaque semaine', `Les meilleurs 
 const FAQ_ITEMS = [
   { q: `Où trouver les meilleurs ${niche.dealWord} en ce moment ?`, a: `Sur ${niche.domain}/deals, on sélectionne manuellement les meilleures réductions chaque semaine. Pas de faux deals ni de prix gonflés avant promo.` },
   { q: `Quand acheter au meilleur prix ?`, a: `Les meilleurs moments : le Black Friday, les soldes, et juste après la sortie d'un nouveau modèle — l'ancien baisse immédiatement.` },
-  { q: `Les deals sur ${niche.defaultStore} sont-ils fiables ?`, a: `Oui. Produits neufs, sous garantie, retour gratuit 30 jours. On vérifie chaque deal manuellement.` },
+  { q: `Comment vérifiez-vous les deals ?`, a: `On compare le prix affiché au prix officiel et à l'historique. Si le prix barré est gonflé, on ne publie pas. Sélection éditoriale indépendante, sans deal sponsorisé.` },
   { q: 'Comment savoir si une réduction est une vraie promo ?', a: `On compare le prix affiché avec le prix officiel et l'historique. Si le prix barré est gonflé, on ne publie pas.` },
 ]
 
@@ -100,7 +101,7 @@ export default function DealsPage() {
             </section>
 
             <div style={{ marginTop: 40, padding: '20px 24px', background: 'var(--cream-2)', border: '1px solid var(--line)', borderRadius: 'var(--r)', fontSize: 13, color: 'var(--ink-3)' }}>
-              <strong style={{ color: 'var(--ink-2)' }}>Liens affiliés :</strong> certains liens vers {niche.defaultStore} intègrent un tag affilié. Le prix que tu paies reste identique.{' '}
+              <strong style={{ color: 'var(--ink-2)' }}>Indépendance :</strong> sélection éditoriale, sans lien affilié ni deal sponsorisé.{' '}
               <Link href="/mentions-legales" style={{ color: 'var(--primary-d)', textDecoration: 'underline' }}>Mentions légales →</Link>
             </div>
           </div>

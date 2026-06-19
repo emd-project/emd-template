@@ -3,7 +3,7 @@
    Skin par défaut : V1 « Électrique ». Un skin (theme-vN) ou l'init
    surcharge ces tokens. Fonts via next/font (--next-font-*).
 
-   ── Incrément 1 (consolidation DA) ────────────────────────
+   ── Incrément 1 (consolidation DA) ─────────────────────────
    Les tokens legacy ci-dessous sont désormais des ALIAS des tokens
    canoniques de globals.css (var(--…)). Les noms legacy sont conservés
    pour que tout le CSS qui les consomme suive automatiquement la DA
@@ -274,7 +274,10 @@ button { font-family: inherit; cursor: pointer; }
    ============================================================ */
 @media (max-width: 940px) {
   .nav-links { display: none; }
+  .nav-cta { display: none; }
   .nav-burger { display: block; }
+  .nav .wrap { gap: 16px; }
+  .logo .word { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .footer-top { grid-template-columns: 1fr 1fr; }
   .section { padding: 68px 0; }
 }

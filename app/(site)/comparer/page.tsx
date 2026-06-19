@@ -17,7 +17,7 @@ export function generateMetadata(): Metadata {
   const year = currentYear()
   return {
     title: `Comparateur ${year} | ${niche.siteName}`,
-    description: `Comparez tous les ${niche.entities} côte à côte. Données à jour, liens ${niche.defaultStore} affiliés.`,
+    description: `Comparez tous les ${niche.entities} côte à côte. Données à jour, sourcées et neutres.`,
     alternates: { canonical: `${SITE_URL}/comparer` },
     openGraph: { title: `Comparateur ${year}`, description: `Tous les comparateurs ${niche.entities} en un endroit.`, url: `${SITE_URL}/comparer`, siteName: niche.siteName, type: 'website' },
   }

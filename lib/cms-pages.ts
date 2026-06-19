@@ -45,6 +45,6 @@ import { niche } from '@/niche.config'
 const defaultSettings: SiteSettings = {
   siteName: niche.siteName,
   siteDescription: niche.tagline,
-  siteUrl: `https://${niche.domain}`,
+  siteUrl: `https://www.${niche.domain}`,
   nav: [],
 }

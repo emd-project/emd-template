@@ -3,7 +3,7 @@ import { MagazineHome } from '@/components/home/MagazineHome'
 import { ComparateurHome } from '@/components/home/ComparateurHome'
 import { niche } from '@/niche.config'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://${niche.domain}`
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
 /**
  * Home — archétype piloté par niche.style.hero :

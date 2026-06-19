@@ -20,7 +20,7 @@ function getAuthors(): Record<string, AuthorData> {
       role: niche.author.title,
       bio: niche.author.bio,
       longBio: [niche.author.bio],
-      url: `https://${niche.domain}/auteurs/${niche.author.slug}`,
+      url: `https://www.${niche.domain}/auteurs/${niche.author.slug}`,
     },
   }
 }
@@ -50,7 +50,7 @@ export default async function AuthorPage({ params }: { params: Promise<{ slug: s
   const jsonLd = {
     '@context': 'https://schema.org', '@type': 'Person',
     name: author.name, url: author.url, jobTitle: author.role, description: author.bio,
-    worksFor: { '@type': 'Organization', name: niche.siteName, url: `https://${niche.domain}` },
+    worksFor: { '@type': 'Organization', name: niche.siteName, url: `https://www.${niche.domain}` },
   }
 
   return (

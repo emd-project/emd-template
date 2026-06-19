@@ -32,7 +32,7 @@ const fontDisplay = Bricolage_Grotesque({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? `https://${niche.domain}`
+    process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
   ),
   // IMPORTANT — anti double-marque : les pages incluent DÉJÀ le nom du site dans
   // leur <title> (ex. "Comparateur 2026 | MonSite"). Le template ne doit donc PAS
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     canonical: '/',
     ...(niche.locales.length > 1 ? {
       languages: Object.fromEntries(
-        niche.locales.map((locale) => [locale, `https://${niche.domain}/${locale === niche.defaultLocale ? '' : locale}`])
+        niche.locales.map((locale) => [locale, `https://www.${niche.domain}/${locale === niche.defaultLocale ? '' : locale}`])
       ),
     } : {}),
   },

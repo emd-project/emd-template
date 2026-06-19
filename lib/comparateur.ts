@@ -1,14 +1,19 @@
 /**
  * lib/comparateur.ts — données statiques de tous les comparateurs produit.
- * Placeholder vide — le prompt d'init remplit ce fichier avec les données de la niche.
- * Toujours passer amazonUrl via AffiliateLink / addAffiliateTag().
+ * Placeholder vide — le prompt d'init / la tâche pages-clés remplit ce fichier
+ * avec les données factuelles de la niche (modèles + specs sourcés/datés).
+ *
+ * Modèle EMD = MENTION, PAS d'affiliation. Le champ `amazonUrl` est conservé
+ * pour compatibilité mais ne doit PAS porter de lien affilié : '' par défaut,
+ * ou au plus un lien NEUTRE vers la source officielle / la page de la marque.
+ * (À renommer en `sourceUrl` lors du passage data-driven — changement build-risqué.)
  */
 
 export type ModeleComparateur = {
   nom: string
   prix: number
   nouveaute?: boolean
-  amazonUrl: string  // '' = à venir
+  amazonUrl: string  // '' = aucun lien ; sinon lien NEUTRE (source officielle/marque), jamais affilié
   specs: Record<string, string>
 }
 
@@ -20,7 +25,7 @@ export type ProduitComparateur = {
   modeles: ModeleComparateur[]
 }
 
-// Placeholder — à remplir par le prompt d'init avec les produits de la niche
+// Placeholder — à remplir avec les produits factuels de la niche (sourcés/datés)
 export const COMPARATEURS: Record<string, ProduitComparateur> = {}
 
 /** All valid product slugs for static generation. */

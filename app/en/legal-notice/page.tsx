@@ -9,7 +9,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { niche } from '@/niche.config'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://${niche.domain}`
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
 export function generateMetadata(): Metadata {
   return {

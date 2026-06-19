@@ -10,7 +10,7 @@ import { QuizEngine } from '@/components/quiz/QuizEngine'
 import { niche } from '@/niche.config'
 import { getPageContent } from '@/lib/cms-pages'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://${niche.domain}`
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
 export const revalidate = 86400
 

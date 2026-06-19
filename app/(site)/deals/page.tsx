@@ -13,7 +13,7 @@ import { FaqAccordion } from '@/components/blog/FaqAccordion'
 import { niche } from '@/niche.config'
 import type { Deal } from '@/components/deals/DealsGrid'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://${niche.domain}`
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
 export const revalidate = 900
 

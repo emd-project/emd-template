@@ -59,7 +59,7 @@ import { getCTAsForCategory } from '@/lib/article-ctas'
 import { AuthorByline } from '@/components/ui/AuthorByline'
 import { AuthorCard } from '@/components/ui/AuthorCard'
 import { StickyCTA } from '@/components/blog/StickyCTA'
-import type { ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 
 export const revalidate = 86400
 
@@ -142,8 +142,12 @@ export default async function ArticlePageEn({ params }: { params: Params }) {
     source: processShortcodes(content),
     options: { mdxOptions: { remarkPlugins: [remarkGfm, remarkAmazonAffiliate] } },
     components: {
-      Tip, Warning, Verdict, ProConTable, PullQuote, StatCard, StatRow,
-      CompareBar, CompareBarGroup, ProductCTA, ArticleImage, ProductCarousel,
+      Tip,
+      Warning: (mp: ComponentProps<typeof Warning>) => <Warning {...mp} locale="en" />,
+      Verdict, ProConTable, PullQuote, StatCard, StatRow,
+      CompareBar, CompareBarGroup,
+      ProductCTA: (mp: ComponentProps<typeof ProductCTA>) => <ProductCTA {...mp} locale="en" />,
+      ArticleImage, ProductCarousel,
       h2: ({ children }: { children?: ReactNode }) => <h2 id={slugify(nodeText(children))}>{children}</h2>,
       h3: ({ children }: { children?: ReactNode }) => <h3 id={slugify(nodeText(children))}>{children}</h3>,
       table: ({ children }: { children: ReactNode }) => (
@@ -221,6 +225,7 @@ export default async function ArticlePageEn({ params }: { params: Params }) {
                   publishedAt={meta.publishedAt}
                   updatedAt={meta.updatedAt}
                   readingTimeMin={meta.readingTimeMin}
+                  locale="en"
                 />
               </div>
             </div>
@@ -246,13 +251,13 @@ export default async function ArticlePageEn({ params }: { params: Params }) {
               <div>
                 {meta.aiSummary && meta.aiSummary.length > 0 && (
                   <section id="en-bref">
-                    <AISummarize points={meta.aiSummary} articleTitle={meta.title} articleUrl={`${SITE_URL}/en/blog/${categorie}/${slug}`} />
+                    <AISummarize points={meta.aiSummary} articleTitle={meta.title} articleUrl={`${SITE_URL}/en/blog/${categorie}/${slug}`} locale="en" />
                   </section>
                 )}
 
                 <div className="prose-article">{mdxContent}</div>
                 <AutoProductCTAs ctas={getCTAsForCategory(categorie)} />
-                <ToolCTA categorie={categorie} />
+                <ToolCTA categorie={categorie} locale="en" />
 
                 {meta.faq && meta.faq.length > 0 && (
                   <section id="faq-section" aria-labelledby="faq-titre" style={{ marginTop: 48 }}>
@@ -284,6 +289,7 @@ export default async function ArticlePageEn({ params }: { params: Params }) {
                     authorName={niche.author.name || 'Author'}
                     bio={niche.author.bio || ''}
                     variant="inline"
+                    locale="en"
                   />
                 </div>
               </div>
@@ -293,7 +299,7 @@ export default async function ArticlePageEn({ params }: { params: Params }) {
       </main>
 
       {meta.stickyCta && meta.stickyCta.length > 0 && (
-        <StickyCTA items={meta.stickyCta} message={meta.stickyCtaMessage} />
+        <StickyCTA items={meta.stickyCta} message={meta.stickyCtaMessage} locale="en" />
       )}
     </>
   )

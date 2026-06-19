@@ -168,7 +168,7 @@ export default async function BlogPageEn({ searchParams }: { searchParams: Searc
                   ))}
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center', marginTop: 48 }}>
-                  <Pagination currentPage={currentPage} totalPages={totalPages} basePath="/en/blog" />
+                  <Pagination currentPage={currentPage} totalPages={totalPages} basePath="/en/blog" locale="en" />
                 </div>
               </div>
             </section>

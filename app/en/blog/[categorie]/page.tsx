@@ -131,7 +131,7 @@ export default async function CategoryPageEn({ params, searchParams }: { params:
               ))}
             </div>
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 48 }}>
-              <Pagination currentPage={currentPage} totalPages={totalPages} basePath={`/en/blog/${categorie}`} />
+              <Pagination currentPage={currentPage} totalPages={totalPages} basePath={`/en/blog/${categorie}`} locale="en" />
             </div>
           </div>
         </section>

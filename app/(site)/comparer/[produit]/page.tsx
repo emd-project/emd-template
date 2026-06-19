@@ -11,7 +11,7 @@ import { ComparateurSelector } from '@/components/comparer/ComparateurSelector'
 import { currentYear } from '@/lib/utils/year'
 import { niche } from '@/niche.config'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://${niche.domain}`
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
 export const revalidate = 3600
 

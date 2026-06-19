@@ -10,7 +10,8 @@
  * Les hrefs internes sont préfixés par la locale active via `localePath` (no-op FR).
  *
  * Dé-affiliation : EMD n'a aucune affiliation — la ligne disclaimer affilié a été
- * retirée au profit d'une mention neutre d'éditeur (`footer.editor`).
+ * retirée. La mention d'éditeur a aussi été retirée du footer (empreinte SEO
+ * cross-sites) ; l'identité de l'éditeur reste sur les pages légales (noindex).
  */
 import Link from 'next/link'
 import { niche, localePath } from '@/niche.config'
@@ -76,9 +77,6 @@ export function Footer({ locale = niche.defaultLocale }: { locale?: string }) {
 
         <div className="footer-bottom">
           <span>© {currentYear()} {niche.siteName} — {tl(locale, 'footer.independent')}</span>
-          <span style={{ textAlign: 'right' }}>
-            {tl(locale, 'footer.editor')}
-          </span>
         </div>
       </div>
     </footer>

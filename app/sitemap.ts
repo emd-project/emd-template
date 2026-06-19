@@ -10,7 +10,7 @@ import {
 import { articleSlugFrToEn } from '@/lib/i18n/article-slugs'
 
 const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? `https://${niche.domain}`
+  process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
 /**
  * Sitemap dynamique — FONDATION SEO TECH (toutes les niches en héritent).

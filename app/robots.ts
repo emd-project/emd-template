@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next'
 import { niche } from '@/niche.config'
 
 const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? `https://${niche.domain}`
+  process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
 /**
  * robots.txt — autorise tout le contenu public, exclut les zones non publiques

@@ -27,7 +27,7 @@ import type { Metadata } from 'next'
 import { getAllArticlesEn, type ArticleMeta } from '@/lib/blog'
 import { niche } from '@/niche.config'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://${niche.domain}`
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
 export const revalidate = 3600
 
@@ -73,9 +73,9 @@ export default function HomePageEn() {
   return niche.style.hero === 'split' ? <ComparateurHomeEn /> : <MagazineHomeEn />
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
+/* ────────────────────────────────────────────────────────────────────
  * Magazine archetype (EN) — mirror of components/home/MagazineHome.tsx
- * ───────────────────────────────────────────────────────────────────────── */
+ * ──────────────────────────────────────────────────────────────────── */
 
 function Cover({ a, fill = false }: { a: ArticleMeta; fill?: boolean }) {
   if (a.featureImage) {
@@ -239,11 +239,11 @@ function MagazineHomeEn() {
   )
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
+/* ────────────────────────────────────────────────────────────────────
  * Comparator archetype (EN) — mirror of components/home/ComparateurHome.tsx
  * Tool CTAs keep their existing FR routes (/comparer, /quiz) — no /en/* mirror
  * exists yet, so we do NOT emit /en/comparer etc. (would be dead links).
- * ───────────────────────────────────────────────────────────────────────── */
+ * ──────────────────────────────────────────────────────────────────── */
 
 function CoverThird({ a }: { a: ArticleMeta }) {
   if (a.featureImage) return <Image src={a.featureImage} alt={a.title} fill sizes="(max-width:900px) 100vw, 33vw" style={{ objectFit: 'cover' }} />

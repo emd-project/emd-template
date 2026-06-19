@@ -13,7 +13,7 @@ import { Pagination } from '@/components/blog/Pagination'
 import { niche } from '@/niche.config'
 import { t } from '@/lib/i18n'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://${niche.domain}`
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
 export const revalidate = 3600
 

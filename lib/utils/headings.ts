@@ -12,7 +12,7 @@ export function slugify(text: string): string {
   return text
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '') // accents
+    .replace(/[̀-ͯ]/g, '') // diacritiques
     .replace(/[^a-z0-9\s-]/g, '') // ponctuation
     .trim()
     .replace(/\s+/g, '-')

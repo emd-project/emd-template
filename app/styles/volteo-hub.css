@@ -25,7 +25,7 @@
 .chip { flex: none; padding: 9px 17px; border-radius: 100px; border: 1.5px solid var(--line); background: var(--paper); font-weight: 700; font-size: 14.5px; color: var(--ink-2); transition: all .15s; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
 .chip .pip { width: 8px; height: 8px; border-radius: 50%; }
 .chip:hover { border-color: var(--ink-3); }
-.chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.chip.on { background: var(--ink); color: var(--bg-primary); border-color: var(--ink); }
 
 /* ---------- Article à la une ---------- */
 .featured { display: grid; grid-template-columns: 1.15fr .85fr; gap: 0; background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-xl); overflow: hidden; box-shadow: var(--shadow); transition: transform .25s, box-shadow .25s; }

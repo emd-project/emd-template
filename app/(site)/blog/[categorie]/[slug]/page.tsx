@@ -18,7 +18,7 @@ import { extractHeadings, slugify, type TocItem } from '@/lib/utils/headings'
 import { niche } from '@/niche.config'
 import { t } from '@/lib/i18n'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://${niche.domain}`
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 import { AISummarize } from '@/components/blog/AISummarize'
 import { Tip } from '@/components/blog/Tip'
 import { Warning } from '@/components/blog/Warning'

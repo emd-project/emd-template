@@ -29,6 +29,7 @@ import { remarkAmazonAffiliate } from '@/lib/plugins/remarkAmazonAffiliate'
 import { processShortcodes } from '@/lib/content/shortcodes'
 import { getAllArticlesEn, getArticleRawEn, articleExistsEn, getRelatedArticlesEn, type ArticleMeta } from '@/lib/blog'
 import { articleSlugEnToFr } from '@/lib/i18n/article-slugs'
+import { extractHeadings, slugify, type TocItem } from '@/lib/utils/headings'
 import { niche } from '@/niche.config'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://${niche.domain}`
@@ -53,6 +54,7 @@ import { AutoProductCTAs } from '@/components/blog/AutoProductCTAs'
 import { ProductCarousel } from '@/components/blog/ProductCarousel'
 import { ReadingProgress } from '@/components/blog/ReadingProgress'
 import { FaqAccordion } from '@/components/blog/FaqAccordion'
+import { TableOfContents } from '@/components/blog/TableOfContents'
 import { getCTAsForCategory } from '@/lib/article-ctas'
 import { AuthorByline } from '@/components/ui/AuthorByline'
 import { AuthorCard } from '@/components/ui/AuthorCard'
@@ -69,6 +71,17 @@ const CAT_INDEX: Record<string, number> = Object.fromEntries(
 const CATEGORY_LABELS: Record<string, string> = Object.fromEntries(
   niche.categories.map((c) => [c.slug, c.label])
 )
+
+/** Texte brut d'un noeud React (pour générer l'id d'un titre rendu). */
+function nodeText(node: ReactNode): string {
+  if (node == null || typeof node === 'boolean') return ''
+  if (typeof node === 'string' || typeof node === 'number') return String(node)
+  if (Array.isArray(node)) return node.map(nodeText).join('')
+  if (typeof node === 'object' && 'props' in node) {
+    return nodeText((node as { props?: { children?: ReactNode } }).props?.children)
+  }
+  return ''
+}
 
 /** EN date formatting (formatDate() in lib/blog is fr-FR only). */
 const formatDateEn = (iso: string) =>
@@ -131,6 +144,8 @@ export default async function ArticlePageEn({ params }: { params: Params }) {
     components: {
       Tip, Warning, Verdict, ProConTable, PullQuote, StatCard, StatRow,
       CompareBar, CompareBarGroup, ProductCTA, ArticleImage, ProductCarousel,
+      h2: ({ children }: { children?: ReactNode }) => <h2 id={slugify(nodeText(children))}>{children}</h2>,
+      h3: ({ children }: { children?: ReactNode }) => <h3 id={slugify(nodeText(children))}>{children}</h3>,
       table: ({ children }: { children: ReactNode }) => (
         <div className="table-scroll-wrap"><table>{children}</table></div>
       ),
@@ -139,6 +154,14 @@ export default async function ArticlePageEn({ params }: { params: Params }) {
   const related = getRelatedArticlesEn(categorie, slug, 3)
   const catLabel = CATEGORY_LABELS[categorie] ?? categorie
   const catCls = `c${CAT_INDEX[categorie] ?? 1}`
+
+  // Sommaire (EN) : ancres fixes + sections de l'article (H2/H3) + FAQ + Related.
+  const tocItems: TocItem[] = [
+    ...(meta.aiSummary && meta.aiSummary.length > 0 ? [{ id: 'en-bref', text: 'In brief', level: 2 } as TocItem] : []),
+    ...extractHeadings(content),
+    ...(meta.faq && meta.faq.length > 0 ? [{ id: 'faq-section', text: 'FAQ', level: 2 } as TocItem] : []),
+    ...(related.length > 0 ? [{ id: 'related-section', text: 'Related', level: 2 } as TocItem] : []),
+  ]
 
   const jsonLd = [
     {
@@ -209,12 +232,7 @@ export default async function ArticlePageEn({ params }: { params: Params }) {
 
               {/* Sticky TOC */}
               <aside className="toc">
-                <div className="toc-title">Contents</div>
-                <ul>
-                  {meta.aiSummary && meta.aiSummary.length > 0 && <li><a href="#en-bref" className="sidebar-toc-link">In brief</a></li>}
-                  {meta.faq && meta.faq.length > 0 && <li><a href="#faq-section" className="sidebar-toc-link">FAQ</a></li>}
-                  {related.length > 0 && <li><a href="#related-section" className="sidebar-toc-link">Related</a></li>}
-                </ul>
+                <TableOfContents items={tocItems} title="Contents" />
                 {/* i18n (block 2c): masked until /en/comparer ships → no dead link. */}
                 {EN_COMPARATOR_ENABLED && niche.comparator.enabled && (
                   <div className="toc-cta">

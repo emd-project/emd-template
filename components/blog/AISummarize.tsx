@@ -1,9 +1,9 @@
 /**
- * AISummarize — bloc "En bref" en haut d'article + liens "Résumer avec IA".
+ * AISummarize — bloc "En bref" en haut d'article + liens "Résumer avec".
  * Résumé 3–5 bullets fournis dans le frontmatter MDX.
- * Liens vers ChatGPT, Claude, Mistral, Perplexity, Grok avec prompt pré-rempli.
- * DA : border-left 3px --accent-1 (accent primaire du site) · bg --bg-surface ·
- * label Syne smallcaps. Tout est token-driven → s'adapte à la DA de chaque site.
+ * Liens vers ChatGPT, Claude, Mistral, Perplexity, Grok avec prompt pré-rempli,
+ * rendus en liens texte discrets (pas d'icônes/boutons brandés → évite l'empreinte
+ * « widget IA » répétée sur tout le réseau). Tout est token-driven (s'adapte à la DA).
  * Server Component.
  */
 
@@ -12,11 +12,11 @@ import { tl } from '@/lib/i18n'
 
 // ── AI providers — vérifier les URLs périodiquement ──
 const AI_PROVIDERS = [
-  { name: 'ChatGPT', urlTemplate: 'https://chat.openai.com/?q={PROMPT}', icon: '🤖' },
-  { name: 'Claude', urlTemplate: 'https://claude.ai/new?q={PROMPT}', icon: '🟠' },
-  { name: 'Perplexity', urlTemplate: 'https://www.perplexity.ai/search?q={PROMPT}', icon: '🔍' },
-  { name: 'Mistral', urlTemplate: 'https://chat.mistral.ai/chat?q={PROMPT}', icon: '🌀' },
-  { name: 'Grok', urlTemplate: 'https://grok.com/?q={PROMPT}', icon: '⚡' },
+  { name: 'ChatGPT', urlTemplate: 'https://chat.openai.com/?q={PROMPT}' },
+  { name: 'Claude', urlTemplate: 'https://claude.ai/new?q={PROMPT}' },
+  { name: 'Perplexity', urlTemplate: 'https://www.perplexity.ai/search?q={PROMPT}' },
+  { name: 'Mistral', urlTemplate: 'https://chat.mistral.ai/chat?q={PROMPT}' },
+  { name: 'Grok', urlTemplate: 'https://grok.com/?q={PROMPT}' },
 ] as const
 
 function buildPrompt(title: string, url: string, locale: string): string {
@@ -95,55 +95,34 @@ export function AISummarize({ points, articleTitle, articleUrl, locale = 'fr' }:
         ))}
       </ul>
 
-      {/* Liens "Résumer avec IA" */}
+      {/* Ligne discrète « Résumer avec » — liens texte, sans icône ni bouton brandé. */}
       {showAiLinks && (
-        <div
+        <p
           style={{
             marginTop: 'var(--space-4)',
             paddingTop: 'var(--space-3)',
             borderTop: '1px solid var(--border)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-3)',
-            flexWrap: 'wrap',
+            fontSize: '12px',
+            lineHeight: 1.6,
+            color: 'var(--text-muted)',
           }}
         >
-          <span
-            style={{
-              fontSize: '11px',
-              fontWeight: 600,
-              color: 'var(--text-muted)',
-              letterSpacing: '0.04em',
-            }}
-          >
-            {tl(locale, 'aiSummary.summarizeWith')}
-          </span>
-          {AI_PROVIDERS.map(({ name, urlTemplate, icon }) => (
-            <a
-              key={name}
-              href={urlTemplate.replace('{PROMPT}', encodedPrompt)}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                fontSize: '12px',
-                fontWeight: 500,
-                color: 'var(--text-secondary)',
-                textDecoration: 'none',
-                padding: '3px 8px',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--border)',
-                transition: 'border-color 150ms ease, color 150ms ease',
-              }}
-              className="ai-provider-link"
-            >
-              <span style={{ fontSize: '13px' }}>{icon}</span>
-              {name}
-            </a>
+          {tl(locale, 'aiSummary.summarizeWith')}{' '}
+          {AI_PROVIDERS.map(({ name, urlTemplate }, i) => (
+            <span key={name}>
+              <a
+                href={urlTemplate.replace('{PROMPT}', encodedPrompt)}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                className="ai-provider-link"
+                style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}
+              >
+                {name}
+              </a>
+              {i < AI_PROVIDERS.length - 1 ? ', ' : ''}
+            </span>
           ))}
-        </div>
+        </p>
       )}
     </aside>
   )

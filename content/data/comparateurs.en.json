@@ -1,0 +1,46 @@
+{
+  "exemple": {
+    "id": "exemple",
+    "label": "Sample comparison",
+    "description": "Demo comparison — replace at init with the niche's real models (content/data/comparateurs.en.json).",
+    "specsLabels": {
+      "note": "Rating",
+      "pointFort": "Highlight",
+      "garantie": "Warranty",
+      "dispo": "Availability"
+    },
+    "modeles": [
+      {
+        "nom": "Model A",
+        "prix": 299,
+        "nouveaute": true,
+        "specs": {
+          "note": "4.5 / 5",
+          "pointFort": "Versatile",
+          "garantie": "2 years",
+          "dispo": "In stock"
+        }
+      },
+      {
+        "nom": "Model B",
+        "prix": 249,
+        "specs": {
+          "note": "4.2 / 5",
+          "pointFort": "Value for money",
+          "garantie": "3 years",
+          "dispo": "In stock"
+        }
+      },
+      {
+        "nom": "Model C",
+        "prix": 399,
+        "specs": {
+          "note": "4.8 / 5",
+          "pointFort": "Premium",
+          "garantie": "2 years",
+          "dispo": "On order"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+/* ============================================================
+   VOLTÉO — Overrides (CHARGÉ EN DERNIER)
+   ============================================================ */
+
+/* ============================================================
+   FIX nav mobile — burger pas assez à droite (audit ux 2026-06-19)
+   ------------------------------------------------------------
+   En mobile, volteo.css masque déjà .nav-links et .nav-cta, mais
+   aucun élément ne pousse le burger à droite (c'était .nav-cta qui
+   portait margin-left:auto). On cale donc le burger à droite. On
+   ajoute aussi un filet overflow-x pour neutraliser tout débordement
+   horizontal résiduel (corps d'article, médias larges).
+   ============================================================ */
+html, body {
+  overflow-x: clip;
+  max-width: 100%;
+}
+@media (max-width: 940px) {
+  .nav-burger { margin-left: auto; }
+}

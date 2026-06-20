@@ -116,14 +116,15 @@ export type NicheConfig = {
    * - `home` absent → le resolver (lib/variants.ts) retombe sur `style.hero`
    *   ('split' → comparateur, sinon → magazine).
    * Variantes home : 'magazine' | 'comparateur' | 'marche' | 'fil'.
-   * Preview : /home-v1 (magazine) · /home-v2 (comparateur) · /home-v3 (marché) · /home-v4 (fil).
+   * Variantes catégorie : 'classic' | 'editorial'. Article : 'classic'.
+   * Preview : /home-v1..4 · /cat-v1..2 · /art-v1.
    * Règle d'init : quand Claude choisit une variante, il dépublie (supprime) les
-   * routes preview /home-vN restantes (cf. docs/AUTO-DESIGN.md).
+   * routes preview restantes (cf. docs/AUTO-DESIGN.md).
    */
   layouts?: {
     home?: 'magazine' | 'comparateur' | 'marche' | 'fil'
     category?: 'classic' | 'editorial'
-    article?: 'classic' | 'feature'
+    article?: 'classic'
   }
 
   /**
@@ -250,8 +251,6 @@ export function isMultilingual(): boolean {
 
 /**
  * Helper pour construire un chemin localisé respectant `localePrefix: 'as-needed'`.
- * - Si lang === defaultLocale → renvoie path tel quel (pas de préfixe)
- * - Sinon → préfixe `/[lang]`
  */
 export function localePath(lang: string, path: string): string {
   if (lang === niche.defaultLocale) return path

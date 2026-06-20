@@ -40,9 +40,9 @@ export const CATEGORY_PREVIEW: Record<string, CategoryVariant> = {
 }
 
 // ─── Article ───────────────────────────────────────────────────────
-// classic = 2 colonnes (sommaire sticky + prose) · feature = colonne unique immersive
-export type ArticleVariant = 'classic' | 'feature'
-export const ARTICLE_VARIANTS: readonly ArticleVariant[] = ['classic', 'feature']
+// Une seule variante article : 'classic' (2 colonnes sommaire + prose).
+export type ArticleVariant = 'classic'
+export const ARTICLE_VARIANTS: readonly ArticleVariant[] = ['classic']
 
 export function resolveArticleVariant(): ArticleVariant {
   const explicit = niche.layouts?.article
@@ -52,7 +52,6 @@ export function resolveArticleVariant(): ArticleVariant {
 
 export const ARTICLE_PREVIEW: Record<string, ArticleVariant> = {
   'art-v1': 'classic',
-  'art-v2': 'feature',
 }
 
 // ─── Permutation : forme (radius) ─────────────────────────────────────────

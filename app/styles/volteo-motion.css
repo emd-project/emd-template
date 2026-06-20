@@ -1,0 +1,37 @@
+/* ============================================================
+   VOLTÉO — Animation globale UNIQUE (même partout)
+   Révélation « fade-up » au scroll, 100 % CSS (scroll-driven animations).
+   - Zéro JS : aucun risque SEO, le contenu n'est jamais caché sans JS.
+   - @supports : navigateurs sans animation-timeline → AUCUNE animation (contenu
+     visible normalement). Dégradation totalement gracieuse.
+   - prefers-reduced-motion respecté.
+   Ciblé sur les sections de CONTENU (pas les hero/nav/sticky) pour éviter le flash
+   au chargement et ne pas perturber le sticky.
+   ============================================================ */
+
+@keyframes emd-rise {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .section,
+    .mag-body,
+    .cat-block,
+    .doors,
+    .portal-stats,
+    .md-board,
+    .md-flow,
+    .md-spotlight,
+    .md-blog,
+    .md-final,
+    .fil-rub,
+    .fil-mid,
+    .fil-news {
+      animation: emd-rise both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 38%;
+    }
+  }
+}

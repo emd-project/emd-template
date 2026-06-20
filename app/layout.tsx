@@ -3,7 +3,7 @@ import { Bricolage_Grotesque, Hanken_Grotesk } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { niche } from '@/niche.config'
 import { t } from '@/lib/i18n'
-import { ShapeStyle } from '@/components/layout/ShapeStyle'
+import { PermutationStyle } from '@/components/layout/PermutationStyle'
 import './globals.css'
 import './styles/volteo.css'
 import './styles/volteo-magazine.css'
@@ -12,6 +12,7 @@ import './styles/volteo-fil.css'
 import './styles/volteo-hub.css'
 import './styles/volteo-article.css'
 import './styles/volteo-comparateur.css'
+import './styles/volteo-motion.css'
 
 // ── Fonts — défaut V1 Voltéo (Hanken Grotesk + Bricolage Grotesque) ──
 //    Remplacées à l'init par les fonts du skin choisi pour la niche.
@@ -78,7 +79,7 @@ export default function RootLayout({
     >
       {/* Script inline : applique data-theme avant tout rendu pour éviter le flash */}
       <head>
-        <ShapeStyle />
+        <PermutationStyle />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()`,

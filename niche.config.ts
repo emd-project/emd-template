@@ -113,13 +113,11 @@ export type NicheConfig = {
   // ─── Variantes de design & permutations (système de variantes) ──────────
   /**
    * Choix de variante par type de page. OPTIONNEL & RÉTRO-COMPATIBLE :
-   * - `home` absent → le resolver (lib/variants.ts) retombe sur `style.hero`
-   *   ('split' → comparateur, sinon → magazine).
-   * Variantes home : 'magazine' | 'comparateur' | 'marche' | 'fil'.
-   * Variantes catégorie : 'classic' | 'editorial'. Article : 'classic'.
-   * Preview : /home-v1..4 · /cat-v1..2 · /art-v1.
-   * Règle d'init : quand Claude choisit une variante, il dépublie (supprime) les
-   * routes preview restantes (cf. docs/AUTO-DESIGN.md).
+   * - `home` absent → resolver retombe sur `style.hero` (split→comparateur, sinon magazine).
+   * Home : 'magazine' | 'comparateur' | 'marche' | 'fil'. Catégorie : 'classic' | 'editorial'.
+   * Article : 'classic'. Preview : /home-v1..4 · /cat-v1..2 · /art-v1.
+   * À l'init : suggestVariants(domaine) propose une combinaison ; Claude l'écrit ici
+   * puis dépublie (supprime) les routes preview restantes (cf. docs/AUTO-DESIGN.md).
    */
   layouts?: {
     home?: 'magazine' | 'comparateur' | 'marche' | 'fil'
@@ -128,12 +126,16 @@ export type NicheConfig = {
   }
 
   /**
-   * Permutations structurelles légères (anti-empreinte). OPTIONNEL.
-   * `shape` surcharge les radius globaux via ShapeStyle :
-   *   'rounded' (défaut) | 'soft' | 'sharp'.
+   * Permutations structurelles légères (anti-empreinte). OPTIONNEL. Surchargent
+   * uniquement des tokens via PermutationStyle (rien dans volteo.css) :
+   *  - shape  : rayons (--radius-*)        'rounded' (défaut) | 'soft' | 'sharp'
+   *  - border : bordures (--border*)        'standard' (défaut) | 'hairline' | 'bold'
+   *  - shadow : ombres (--shadow-*)         'standard' (défaut) | 'flat' | 'deep'
    */
   permutations?: {
     shape?: 'rounded' | 'soft' | 'sharp'
+    border?: 'hairline' | 'standard' | 'bold'
+    shadow?: 'flat' | 'standard' | 'deep'
   }
 
   // Technique
@@ -212,7 +214,8 @@ export const niche: NicheConfig = {
   localePrefix: 'as-needed',
 
   // Variantes & permutations : non définies par défaut → resolver retombe sur
-  // style.hero (magazine ici) et shape 'rounded'. init-site les renseigne.
+  // style.hero (magazine) + shape/border/shadow 'standard'. L'init les renseigne
+  // via suggestVariants(domaine) pour faire diverger chaque fork (anti-empreinte).
 
   vercelRegion: 'fra1',
   repo: '',

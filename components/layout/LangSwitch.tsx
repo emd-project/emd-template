@@ -1,24 +1,23 @@
 'use client'
 
 /**
- * LangSwitch — bascule FR ⇄ EN vers la PAGE ÉQUIVALENTE (jamais une 404, jamais un
- * « bounce » silencieux vers l'accueil).
+ * LangSwitch — bascule FR ⇄ EN vers la PAGE ÉQUIVALENTE (jamais une 404).
  *
  * Routing emd-template = `localePrefix: 'as-needed'` :
  *  - locale par défaut (FR) → routes SANS préfixe   : /blog/[cat]/[slug]
  *  - autres locales (EN)    → routes AVEC préfixe    : /en/blog/[cat]/[slug]
  *
- * Comportement par type de page :
- *  - Pages statiques (mêmes routes dans toutes les locales) → swap du préfixe locale.
- *  - Article traduit (slug présent dans lib/i18n/article-slugs.ts) → version traduite.
- *  - Article SANS traduction connue → lien rendu DÉSACTIVÉ (grisé), jamais une 404.
+ * IMPORTANT — l'arbre /en ne mirrore PAS tout le site. Seules ont une version EN :
+ *  - l'accueil (/ ⇄ /en)
+ *  - le blog (/blog, /blog/[cat], /blog/[cat]/[slug])
+ *  - les pages légales (slugs DIFFÉRENTS : /mentions-legales ⇄ /en/legal-notice,
+ *    /confidentialite ⇄ /en/privacy)
+ * Les outils (comparer, quiz, simulateur, deals, choisir) et les pages auteur
+ * n'ont pas (encore) de route EN → la bascule renvoie vers l'accueil de la
+ * locale cible plutôt que vers une 404.
  *
- * Affichage : `LangSwitchPair` montre les DEUX langues côte à côte (ex. FR | EN).
- * La langue courante est mise en évidence et non cliquable ; l'autre est un lien
- * vers la page équivalente (ou désactivée/grisée si l'article n'est pas traduit).
- *
- * La table lib/i18n/article-slugs.ts est tenue à jour par la tâche de rédaction
- * quotidienne. cf. emd-methodo/references/i18n-multilingue.md
+ * Articles : version traduite si le slug est connu (lib/i18n/article-slugs.ts),
+ * sinon lien DÉSACTIVÉ (grisé) — jamais une 404, jamais un faux équivalent.
  */
 
 import Link from 'next/link'
@@ -26,11 +25,13 @@ import { usePathname } from 'next/navigation'
 import { niche, localePath } from '@/niche.config'
 import { articleSlugInOrNull } from '@/lib/i18n/article-slugs'
 
-// Sections à routes fixes (existent dans toutes les locales) — PAS des slugs d'articles.
-const STATIC_SECTIONS = [
-  'blog', 'comparer', 'choisir', 'deals', 'quiz', 'simulateur',
-  'auteurs', 'mentions-legales', 'confidentialite',
-]
+/** Pages légales : slugs différents par locale (mapping explicite bidirectionnel). */
+const LEGAL_EQUIV: Record<string, string> = {
+  'mentions-legales': 'legal-notice',
+  'confidentialite': 'privacy',
+  'legal-notice': 'mentions-legales',
+  'privacy': 'confidentialite',
+}
 
 /** Décompose un chemin en { locale active, reste sans préfixe }. */
 function stripLocale(path: string): { locale: string; rest: string } {
@@ -45,29 +46,37 @@ type Resolved = { href: string; available: boolean }
 
 /**
  * Résout l'équivalent de `pathname` dans la locale `target`.
- * `available: false` = la page courante (un article) n'a pas de version dans `target`.
+ * `available: false` = article sans traduction connue → lien grisé.
+ * Sinon on garantit une URL qui existe (équivalent réel, ou accueil cible).
  */
 function resolve(pathname: string, target: string): Resolved {
   const { locale: from, rest } = stripLocale(pathname)
   if (from === target) return { href: pathname, available: true }
   const seg = rest.split('/').filter(Boolean)
 
-  // Article blog : /blog/[categorie]/[slug]
-  if (seg[0] === 'blog' && seg.length === 3) {
-    const translated = articleSlugInOrNull(seg[2], from, target)
-    if (translated == null) return { href: localePath(target, '/'), available: false }
-    return { href: localePath(target, `/blog/${seg[1]}/${translated}`), available: true }
+  // Accueil
+  if (seg.length === 0) return { href: localePath(target, '/'), available: true }
+
+  // Blog
+  if (seg[0] === 'blog') {
+    // Article : /blog/[categorie]/[slug] → traduction si connue, sinon grisé
+    if (seg.length === 3) {
+      const translated = articleSlugInOrNull(seg[2], from, target)
+      if (translated == null) return { href: localePath(target, '/'), available: false }
+      return { href: localePath(target, `/blog/${seg[1]}/${translated}`), available: true }
+    }
+    // /blog ou /blog/[categorie] — existent dans les deux locales
+    return { href: localePath(target, rest), available: true }
   }
 
-  // Article standalone : /[slug]
-  if (seg.length === 1 && !STATIC_SECTIONS.includes(seg[0])) {
-    const translated = articleSlugInOrNull(seg[0], from, target)
-    if (translated == null) return { href: localePath(target, '/'), available: false }
-    return { href: localePath(target, `/${translated}`), available: true }
+  // Pages légales (slugs différents par locale)
+  if (seg.length === 1 && LEGAL_EQUIV[seg[0]]) {
+    return { href: localePath(target, `/${LEGAL_EQUIV[seg[0]]}`), available: true }
   }
 
-  // Pages statiques (mêmes routes partout) → swap du préfixe locale.
-  return { href: localePath(target, rest), available: true }
+  // Pas d'équivalent dans la locale cible (outils, auteurs, articles standalone…)
+  // → accueil de la locale cible. Jamais une 404.
+  return { href: localePath(target, '/'), available: true }
 }
 
 const ITEM_BASE = {
@@ -146,8 +155,6 @@ function LangItem({ to, current }: ItemProps) {
 
 /**
  * LangSwitchPair — affiche les DEUX langues côte à côte (FR | EN).
- * La langue courante est mise en évidence (non cliquable) ; l'autre est un lien
- * vers la page équivalente, ou désactivée si l'article n'est pas traduit.
  */
 export function LangSwitchPair({ className }: { className?: string }) {
   const pathname = usePathname() || '/'
@@ -169,8 +176,7 @@ export function LangSwitchPair({ className }: { className?: string }) {
 type Props = { to: 'fr' | 'en'; className?: string }
 
 /**
- * LangSwitch — bouton de bascule simple vers la locale `to` (conservé pour
- * rétro-compatibilité). Préférer `LangSwitchPair` pour afficher les deux langues.
+ * LangSwitch — bouton de bascule simple vers la locale `to`.
  */
 export function LangSwitch({ to, className }: Props) {
   const pathname = usePathname() || '/'

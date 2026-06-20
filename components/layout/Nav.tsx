@@ -5,23 +5,15 @@
  * Îlot client minimal : seulement l'état scroll + ouverture du menu.
  * Liens et identité issus de niche.config. Aucun contenu caché sans JS.
  *
- * i18n (bloc 4) :
- *  - Nav partagée FR/EN (montée par app/(site)/layout.tsx ET app/en/layout.tsx).
- *  - `LangSwitch` monté (additif), conditionné à `isMultilingual()` : affiche
- *    UNIQUEMENT la langue cible (sur FR → bouton EN ; sur EN → bouton FR), qui
- *    pointe vers la page équivalente (cf. LangSwitch.tsx ; grisé si l'article
- *    n'a pas encore de traduction).
- *  - Hrefs locale-aware : sur une page EN (pathname sous /en) les liens internes
- *    sont préfixés `/en` via `localePath()` → pas de « bounce » vers le FR.
- *  - LIBELLÉS locale-aware (additif) : la locale est déduite du path et les
- *    libellés passent par `tl(locale, …)` (≡ `t()` en FR, EN sur /en). Le FR reste
- *    identique (defaultLocale inchangé) ; seul l'EN gagne ses libellés.
+ * i18n : Nav partagée FR/EN ; la locale est déduite du path (usePathname) et les
+ * libellés passent par `tl(locale, …)`. Hrefs préfixés par `localePath` (no-op FR).
  */
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { niche, isMultilingual, localePath } from '@/niche.config'
 import { tl } from '@/lib/i18n'
+import { CLASSEMENT_SLUGS } from '@/lib/classement'
 import { LangSwitch } from '@/components/layout/LangSwitch'
 
 /** Locale active déduite du chemin (préfixe /en → 'en', sinon defaultLocale). */
@@ -39,17 +31,14 @@ export function Nav() {
   const [scrolled, setScrolled] = useState(false)
 
   const locale = localeFromPath(pathname || '/')
-  /** Langue CIBLE du switch = l'autre langue que la courante. */
   const targetLocale: 'fr' | 'en' = locale === 'en' ? 'fr' : 'en'
-  /** Préfixe les hrefs internes par la locale active (no-op en FR). */
   const lp = (href: string) => localePath(locale, href)
   const homeHref = lp('/')
 
-  // Libellés locale-aware : construits au rendu (dépendent de `locale`).
-  // `dealWord` = vocabulaire de niche (locale-agnostique) → inchangé.
   const dealLabel = niche.dealWord.charAt(0).toUpperCase() + niche.dealWord.slice(1)
   const LINKS = [
     { href: '/comparer', label: tl(locale, 'nav.compare') },
+    ...(CLASSEMENT_SLUGS.length > 0 ? [{ href: '/classement', label: tl(locale, 'nav.rankings') }] : []),
     { href: '/blog', label: tl(locale, 'nav.blog') },
     { href: '/deals', label: dealLabel },
     ...(niche.simulator.enabled ? [{ href: '/simulateur', label: tl(locale, 'nav.simulator') }] : []),

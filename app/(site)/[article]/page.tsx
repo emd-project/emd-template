@@ -224,7 +224,7 @@ export default async function StandaloneArticlePage({ params }: { params: Params
                 <Balancer>{meta.title}</Balancer>
               </h1>
 
-              <AuthorByline authorSlug={niche.author.slug || 'auteur'} publishedAt={meta.publishedAt} updatedAt={meta.updatedAt} readingTimeMin={meta.readingTimeMin} />
+              <AuthorByline authorSlug={niche.author.slug || 'auteur'} publishedAt={meta.publishedAt} updatedAt={meta.updatedAt} readingTimeMin={meta.readingTimeMin} onDark />
             </header>
           </div>
 

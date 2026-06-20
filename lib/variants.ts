@@ -6,8 +6,8 @@
  * fait à l'init du site (Claude choisit la variante selon la thématique), pas
  * au runtime. Ici on ne fait que LIRE le choix figé dans la config.
  *
- * Rétro-compatibilité : si `niche.layouts.home` est absent, on retombe sur le
- * comportement historique piloté par `niche.style.hero`.
+ * Rétro-compatibilité : si un champ `niche.layouts.*` est absent, on retombe sur
+ * le comportement historique.
  */
 import { niche } from '@/niche.config'
 
@@ -31,6 +31,22 @@ export const HOME_PREVIEW: Record<string, HomeVariant> = {
   'home-v1': 'magazine',
   'home-v2': 'comparateur',
   'home-v3': 'dual',
+}
+
+// ─── Catégorie ──────────────────────────────────────────────────────
+export type CategoryVariant = 'classic' | 'editorial'
+export const CATEGORY_VARIANTS: readonly CategoryVariant[] = ['classic', 'editorial']
+
+/** Variante catégorie effective (défaut : 'classic' = hub-hero + grille). */
+export function resolveCategoryVariant(): CategoryVariant {
+  const explicit = niche.layouts?.category
+  if (explicit && CATEGORY_VARIANTS.includes(explicit)) return explicit
+  return 'classic'
+}
+
+export const CATEGORY_PREVIEW: Record<string, CategoryVariant> = {
+  'cat-v1': 'classic',
+  'cat-v2': 'editorial',
 }
 
 // ─── Permutation : forme (radius) ─────────────────────────────────────────

@@ -3,9 +3,11 @@ import { Bricolage_Grotesque, Hanken_Grotesk } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { niche } from '@/niche.config'
 import { t } from '@/lib/i18n'
+import { ShapeStyle } from '@/components/layout/ShapeStyle'
 import './globals.css'
 import './styles/volteo.css'
 import './styles/volteo-magazine.css'
+import './styles/volteo-dual.css'
 import './styles/volteo-hub.css'
 import './styles/volteo-article.css'
 import './styles/volteo-comparateur.css'
@@ -75,6 +77,7 @@ export default function RootLayout({
     >
       {/* Script inline : applique data-theme avant tout rendu pour éviter le flash */}
       <head>
+        <ShapeStyle />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()`,

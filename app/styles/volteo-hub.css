@@ -8,6 +8,15 @@
    provoquer un scroll horizontal de page sur les sites générés. */
 html { overflow-x: clip; }
 
+/* a11y — contraste du texte « muted » en dark mode.
+   #55556A sur fond sombre ≈ 3:1 (échec WCAG AA). On l'éclaircit en dark
+   uniquement ; le light mode (documenté AA) n'est pas touché. Mêmes sélecteurs
+   que globals.css mais chargés après → l'emportent à spécificité égale. */
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) { --text-muted: #8A8AA0; }
+}
+html[data-theme="dark"] { --text-muted: #8A8AA0; }
+
 /* ---------- Breadcrumb ---------- */
 .crumb { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; color: var(--ink-3); margin-bottom: 26px; flex-wrap: wrap; }
 .crumb a:hover { color: var(--ink); }
@@ -26,7 +35,7 @@ html { overflow-x: clip; }
 
 /* ---------- Barre de filtres (sticky) ---------- */
 .filter-bar { position: sticky; top: var(--nav-h); z-index: 40; background: color-mix(in srgb, var(--cream) 90%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
-.filter-bar .wrap { display: flex; align-items: center; gap: 14px; padding-top: 16px; padding-bottom: 16px; overflow-x: auto; scrollbar-width: none; }
+.filter-bar .wrap { display: flex; align-items: center; gap: 14px; padding-top: 16px; padding-bottom: 16px; overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); }
 .filter-bar .wrap::-webkit-scrollbar { display: none; }
 .chip { flex: none; padding: 9px 17px; border-radius: 100px; border: 1.5px solid var(--line); background: var(--paper); font-weight: 700; font-size: 14.5px; color: var(--ink-2); transition: all .15s; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
 .chip .pip { width: 8px; height: 8px; border-radius: 50%; }

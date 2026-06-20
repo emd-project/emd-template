@@ -22,7 +22,7 @@
 .toc ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; border-left: 2px solid var(--line); }
 .toc .toc-cta { margin-top: 22px; padding: 18px; background: var(--cream-2); border-radius: var(--r); }
 .toc .toc-cta p { font-size: 13.5px; color: var(--ink-2); margin-bottom: 12px; font-weight: 600; }
-.toc .toc-cta .btn { width: 100%; padding: 11px; font-size: 14px; }
+.toc .toc-cta .btn { width: 100%; padding: 11px; font-size: 14px; white-space: normal; line-height: 1.3; text-align: center; }
 
 /* Liens du sommaire (compat avec .sidebar-toc-link de globals) */
 .toc .sidebar-toc-link { display: block; font-size: 14px; font-weight: 600; color: var(--ink-3); padding: 7px 0 7px 16px; margin-left: -2px; border-left: 2px solid transparent; transition: color .15s, border-color .15s; line-height: 1.35; text-decoration: none; }

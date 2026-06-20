@@ -2,8 +2,9 @@
  * AISummarize — bloc "En bref" en haut d'article + liens "Résumer avec".
  * Résumé 3–5 bullets fournis dans le frontmatter MDX.
  * Liens vers ChatGPT, Claude, Mistral, Perplexity, Grok avec prompt pré-rempli,
- * rendus en liens texte discrets (pas d'icônes/boutons brandés → évite l'empreinte
- * « widget IA » répétée sur tout le réseau). Tout est token-driven (s'adapte à la DA).
+ * rendus en pastilles outline discrètes (flèche ↗, pas d'icône brandée/emoji →
+ * évite l'empreinte « widget IA »). Carte + eyebrow token-driven : s'adapte à la
+ * DA de chaque site (couleur d'accent, bordure, radius).
  * Server Component.
  */
 
@@ -43,26 +44,17 @@ export function AISummarize({ points, articleTitle, articleUrl, locale = 'fr' }:
       aria-label={tl(locale, 'aiSummary.ariaLabel')}
       style={{
         background: 'var(--bg-surface)',
-        borderLeft: '3px solid var(--accent-1)',
-        borderRadius: '0 var(--radius-md) var(--radius-md) 0',
-        padding: 'var(--space-5) var(--space-6)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-lg)',
+        boxShadow: 'var(--shadow-sm)',
+        padding: 'var(--space-6) var(--space-7)',
         marginBottom: 'var(--space-8)',
       }}
     >
-      <div
-        aria-hidden="true"
-        style={{
-          fontFamily: 'var(--next-font-display), system-ui, sans-serif',
-          fontSize: '10px',
-          fontWeight: 800,
-          letterSpacing: '0.12em',
-          textTransform: 'uppercase',
-          color: 'var(--accent-1)',
-          marginBottom: 'var(--space-3)',
-        }}
-      >
+      <div className="eyebrow" style={{ marginBottom: 'var(--space-4)' }}>
         {tl(locale, 'aiSummary.title')}
       </div>
+
       <ul
         style={{
           listStyle: 'none',
@@ -70,7 +62,7 @@ export function AISummarize({ points, articleTitle, articleUrl, locale = 'fr' }:
           padding: 0,
           display: 'flex',
           flexDirection: 'column',
-          gap: 'var(--space-2)',
+          gap: 'var(--space-3)',
         }}
       >
         {points.map((point, i) => (
@@ -79,7 +71,7 @@ export function AISummarize({ points, articleTitle, articleUrl, locale = 'fr' }:
             style={{
               display: 'flex',
               gap: 'var(--space-3)',
-              fontSize: '14px',
+              fontSize: '15px',
               color: 'var(--text-secondary)',
               lineHeight: 1.6,
             }}
@@ -95,34 +87,69 @@ export function AISummarize({ points, articleTitle, articleUrl, locale = 'fr' }:
         ))}
       </ul>
 
-      {/* Ligne discrète « Résumer avec » — liens texte, sans icône ni bouton brandé. */}
+      {/* « Résumer avec » — pastilles outline + flèche ↗ (pas d'emoji/brand) */}
       {showAiLinks && (
-        <p
+        <div
           style={{
-            marginTop: 'var(--space-4)',
-            paddingTop: 'var(--space-3)',
+            marginTop: 'var(--space-5)',
+            paddingTop: 'var(--space-4)',
             borderTop: '1px solid var(--border)',
-            fontSize: '12px',
-            lineHeight: 1.6,
-            color: 'var(--text-muted)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--space-3)',
+            flexWrap: 'wrap',
           }}
         >
-          {tl(locale, 'aiSummary.summarizeWith')}{' '}
-          {AI_PROVIDERS.map(({ name, urlTemplate }, i) => (
-            <span key={name}>
-              <a
-                href={urlTemplate.replace('{PROMPT}', encodedPrompt)}
-                target="_blank"
-                rel="noopener noreferrer nofollow"
-                className="ai-provider-link"
-                style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}
+          <span
+            style={{
+              fontSize: '11px',
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              color: 'var(--text-muted)',
+            }}
+          >
+            {tl(locale, 'aiSummary.summarizeWith')}
+          </span>
+          {AI_PROVIDERS.map(({ name, urlTemplate }) => (
+            <a
+              key={name}
+              href={urlTemplate.replace('{PROMPT}', encodedPrompt)}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              className="ai-provider-link"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: 'var(--text-primary)',
+                textDecoration: 'none',
+                padding: '7px 15px',
+                borderRadius: 'var(--radius-full)',
+                border: '1px solid var(--border)',
+                transition: 'border-color 150ms ease, color 150ms ease',
+              }}
+            >
+              {name}
+              <svg
+                aria-hidden="true"
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ opacity: 0.55 }}
               >
-                {name}
-              </a>
-              {i < AI_PROVIDERS.length - 1 ? ', ' : ''}
-            </span>
+                <path d="M7 17 17 7M9 7h8v8" />
+              </svg>
+            </a>
           ))}
-        </p>
+        </div>
       )}
     </aside>
   )

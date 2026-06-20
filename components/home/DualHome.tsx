@@ -5,7 +5,6 @@
  * de niche en dur → pas de fuite FR sur /en. Classes : .portal-intro / .doors / .door.
  */
 import Link from 'next/link'
-import { getArticlesL } from '@/lib/blog-l10n'
 import { niche, localePath } from '@/niche.config'
 import { tl } from '@/lib/i18n'
 
@@ -21,7 +20,6 @@ export function DualHome({ locale = niche.defaultLocale }: { locale?: string }) 
   const lp = (p: string) => localePath(locale, p)
   const word = niche.rotatingWords?.[0] ?? niche.entities
   const catCount = niche.categories.length || 5
-  void getArticlesL // (réservé : stats data-driven futures)
 
   return (
     <main id="main-content">

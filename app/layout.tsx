@@ -9,6 +9,7 @@ import './styles/volteo-magazine.css'
 import './styles/volteo-hub.css'
 import './styles/volteo-article.css'
 import './styles/volteo-comparateur.css'
+import './styles/volteo-overrides.css'
 
 // ── Fonts — défaut V1 Voltéo (Hanken Grotesk + Bricolage Grotesque) ──
 //    Remplacées à l'init par les fonts du skin choisi pour la niche.

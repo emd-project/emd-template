@@ -1,6 +1,7 @@
 /**
  * /en/quiz — personalised quiz (EN mirror of /quiz).
  * Server Component — QuizEngine ('use client') with locale="en".
+ * EN steps via quiz.en.yaml (getPageContent('quiz.en')) ; sinon défauts EN du moteur.
  */
 
 import Link from 'next/link'
@@ -41,7 +42,7 @@ const jsonLd = {
 }
 
 export default function QuizPageEn() {
-  const quizContent = getPageContent('quiz')
+  const quizContent = getPageContent('quiz.en')
   const steps = quizContent?.steps as { id: string; question: string; options: { label: string; value: string; emoji?: string }[] }[] | undefined
   return (
     <>

@@ -1,12 +1,12 @@
 /**
  * /en/comparer — Comparator hub (EN mirror of /comparer).
- * Server Component · ISR 86400s. Data shared with FR (comparateurs.json).
+ * Server Component · ISR 86400s. EN data via getComparateurs('en') (FR fallback).
  */
 
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { currentYear } from '@/lib/utils/year'
-import { COMPARATEURS } from '@/lib/comparateur'
+import { getComparateurs } from '@/lib/comparateur'
 import { niche } from '@/niche.config'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
@@ -39,7 +39,7 @@ const jsonLd = {
 }
 
 export default function ComparatorHubPageEn() {
-  const produits = Object.values(COMPARATEURS)
+  const produits = Object.values(getComparateurs('en'))
 
   return (
     <>

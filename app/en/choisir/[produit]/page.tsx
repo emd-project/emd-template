@@ -1,15 +1,14 @@
 /**
  * /en/choisir/[produit] — "Which [produit] to choose?" (EN mirror, quiz-first).
  * Server Component — QuizEngine ('use client') with locale="en".
- * Note: the FR editorial block (ChoisirEditorial) is FR-only content and is
- * therefore omitted here until localized; the quiz is the shared interactive core.
+ * EN data via getProduit(slug, 'en'). The FR editorial block is omitted until localized.
  */
 
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { QuizEngine } from '@/components/quiz/QuizEngine'
 import { currentYear } from '@/lib/utils/year'
-import { COMPARATEURS, PRODUIT_SLUGS } from '@/lib/comparateur'
+import { getProduit, PRODUIT_SLUGS } from '@/lib/comparateur'
 import { niche } from '@/niche.config'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
@@ -26,7 +25,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { produit } = await params
-  const data = COMPARATEURS[produit]
+  const data = getProduit(produit, 'en')
   if (!data) return {}
   const year = currentYear()
   const label = stripYear(data.label)
@@ -53,7 +52,7 @@ function getHeroAccent(slug: string): string {
 
 export default async function ChoisirPageEn({ params }: { params: Params }) {
   const { produit } = await params
-  const data = COMPARATEURS[produit]
+  const data = getProduit(produit, 'en')
   if (!data) notFound()
 
   const year = currentYear()

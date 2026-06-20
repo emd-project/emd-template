@@ -1,6 +1,7 @@
 /**
  * /en/comparer/[produit] — side-by-side comparator (EN mirror).
  * Server Component — ComparateurSelector ('use client') with locale="en".
+ * EN data via getProduit(slug, 'en') (FR fallback).
  */
 
 import { notFound } from 'next/navigation'
@@ -25,7 +26,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { produit } = await params
-  const data = getProduit(produit)
+  const data = getProduit(produit, 'en')
   if (!data) return {}
   const year = currentYear()
   const label = stripYear(data.label)
@@ -45,13 +46,13 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 }
 
 const AUTRES_PRODUITS = PRODUIT_SLUGS.map((slug) => {
-  const p = getProduit(slug)
+  const p = getProduit(slug, 'en')
   return { slug, label: stripYear(p?.label ?? slug) }
 })
 
 export default async function ComparatorProduitPageEn({ params }: { params: Params }) {
   const { produit } = await params
-  const data = getProduit(produit)
+  const data = getProduit(produit, 'en')
   if (!data) notFound()
 
   const year = currentYear()

@@ -147,6 +147,31 @@ export type NicheConfig = {
    */
   localePrefix?: 'as-needed' | 'always'
 
+  // ─── Variantes de design & permutations (système de variantes) ──────────
+  /**
+   * Choix de variante par type de page. OPTIONNEL & RÉTRO-COMPATIBLE :
+   * - `home` absent → le resolver (lib/variants.ts) retombe sur `style.hero`
+   *   ('split' → comparateur, sinon → magazine).
+   * Variantes home dispo : 'magazine' | 'comparateur' | 'dual'.
+   * Preview : /home-v1 (magazine) · /home-v2 (comparateur) · /home-v3 (dual).
+   * Règle d'init : quand Claude choisit une variante, il dépublie (supprime) les
+   * routes preview /home-vN restantes (cf. docs/AUTO-DESIGN.md).
+   */
+  layouts?: {
+    home?: 'magazine' | 'comparateur' | 'dual'
+    category?: 'classic' | 'editorial'
+    article?: 'classic' | 'feature'
+  }
+
+  /**
+   * Permutations structurelles légères (anti-empreinte). OPTIONNEL.
+   * `shape` surcharge les radius globaux via ShapeStyle :
+   *   'rounded' (défaut) | 'soft' | 'sharp'.
+   */
+  permutations?: {
+    shape?: 'rounded' | 'soft' | 'sharp'
+  }
+
   // Technique
   vercelRegion: string
   repo: string
@@ -229,6 +254,9 @@ export const niche: NicheConfig = {
   // explicite par dossier — pas de middleware i18n, pas de [locale] dynamique.
   locales: ['fr', 'en'],
   localePrefix: 'as-needed',
+
+  // Variantes & permutations : non définies par défaut → resolver retombe sur
+  // style.hero (magazine ici) et shape 'rounded'. init-site les renseigne.
 
   vercelRegion: 'fra1',
   repo: '',

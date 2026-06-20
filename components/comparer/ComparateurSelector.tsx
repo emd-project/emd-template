@@ -2,21 +2,23 @@
 
 /**
  * ComparateurSelector — comparaison côte à côte, pilotée par la DA.
- * Sélecteurs dropdown pour choisir les modèles. Styles : .cmp-* (volteo-comparateur.css),
- * 100% token-driven → adopte la DA de chaque site.
- * 'use client' isolé — la page /comparer reste Server Component.
- * Modèle EMD = MENTION, pas d'affiliation : pas de bouton d'achat affilié.
+ * Styles : .cmp-* (volteo-comparateur.css), 100% token-driven.
+ * 'use client' isolé. Locale-aware (prop `locale`, défaut fr).
+ * Modèle EMD = MENTION, pas d'affiliation.
  */
 
 import { useState, type CSSProperties } from 'react'
 import type { ModeleComparateur } from '@/lib/comparateur'
+import { tl } from '@/lib/i18n'
 
 type Props = {
   modeles: ModeleComparateur[]
   specsLabels: Record<string, string>
+  /** Locale active (défaut fr). */
+  locale?: string
 }
 
-export function ComparateurSelector({ modeles, specsLabels }: Props) {
+export function ComparateurSelector({ modeles, specsLabels, locale = 'fr' }: Props) {
   const maxSlots = Math.min(3, modeles.length)
   const initial = Math.min(2, maxSlots) || 1
   const [selected, setSelected] = useState<number[]>(
@@ -44,6 +46,7 @@ export function ComparateurSelector({ modeles, specsLabels }: Props) {
   const specKeys = Object.keys(specsLabels)
   const selectedModeles = selected.map((i) => modeles[i])
   const colStyle = { ['--cols']: selected.length } as CSSProperties
+  const numLocale = locale === 'en' ? 'en-GB' : 'fr-FR'
 
   return (
     <div className="cmp">
@@ -55,7 +58,7 @@ export function ComparateurSelector({ modeles, specsLabels }: Props) {
               <select
                 value={modeleIndex}
                 onChange={(e) => updateSlot(slotIndex, Number(e.target.value))}
-                aria-label={`Modèle ${slotIndex + 1}`}
+                aria-label={tl(locale, 'comparator.modelAria', { n: slotIndex + 1 })}
               >
                 {modeles.map((m, mi) => (
                   <option key={mi} value={mi}>{m.nom}</option>
@@ -64,14 +67,14 @@ export function ComparateurSelector({ modeles, specsLabels }: Props) {
               <span className="arrow" aria-hidden="true">▾</span>
             </div>
             {selected.length > 2 && (
-              <button className="cmp-remove" onClick={() => removeSlot(slotIndex)}>Retirer</button>
+              <button className="cmp-remove" onClick={() => removeSlot(slotIndex)}>{tl(locale, 'comparator.remove')}</button>
             )}
           </div>
         ))}
       </div>
 
       {selected.length < maxSlots && (
-        <button className="cmp-add" onClick={addSlot}>+ Ajouter un modèle</button>
+        <button className="cmp-add" onClick={addSlot}>{tl(locale, 'comparator.add')}</button>
       )}
 
       {/* Tableau comparatif */}
@@ -80,9 +83,9 @@ export function ComparateurSelector({ modeles, specsLabels }: Props) {
           <div className="cmp-row cmp-head">
             {selectedModeles.map((m, i) => (
               <div className="cmp-col-head" key={i}>
-                <div className="cmp-new-slot">{m.nouveaute && <span className="cmp-new">Nouveau</span>}</div>
+                <div className="cmp-new-slot">{m.nouveaute && <span className="cmp-new">{tl(locale, 'comparator.new')}</span>}</div>
                 <h2 className="cmp-name">{m.nom}</h2>
-                <div className="cmp-price">{m.prix.toLocaleString('fr-FR')} €</div>
+                <div className="cmp-price">{m.prix.toLocaleString(numLocale)} €</div>
               </div>
             ))}
           </div>

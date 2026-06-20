@@ -1,11 +1,13 @@
 /**
  * /blog/[categorie]/[slug] — article MDX, structure Voltéo.
- * art-hero (sans image de fond générée — plafond images) + corps 2 colonnes
- * (sommaire sticky + prose MDX) + related + carte auteur. Wiring MDX/SEO préservé.
+ * En-tête : bandeau visuel (image + dégradé) si l'article a une `featureImage`,
+ * sinon en-tête sobre (pas de placeholder rayé). Corps 2 colonnes (sommaire sticky
+ * + prose MDX) + related + carte auteur. Wiring MDX/SEO préservé.
  */
 
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import type { Metadata } from 'next'
 import { compileMDX } from 'next-mdx-remote/rsc'
 import remarkGfm from 'remark-gfm'
@@ -125,6 +127,7 @@ export default async function ArticlePage({ params }: { params: Params }) {
   const related = getRelatedArticles(categorie, slug, 3)
   const catLabel = CATEGORY_LABELS[categorie] ?? categorie
   const catCls = `c${CAT_INDEX[categorie] ?? 1}`
+  const hasHeroImage = Boolean(meta.featureImage)
 
   // Sommaire : ancres fixes (En bref) + sections de l'article (H2/H3) + FAQ + Liés.
   const tocItems: TocItem[] = [
@@ -133,6 +136,16 @@ export default async function ArticlePage({ params }: { params: Params }) {
     ...(meta.faq && meta.faq.length > 0 ? [{ id: 'faq-section', text: t('sidebar.tocFaq'), level: 2 } as TocItem] : []),
     ...(related.length > 0 ? [{ id: 'related-section', text: t('sidebar.tocRelated'), level: 2 } as TocItem] : []),
   ]
+
+  const byline = (
+    <AuthorByline
+      authorSlug={niche.author.slug || 'auteur'}
+      authorName={niche.author.name || 'Auteur'}
+      publishedAt={meta.publishedAt}
+      updatedAt={meta.updatedAt}
+      readingTimeMin={meta.readingTimeMin}
+    />
+  )
 
   const jsonLd = [
     {
@@ -173,31 +186,52 @@ export default async function ArticlePage({ params }: { params: Params }) {
       <main id="main-content">
         <article>
 
-          {/* Hero article (sobre, sans image de fond générée) */}
-          <header className="art-hero">
-            <div className="wrap">
-              <nav className="crumb" aria-label="Fil d'Ariane">
-                <Link href="/">Accueil</Link><span className="sep">/</span>
-                <Link href="/blog">Blog</Link><span className="sep">/</span>
-                <Link href={`/blog/${categorie}`}>{catLabel}</Link>
-              </nav>
-              <div className="flag"><span className={`tag ${catCls}`}><span className="pip" />{catLabel}</span></div>
-              <h1>{meta.title}</h1>
-              {meta.description && <p className="standfirst">{meta.description}</p>}
-              <div style={{ marginTop: 24 }}>
-                <AuthorByline
-                  authorSlug={niche.author.slug || 'auteur'}
-                  authorName={niche.author.name || 'Auteur'}
-                  publishedAt={meta.publishedAt}
-                  updatedAt={meta.updatedAt}
-                  readingTimeMin={meta.readingTimeMin}
+          {hasHeroImage ? (
+            <>
+              {/* Hero article — bandeau visuel : image + dégradé sombre, titre en blanc */}
+              <header
+                className="art-hero art-hero--image"
+                style={{ position: 'relative', overflow: 'hidden', minHeight: 'clamp(300px, 40vw, 440px)', display: 'flex', alignItems: 'flex-end' }}
+              >
+                <div aria-hidden="true" style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+                  <Image src={meta.featureImage as string} alt="" fill priority sizes="100vw" style={{ objectFit: 'cover' }} />
+                </div>
+                <div
+                  aria-hidden="true"
+                  style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(180deg, rgba(10,10,15,0.30) 0%, rgba(10,10,15,0.66) 60%, rgba(10,10,15,0.88) 100%)' }}
                 />
+                <div className="wrap" style={{ position: 'relative', zIndex: 2, paddingTop: 32, paddingBottom: 36 }}>
+                  <nav className="crumb" aria-label="Fil d'Ariane" style={{ color: 'rgba(255,255,255,0.82)' }}>
+                    <Link href="/" style={{ color: 'inherit' }}>Accueil</Link><span className="sep">/</span>
+                    <Link href="/blog" style={{ color: 'inherit' }}>Blog</Link><span className="sep">/</span>
+                    <Link href={`/blog/${categorie}`} style={{ color: 'inherit' }}>{catLabel}</Link>
+                  </nav>
+                  <div className="flag" style={{ marginTop: 12 }}><span className={`tag ${catCls}`}><span className="pip" />{catLabel}</span></div>
+                  <h1 style={{ color: '#fff', marginTop: 12 }}>{meta.title}</h1>
+                  {meta.description && <p className="standfirst" style={{ color: 'rgba(255,255,255,0.9)' }}>{meta.description}</p>}
+                </div>
+              </header>
+              <div className="wrap" style={{ paddingTop: 20 }}>{byline}</div>
+            </>
+          ) : (
+            /* Hero article (sobre, sans image) */
+            <header className="art-hero">
+              <div className="wrap">
+                <nav className="crumb" aria-label="Fil d'Ariane">
+                  <Link href="/">Accueil</Link><span className="sep">/</span>
+                  <Link href="/blog">Blog</Link><span className="sep">/</span>
+                  <Link href={`/blog/${categorie}`}>{catLabel}</Link>
+                </nav>
+                <div className="flag"><span className={`tag ${catCls}`}><span className="pip" />{catLabel}</span></div>
+                <h1>{meta.title}</h1>
+                {meta.description && <p className="standfirst">{meta.description}</p>}
+                <div style={{ marginTop: 24 }}>{byline}</div>
               </div>
-            </div>
-          </header>
+            </header>
+          )}
 
           {/* Corps : sommaire + prose */}
-          <div className="section" style={{ paddingTop: 48 }}>
+          <div className="section" style={{ paddingTop: hasHeroImage ? 28 : 48 }}>
             <div className="art-wrap">
 
               {/* Sommaire sticky */}

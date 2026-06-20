@@ -3,6 +3,7 @@
  * Format : "Par [Auteur] · 5 min · 23 mars 2026"
  * Lien vers /auteurs/[authorSlug].
  * Server Component — rendu côté serveur, indexable.
+ * `onDark` : variante texte clair pour pose sur un hero sombre (lisibilité).
  */
 
 import Link from 'next/link'
@@ -16,6 +17,8 @@ type AuthorBylineProps = {
   readingTimeMin?: number
   /** Locale active (défaut fr). */
   locale?: string
+  /** Pose sur fond sombre → texte clair lisible. */
+  onDark?: boolean
 }
 
 function formatDate(iso: string, locale: string): string {
@@ -33,6 +36,7 @@ export function AuthorByline({
   updatedAt,
   readingTimeMin,
   locale = 'fr',
+  onDark = false,
 }: AuthorBylineProps) {
   const displayDate = updatedAt && updatedAt !== publishedAt ? updatedAt : publishedAt
 
@@ -44,14 +48,14 @@ export function AuthorByline({
         flexWrap: 'wrap',
         gap: 'var(--space-2)',
         fontSize: '13px',
-        color: 'var(--text-secondary)',
+        color: onDark ? 'rgba(255,255,255,0.82)' : 'var(--text-secondary)',
       }}
     >
       <span>{tl(locale, 'article.by')}</span>
       <Link
         href={`/auteurs/${authorSlug}`}
         style={{
-          color: 'var(--text-primary)',
+          color: onDark ? '#fff' : 'var(--text-primary)',
           fontWeight: 700,
           textDecoration: 'none',
           borderBottom: '1px solid var(--accent-1)',

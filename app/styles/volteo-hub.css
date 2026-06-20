@@ -2,6 +2,12 @@
    VOLTÉO — Layout hub / catégorie blog (chargé globalement)
    ============================================================ */
 
+/* Garde anti-débordement horizontal — global, défensif.
+   `clip` (et non hidden/auto) ne crée pas de conteneur de scroll → ne casse PAS
+   position:sticky (nav, filtres, sommaire). Empêche tout élément trop large de
+   provoquer un scroll horizontal de page sur les sites générés. */
+html { overflow-x: clip; }
+
 /* ---------- Breadcrumb ---------- */
 .crumb { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; color: var(--ink-3); margin-bottom: 26px; flex-wrap: wrap; }
 .crumb a:hover { color: var(--ink); }
@@ -61,8 +67,11 @@
   .featured .feat-img { min-height: 240px; }
   .featured .feat-body { padding: 32px; }
   .guide-grid { grid-template-columns: repeat(2, 1fr); }
+  /* Grille d'articles (.posts) — ne jamais rester en 3 colonnes sur mobile */
+  .posts { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 620px) {
   .guide-grid { grid-template-columns: 1fr; }
   .featured .feat-body { padding: 28px 22px; }
+  .posts { grid-template-columns: 1fr; }
 }

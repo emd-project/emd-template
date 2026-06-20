@@ -128,6 +128,21 @@
     "pros": "Pour",
     "cons": "Contre"
   },
+  "comparator": {
+    "remove": "Retirer",
+    "add": "+ Ajouter un modèle",
+    "new": "Nouveau",
+    "modelAria": "Modèle {n}",
+    "selectModels": "Sélectionnez les modèles à comparer côte à côte."
+  },
+  "quiz": {
+    "recommendation": "Notre recommandation",
+    "compareNow": "Comparer maintenant →",
+    "seeGuide": "Voir le guide d'achat",
+    "restart": "↩ Recommencer le quiz",
+    "back": "← Retour",
+    "progressAria": "Question {step} sur {total}"
+  },
   "callout": {
     "warning": "Attention"
   },

@@ -128,6 +128,21 @@
     "pros": "Pros",
     "cons": "Cons"
   },
+  "comparator": {
+    "remove": "Remove",
+    "add": "+ Add a model",
+    "new": "New",
+    "modelAria": "Model {n}",
+    "selectModels": "Select the models to compare side by side."
+  },
+  "quiz": {
+    "recommendation": "Our recommendation",
+    "compareNow": "Compare now →",
+    "seeGuide": "See the buying guide",
+    "restart": "↩ Restart the quiz",
+    "back": "← Back",
+    "progressAria": "Question {step} of {total}"
+  },
   "callout": {
     "warning": "Warning"
   },

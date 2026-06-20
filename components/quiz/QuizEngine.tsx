@@ -1,16 +1,18 @@
 'use client'
 
 /**
- * QuizEngine — moteur interactif du quiz.
+ * QuizEngine — moteur interactif du quiz, piloté par la DA.
  * 'use client' isolé — la page /quiz reste Server Component.
  * Flux : questions dynamiques → résultat avec recommandation.
  * Pas de librairie externe — useState + transitions CSS.
  *
- * Les questions et recommandations sont des placeholders.
- * Le prompt d'init les remplace avec du contenu spécifique à la niche.
+ * 100% token-driven (var(--accent-1), --border, --bg-surface, color-mix) →
+ * adopte la DA de chaque site. Les questions/recommandations sont des
+ * placeholders remplacés à l'init.
  */
 
 import { useState } from 'react'
+import type { CSSProperties } from 'react'
 import Link from 'next/link'
 
 /* ─── Types ─────────────────────────────────────────── */
@@ -31,6 +33,9 @@ type Recommendation = {
   href: string
   comparerHref: string
 }
+
+const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F']
+const TINT = 'color-mix(in srgb, var(--accent-1) 7%, transparent)'
 
 /* ─── Questions (placeholder — à adapter par niche) ──── */
 
@@ -69,12 +74,11 @@ const DEFAULT_STEPS: Step[] = [
 function recommend(answers: Answers): Recommendation {
   const { categorie } = answers
   const comparerHref = `/comparer/${categorie ?? ''}`
-
-  // Placeholder — le prompt d'init remplace cette logique
   return {
     produit: 'Produit recommandé',
     modele: 'Modèle placeholder',
-    pourquoi: 'Ce produit correspond à vos critères. Le prompt d\'initialisation remplacera cette recommandation par du contenu spécifique à votre niche.',
+    pourquoi:
+      "Ce produit correspond à vos critères. Le prompt d'initialisation remplacera cette recommandation par du contenu spécifique à votre niche.",
     prix: 'À définir',
     href: `/choisir/${categorie ?? ''}`,
     comparerHref,
@@ -84,9 +88,7 @@ function recommend(answers: Answers): Recommendation {
 /* ─── Composant ──────────────────────────────────────── */
 
 type QuizEngineProps = {
-  /** Pré-sélectionne la catégorie et saute l'étape 0. */
   defaultProduit?: string
-  /** Steps du quiz — passés depuis le Server Component (quiz.yaml). Fallback sur DEFAULT_STEPS. */
   steps?: Step[]
 }
 
@@ -100,29 +102,21 @@ export function QuizEngine({ defaultProduit, steps }: QuizEngineProps = {}) {
   const [done, setDone] = useState(false)
 
   const current = STEPS[step]
-  const progress = Math.round(((step) / STEPS.length) * 100)
+  const progress = Math.round((step / STEPS.length) * 100)
 
   function handleSelect(value: string) {
     const next = { ...answers, [current.id]: value }
     setAnswers(next)
-
-    if (step < STEPS.length - 1) {
-      setStep(step + 1)
-    } else {
-      setDone(true)
-    }
+    if (step < STEPS.length - 1) setStep(step + 1)
+    else setDone(true)
   }
-
   function restart() {
     setStep(0)
     setAnswers({})
     setDone(false)
   }
 
-  if (done) {
-    const rec = recommend(answers)
-    return <Result rec={rec} onRestart={restart} />
-  }
+  if (done) return <Result rec={recommend(answers)} onRestart={restart} />
 
   return (
     <div>
@@ -139,7 +133,7 @@ export function QuizEngine({ defaultProduit, steps }: QuizEngineProps = {}) {
           aria-hidden="true"
           style={{
             flex: 1,
-            height: '3px',
+            height: '6px',
             background: 'var(--bg-surface-2)',
             borderRadius: 'var(--radius-full)',
             overflow: 'hidden',
@@ -149,14 +143,14 @@ export function QuizEngine({ defaultProduit, steps }: QuizEngineProps = {}) {
             style={{
               height: '100%',
               width: `${progress}%`,
-              background: 'var(--accent-4)',
+              background: 'var(--accent-1)',
               borderRadius: 'var(--radius-full)',
-              transition: 'width 300ms ease',
+              transition: 'width 300ms var(--ease-out, ease)',
             }}
           />
         </div>
         <span
-          style={{ fontSize: '12px', color: 'var(--text-muted)', flexShrink: 0 }}
+          style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}
           aria-label={`Question ${step + 1} sur ${STEPS.length}`}
         >
           {step + 1} / {STEPS.length}
@@ -182,50 +176,60 @@ export function QuizEngine({ defaultProduit, steps }: QuizEngineProps = {}) {
       <div
         role="group"
         aria-label={current.question}
-        style={{
-          display: 'grid',
-          gridTemplateColumns:
-            current.options.length <= 3
-              ? '1fr'
-              : 'repeat(auto-fill, minmax(200px, 1fr))',
-          gap: 'var(--space-3)',
-        }}
+        style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}
       >
-        {current.options.map((opt) => (
+        {current.options.map((opt, idx) => (
           <button
             key={opt.value}
             onClick={() => handleSelect(opt.value)}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: opt.emoji ? 'var(--space-4)' : 'var(--space-3)',
+              gap: 'var(--space-4)',
               background: 'var(--bg-surface)',
               border: '1px solid var(--border)',
               borderRadius: 'var(--radius-lg)',
               padding: 'var(--space-4) var(--space-5)',
               cursor: 'pointer',
               textAlign: 'left',
-              transition: 'border-color 150ms ease, background 150ms ease',
+              transition: 'border-color 150ms ease, background 150ms ease, transform 150ms ease',
               width: '100%',
             }}
-            onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+            onMouseEnter={(e) => {
               const el = e.currentTarget
-              el.style.borderColor = 'var(--accent-4)'
-              el.style.background = 'rgba(123,97,255,0.06)'
+              el.style.borderColor = 'var(--accent-1)'
+              el.style.background = TINT
+              el.style.transform = 'translateX(4px)'
             }}
-            onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+            onMouseLeave={(e) => {
               const el = e.currentTarget
               el.style.borderColor = 'var(--border)'
               el.style.background = 'var(--bg-surface)'
+              el.style.transform = 'translateX(0)'
             }}
           >
-            {opt.emoji && (
-              <span style={{ fontSize: '22px', lineHeight: 1, flexShrink: 0 }}>
-                {opt.emoji}
-              </span>
-            )}
+            {/* Pastille : emoji si fourni, sinon lettre */}
+            <span
+              aria-hidden="true"
+              style={{
+                flexShrink: 0,
+                width: '34px',
+                height: '34px',
+                borderRadius: 'var(--radius-full)',
+                display: 'grid',
+                placeItems: 'center',
+                fontSize: opt.emoji ? '20px' : '14px',
+                fontWeight: 800,
+                fontFamily: 'var(--next-font-display), system-ui, sans-serif',
+                color: 'var(--accent-1)',
+                background: 'color-mix(in srgb, var(--accent-1) 12%, transparent)',
+              }}
+            >
+              {opt.emoji ?? LETTERS[idx] ?? '•'}
+            </span>
             <span
               style={{
+                flex: 1,
                 fontFamily: 'var(--next-font-display), system-ui, sans-serif',
                 fontWeight: 600,
                 fontSize: '15px',
@@ -233,6 +237,9 @@ export function QuizEngine({ defaultProduit, steps }: QuizEngineProps = {}) {
               }}
             >
               {opt.label}
+            </span>
+            <span aria-hidden="true" style={{ color: 'var(--text-muted)', fontSize: '15px', flexShrink: 0 }}>
+              →
             </span>
           </button>
         ))}
@@ -248,9 +255,10 @@ export function QuizEngine({ defaultProduit, steps }: QuizEngineProps = {}) {
             cursor: 'pointer',
             color: 'var(--text-muted)',
             fontSize: '13px',
+            fontWeight: 600,
             marginTop: 'var(--space-6)',
             padding: 0,
-            display: 'flex',
+            display: 'inline-flex',
             alignItems: 'center',
             gap: 'var(--space-2)',
           }}
@@ -264,30 +272,39 @@ export function QuizEngine({ defaultProduit, steps }: QuizEngineProps = {}) {
 
 /* ─── Résultat ───────────────────────────────────────── */
 
-function Result({
-  rec,
-  onRestart,
-}: {
-  rec: Recommendation
-  onRestart: () => void
-}) {
+function Result({ rec, onRestart }: { rec: Recommendation; onRestart: () => void }) {
+  const primaryCta: CSSProperties = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 'var(--space-2)',
+    background: 'var(--accent-1)',
+    color: 'var(--bg-primary)',
+    fontWeight: 700,
+    fontSize: '14px',
+    padding: 'var(--space-3) var(--space-6)',
+    borderRadius: 'var(--radius-full)',
+    textDecoration: 'none',
+  }
+  const ghostCta: CSSProperties = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 'var(--space-2)',
+    background: 'var(--bg-surface)',
+    border: '1px solid var(--border)',
+    color: 'var(--text-secondary)',
+    fontWeight: 600,
+    fontSize: '14px',
+    padding: 'var(--space-3) var(--space-6)',
+    borderRadius: 'var(--radius-full)',
+    textDecoration: 'none',
+  }
+
   return (
     <div>
-      {/* Badge résultat */}
-      <div
-        style={{
-          fontSize: '11px',
-          fontWeight: 700,
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          color: 'var(--accent-3)',
-          marginBottom: 'var(--space-5)',
-        }}
-      >
+      <div className="eyebrow" style={{ marginBottom: 'var(--space-5)' }}>
         Notre recommandation
       </div>
 
-      {/* Modèle recommandé */}
       <h2
         style={{
           fontFamily: 'var(--next-font-display), system-ui, sans-serif',
@@ -304,8 +321,9 @@ function Result({
         style={{
           fontFamily: 'var(--next-font-mono), monospace',
           fontVariantNumeric: 'tabular-nums',
-          fontSize: '16px',
-          color: 'var(--accent-2)',
+          fontSize: '18px',
+          fontWeight: 700,
+          color: 'var(--accent-1)',
           marginBottom: 'var(--space-5)',
         }}
       >
@@ -316,7 +334,8 @@ function Result({
       <div
         style={{
           background: 'var(--bg-surface)',
-          borderLeft: '3px solid var(--accent-3)',
+          border: '1px solid var(--border)',
+          borderLeft: '3px solid var(--accent-1)',
           borderRadius: '0 var(--radius-md) var(--radius-md) 0',
           padding: 'var(--space-5) var(--space-6)',
           marginBottom: 'var(--space-8)',
@@ -329,48 +348,15 @@ function Result({
       </div>
 
       {/* CTAs */}
-      <div
-        style={{
-          display: 'flex',
-          gap: 'var(--space-3)',
-          flexWrap: 'wrap',
-          marginBottom: 'var(--space-8)',
-        }}
-      >
-        <Link
-          href={rec.comparerHref}
-          style={{
-            display: 'inline-block',
-            background: 'var(--accent-4)',
-            color: '#fff',
-            fontWeight: 700,
-            fontSize: '14px',
-            padding: 'var(--space-3) var(--space-6)',
-            borderRadius: 'var(--radius-md)',
-            textDecoration: 'none',
-          }}
-        >
+      <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap', marginBottom: 'var(--space-8)' }}>
+        <Link href={rec.comparerHref} style={primaryCta}>
           Comparer maintenant →
         </Link>
-        <Link
-          href={rec.href}
-          style={{
-            display: 'inline-block',
-            background: 'var(--bg-surface)',
-            border: '1px solid var(--border)',
-            color: 'var(--text-secondary)',
-            fontWeight: 600,
-            fontSize: '14px',
-            padding: 'var(--space-3) var(--space-6)',
-            borderRadius: 'var(--radius-md)',
-            textDecoration: 'none',
-          }}
-        >
+        <Link href={rec.href} style={ghostCta}>
           Voir le guide d&apos;achat
         </Link>
       </div>
 
-      {/* Recommencer */}
       <button
         onClick={onRestart}
         style={{
@@ -379,6 +365,7 @@ function Result({
           cursor: 'pointer',
           color: 'var(--text-muted)',
           fontSize: '13px',
+          fontWeight: 600,
           padding: 0,
         }}
       >

@@ -11,6 +11,8 @@
  *    (only emitted when a FR translation is known); x-default → FR when known,
  *    else EN self.
  *  - Copy is written in English inline (t() is locked to niche.defaultLocale = fr).
+ *  - MDX components rendering UI copy get locale="en" (Warning, ProductCTA,
+ *    ProConTable, ProductCarousel) ; AutoProductCTAs idem.
  *  - Internal hrefs are built under /en/blog (articleHref() emits FR /blog paths).
  *
  * i18n (block 2c) :
@@ -144,10 +146,13 @@ export default async function ArticlePageEn({ params }: { params: Params }) {
     components: {
       Tip,
       Warning: (mp: ComponentProps<typeof Warning>) => <Warning {...mp} locale="en" />,
-      Verdict, ProConTable, PullQuote, StatCard, StatRow,
+      Verdict,
+      ProConTable: (mp: ComponentProps<typeof ProConTable>) => <ProConTable {...mp} locale="en" />,
+      PullQuote, StatCard, StatRow,
       CompareBar, CompareBarGroup,
       ProductCTA: (mp: ComponentProps<typeof ProductCTA>) => <ProductCTA {...mp} locale="en" />,
-      ArticleImage, ProductCarousel,
+      ArticleImage,
+      ProductCarousel: (mp: ComponentProps<typeof ProductCarousel>) => <ProductCarousel {...mp} locale="en" />,
       h2: ({ children }: { children?: ReactNode }) => <h2 id={slugify(nodeText(children))}>{children}</h2>,
       h3: ({ children }: { children?: ReactNode }) => <h3 id={slugify(nodeText(children))}>{children}</h3>,
       table: ({ children }: { children: ReactNode }) => (
@@ -256,7 +261,7 @@ export default async function ArticlePageEn({ params }: { params: Params }) {
                 )}
 
                 <div className="prose-article">{mdxContent}</div>
-                <AutoProductCTAs ctas={getCTAsForCategory(categorie)} />
+                <AutoProductCTAs ctas={getCTAsForCategory(categorie)} locale="en" />
                 <ToolCTA categorie={categorie} locale="en" />
 
                 {meta.faq && meta.faq.length > 0 && (

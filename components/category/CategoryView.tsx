@@ -1,8 +1,9 @@
 /**
  * CategoryView — listing catégorie LOCALE-AWARE + multi-variantes (Server Component).
  * Une seule implémentation pour FR et EN (prop `locale`) et pour les 2 variantes :
- *  - 'classic'   : hub-hero + barre de filtres + grille .posts (comportement historique)
- *  - 'editorial' : une-à-la-une (carte vedette) + grille du reste
+ *  - 'classic'   : hub-hero + barre de filtres + grille .posts (historique)
+ *  - 'editorial' : une-à-la-une (carte vedette) + PETIT FIL des articles de la
+ *                  catégorie (réutilise le bloc .fil-* de la home « fil ») + grille
  * Le SEO (metadata, JSON-LD, generateStaticParams) reste dans les routes ; ce
  * composant ne rend que le corps. Pagination identique aux deux variantes.
  */
@@ -23,10 +24,14 @@ const CAT_INDEX: Record<string, number> = Object.fromEntries(
 const catClass = (slug: string) => `c${CAT_INDEX[slug] ?? 1}`
 const catLabel = (slug: string) => CATEGORY_LABELS[slug] ?? slug
 
+const Arrow = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+)
+
 /** Mots spécifiques catégorie (locale-aware, sans clé JSON dédiée). */
-const WORDS: Record<'fr' | 'en', { kicker: string; article: string; articles: string }> = {
-  fr: { kicker: 'Catégorie', article: 'article', articles: 'articles' },
-  en: { kicker: 'Category', article: 'article', articles: 'articles' },
+const WORDS: Record<'fr' | 'en', { kicker: string; article: string; articles: string; feed: string }> = {
+  fr: { kicker: 'Catégorie', article: 'article', articles: 'articles', feed: 'Le fil' },
+  en: { kicker: 'Category', article: 'article', articles: 'articles', feed: 'The feed' },
 }
 
 function Cover({ a, fill = false }: { a: ArticleMeta; fill?: boolean }) {
@@ -55,6 +60,7 @@ export function CategoryView({
   const lp = (p: string) => localePath(locale, p)
   const href = (a: ArticleMeta) => articleHrefL(locale, a)
   const fmt = (iso: string) => formatDateL(locale, iso)
+  const fmtShort = (iso: string) => new Date(iso).toLocaleDateString(locale === 'en' ? 'en-GB' : 'fr-FR', { day: 'numeric', month: 'short' })
   const w = WORDS[locale === 'en' ? 'en' : 'fr']
   const label = catLabel(categorie)
 
@@ -63,8 +69,10 @@ export function CategoryView({
   const paged = articles.slice((currentPage - 1) * ARTICLES_PER_PAGE, currentPage * ARTICLES_PER_PAGE)
 
   const editorial = v === 'editorial'
-  const lead = editorial && currentPage === 1 ? paged[0] : null
-  const grid = lead ? paged.slice(1) : paged
+  const showFeature = editorial && currentPage === 1 && paged.length > 0
+  const lead = showFeature ? paged[0] : null
+  const feed = showFeature ? paged.slice(1, 6) : []
+  const grid = showFeature ? paged.slice(6) : paged
 
   const countLabel = `${total} ${total > 1 ? w.articles : w.article}`
 
@@ -94,18 +102,41 @@ export function CategoryView({
         </div>
       </div>
 
+      {/* Editorial : une-à-la-une + petit fil (style home « fil ») */}
       {lead && (
-        <section className="mag-hero">
+        <section className="fil-hero" style={{ paddingTop: 28 }}>
           <div className="wrap">
-            <Link href={href(lead)} className="mcard feat-big" style={{ display: 'block' }}>
-              <Cover a={lead} fill />
-              <div className="mc-body">
-                <span className="mc-flag"><span className={`tag ${catClass(lead.categorie)}`}><span className="pip" />{label}</span></span>
-                <h2>{lead.title}</h2>
-                {lead.description && <p>{lead.description}</p>}
-                <div className="mc-meta">{fmt(lead.publishedAt)} · {lead.readingTimeMin} min</div>
+            <div className="fil-feature">
+              <Link href={href(lead)} className="ffeat on">
+                <Cover a={lead} fill />
+                <div className="body">
+                  <span className="flag"><span className={`tag ${catClass(lead.categorie)}`}><span className="pip" />{label}</span></span>
+                  <h2>{lead.title}</h2>
+                  {lead.description && <p>{lead.description}</p>}
+                  <div className="meta">{fmt(lead.publishedAt)} · {lead.readingTimeMin} min</div>
+                </div>
+              </Link>
+            </div>
+
+            <aside className="fil-live-col">
+              <div className="fil-live-head"><span className="fil-pdot" /> {w.feed} · {label}</div>
+              <div className="fl-list">
+                <div className="fl-track">
+                  {(feed.length ? [...feed, ...feed] : []).map((a, i) => {
+                    const dup = i >= feed.length
+                    return (
+                      <Link href={href(a)} className="fl-item" key={i} aria-hidden={dup || undefined} tabIndex={dup ? -1 : undefined}>
+                        <span className="fl-time">{fmtShort(a.publishedAt)}</span>
+                        <h4>{a.title}</h4>
+                      </Link>
+                    )
+                  })}
+                </div>
               </div>
-            </Link>
+              <div className="fil-live-foot">
+                <Link href={lp(`/blog/${categorie}`)}>{tl(locale, 'home.seeAll')} <Arrow /></Link>
+              </div>
+            </aside>
           </div>
         </section>
       )}

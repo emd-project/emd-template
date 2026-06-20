@@ -3,17 +3,14 @@
  *
  * Doctrine : RUNTIME BÊTE. Une seule source de vérité (niche.config), des
  * fallbacks gracieux, jamais de crash si un champ est absent. La sélection se
- * fait à l'init du site (Claude choisit la variante selon la thématique), pas
- * au runtime. Ici on ne fait que LIRE le choix figé dans la config.
- *
- * Rétro-compatibilité : si un champ `niche.layouts.*` est absent, on retombe sur
- * le comportement historique.
+ * fait à l'init du site, pas au runtime. Ici on LIT le choix figé dans la config.
  */
 import { niche } from '@/niche.config'
 
 // ─── Home ────────────────────────────────────────────────────────────────
-export type HomeVariant = 'magazine' | 'comparateur' | 'dual'
-export const HOME_VARIANTS: readonly HomeVariant[] = ['magazine', 'comparateur', 'dual']
+// magazine · comparateur · marche (« Marché en direct ») · fil (« Le fil »)
+export type HomeVariant = 'magazine' | 'comparateur' | 'marche' | 'fil'
+export const HOME_VARIANTS: readonly HomeVariant[] = ['magazine', 'comparateur', 'marche', 'fil']
 
 /**
  * Variante home effective.
@@ -26,11 +23,12 @@ export function resolveHomeVariant(): HomeVariant {
   return niche.style.hero === 'split' ? 'comparateur' : 'magazine'
 }
 
-/** Mapping URL de preview → variante. Sert aux routes /home-vN (dev/preview). */
+/** Mapping URL de preview → variante (/home-vN, dev/preview, noindex). */
 export const HOME_PREVIEW: Record<string, HomeVariant> = {
   'home-v1': 'magazine',
   'home-v2': 'comparateur',
-  'home-v3': 'dual',
+  'home-v3': 'marche',
+  'home-v4': 'fil',
 }
 
 // ─── Catégorie ──────────────────────────────────────────────────────

@@ -2,18 +2,8 @@
  * niche.config.ts — Configuration centrale du site.
  * C'est le SEUL fichier à remplir pour chaque nouveau site issu du template.
  *
- * Workflow :
- * - Soit rempli par Claude Code via le skill `init-site` (qui pose les questions
- *   par blocs, en commençant par le Bloc 0 — langues + marché géo).
- * - Soit rempli à la main quand il n'y a pas de livrable Claude Design.
- *
  * Tous les composants, configs et pages dépendent de ce fichier. Ne pas hardcoder
  * de couleur, de font, de nom de site, de tagline dans le JSX — passer par ici.
- *
- * IMPORTANT — Bloc 0 d'init-site :
- *   Les champs `market`, `locales`, `defaultLocale`, `localePrefix` sont définis
- *   AVANT tous les autres et pilotent l'architecture i18n du site (routing,
- *   middleware, hreflang, sitemap, OG locale, schema.org). Cf. skills/init-site/SKILL.md.
  */
 
 export type NicheConfig = {
@@ -23,10 +13,10 @@ export type NicheConfig = {
   tagline: string
 
   // Vocabulaire de la niche
-  entity: string          // "produit", "destination", "carte"
-  entities: string        // pluriel
-  entityVerb: string      // "acheter", "explorer", "souscrire"
-  dealWord: string        // "deals", "bons plans", "offres"
+  entity: string
+  entities: string
+  entityVerb: string
+  dealWord: string
 
   // Hero
   heroPrefix: string
@@ -105,7 +95,7 @@ export type NicheConfig = {
   affiliateTag: string
   defaultStore: string
 
-  // Signature DA anti-IA — personnalité visuelle unique
+  // Signature DA anti-IA
   signature: {
     anchor: string
     oneRule: string
@@ -114,37 +104,10 @@ export type NicheConfig = {
     components: string[]
   }
 
-  // ─── i18n & marché (Bloc 0 d'init-site) ────────────────────────────────
-  /**
-   * Marché géographique principal. Détermine OG locale (`fr_BE` vs `fr_FR`...),
-   * devise par défaut (EUR/CHF/CAD...), schema.org `addressCountry`, références
-   * institutionnelles citées par seo-geo-redaction (FSMA/BNB pour BE, ACPR/AMF
-   * pour FR, FINMA pour CH, AMF Québec pour CA).
-   */
+  // ─── i18n & marché (Bloc 0 d'init-site) ───────────────────────────
   market: 'BE' | 'FR' | 'CA' | 'CH' | string
-
-  /**
-   * Locale par défaut du site (généralement la première de `locales`).
-   * Avec `localePrefix: 'as-needed'`, cette locale n'a PAS de préfixe URL
-   * (URLs canoniques courtes pour le marché principal → SEO optimal).
-   */
   defaultLocale: string
-
-  /**
-   * Liste des langues supportées. Ordre = priorité éditoriale.
-   * Si `length === 1` → routing `app/page.tsx` direct, pas de middleware i18n.
-   * Si `length >= 2` → routing `app/[locale]/...`, middleware `next-intl`,
-   *   miroir strict obligatoire (cf. skills/seo-geo-redaction/references/mirror-i18n.md).
-   */
   locales: string[]
-
-  /**
-   * Comportement du préfixe locale dans l'URL.
-   * - `'as-needed'` (recommandé) : default sans préfixe, autres sous segment.
-   *   Ex: `/blog/article` (FR) + `/en/blog/article` (EN).
-   * - `'always'` : toutes locales sous préfixe. Ex: `/fr/...` + `/en/...`.
-   * - `undefined` : 1 seule locale, pas de routing locale-aware.
-   */
   localePrefix?: 'as-needed' | 'always'
 
   // ─── Variantes de design & permutations (système de variantes) ──────────
@@ -152,13 +115,13 @@ export type NicheConfig = {
    * Choix de variante par type de page. OPTIONNEL & RÉTRO-COMPATIBLE :
    * - `home` absent → le resolver (lib/variants.ts) retombe sur `style.hero`
    *   ('split' → comparateur, sinon → magazine).
-   * Variantes home dispo : 'magazine' | 'comparateur' | 'dual'.
-   * Preview : /home-v1 (magazine) · /home-v2 (comparateur) · /home-v3 (dual).
+   * Variantes home : 'magazine' | 'comparateur' | 'marche' | 'fil'.
+   * Preview : /home-v1 (magazine) · /home-v2 (comparateur) · /home-v3 (marché) · /home-v4 (fil).
    * Règle d'init : quand Claude choisit une variante, il dépublie (supprime) les
    * routes preview /home-vN restantes (cf. docs/AUTO-DESIGN.md).
    */
   layouts?: {
-    home?: 'magazine' | 'comparateur' | 'dual'
+    home?: 'magazine' | 'comparateur' | 'marche' | 'fil'
     category?: 'classic' | 'editorial'
     article?: 'classic' | 'feature'
   }
@@ -178,11 +141,7 @@ export type NicheConfig = {
   branch: string
 }
 
-// ─── Valeurs par défaut (placeholder) ───────────────────────────────────
-// Ces valeurs permettent au site de build avec un template vierge. Le défaut
-// visuel est le skin V1 Voltéo (clair, magazine). Elles sont remplacées par
-// init-site lors du bootstrap (skin choisi + muté) — cf. docs/AUTO-DESIGN.md.
-
+// ─── Valeurs par défaut (placeholder) ──────────────────────────────
 export const niche: NicheConfig = {
   siteName: 'emd-template',
   domain: 'example.com',
@@ -207,7 +166,6 @@ export const niche: NicheConfig = {
   simulator: { enabled: true, title: '', description: '' },
 
   // Défaut = skin V1 Voltéo « Électrique » (clair) · archétype magazine (hero centered).
-  // 'split' → home comparateur ; 'centered'/'minimal' → home magazine.
   style: {
     mode: 'light',
     hero: 'centered',
@@ -247,11 +205,8 @@ export const niche: NicheConfig = {
   defaultStore: 'Amazon',
 
   // Bloc 0 d'init-site — placeholders à remplacer impérativement
-  market: 'BE',                  // À choisir : 'BE' | 'FR' | 'CA' | 'CH' | string
+  market: 'BE',
   defaultLocale: 'fr',
-  // i18n actif : FR (défaut, sans préfixe) + EN (sous /en). L'arbre EN vit dans
-  // app/en/ (frère disjoint des routes FR sous app/(site)/). Le routing reste
-  // explicite par dossier — pas de middleware i18n, pas de [locale] dynamique.
   locales: ['fr', 'en'],
   localePrefix: 'as-needed',
 
@@ -263,7 +218,7 @@ export const niche: NicheConfig = {
   branch: 'main',
 }
 
-// ─── Helpers ────────────────────────────────────────────────────────────
+// ─── Helpers ───────────────────────────────────────────────────
 
 /** Accent CSS variable for a given category index. */
 const ACCENT_VARS = ['var(--accent-1)', 'var(--accent-2)', 'var(--accent-3)', 'var(--accent-4)', 'var(--accent-5)']
@@ -297,7 +252,6 @@ export function isMultilingual(): boolean {
  * Helper pour construire un chemin localisé respectant `localePrefix: 'as-needed'`.
  * - Si lang === defaultLocale → renvoie path tel quel (pas de préfixe)
  * - Sinon → préfixe `/[lang]`
- * Exemple : localePath('fr', '/blog') → '/blog' ; localePath('en', '/blog') → '/en/blog'
  */
 export function localePath(lang: string, path: string): string {
   if (lang === niche.defaultLocale) return path

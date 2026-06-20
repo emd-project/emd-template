@@ -124,11 +124,18 @@
     "fallbackLabel": "Comparateur",
     "fallbackDesc": "Comparez les {entities} côte à côte."
   },
+  "proConTable": {
+    "pros": "Pour",
+    "cons": "Contre"
+  },
   "callout": {
     "warning": "Attention"
   },
   "product": {
     "viewPrice": "Voir le prix →",
+    "viewOnAmazon": "Voir sur Amazon →",
+    "dealOfMoment": "Deal du moment",
+    "trustLine": "Livraison gratuite · Retour 30 jours",
     "stickyAriaLabel": "Offre produit"
   }
 }

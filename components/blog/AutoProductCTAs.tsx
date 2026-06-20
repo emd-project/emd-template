@@ -4,22 +4,25 @@
  * AutoProductCTAs — injecte automatiquement des cartes Amazon entre les sections.
  * Place un CTA après le 2e h2 et un après le 4e h2 dans .prose-article.
  * S'auto-insert via useEffect + portal-like DOM injection.
- * 'use client' isolé.
+ * 'use client' isolé. Libellés localisés via `locale` (défaut fr).
  */
 
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { ArticleCTA } from '@/lib/article-ctas'
 import { AffiliateLink } from '@/components/ui/AffiliateLink'
+import { tl } from '@/lib/i18n'
 
 type Props = {
   ctas: ArticleCTA[]
+  /** Locale active (défaut fr). */
+  locale?: string
 }
 
 /** Positions des h2 après lesquels injecter (0-indexed) : après le 2e et le 4e */
 const INSERT_AFTER_H2 = [1, 3]
 
-function CTACard({ cta }: { cta: ArticleCTA }) {
+function CTACard({ cta, locale }: { cta: ArticleCTA; locale: string }) {
   return (
     <div style={{ margin: 'var(--space-10) 0' }}>
       <div className="comparateur-card-wrap">
@@ -65,7 +68,7 @@ function CTACard({ cta }: { cta: ArticleCTA }) {
             }}
           />
 
-          {/* "Deal du moment" pill */}
+          {/* pill « Deal du moment » */}
           <span
             style={{
               position: 'relative',
@@ -81,7 +84,7 @@ function CTACard({ cta }: { cta: ArticleCTA }) {
               borderRadius: '2px',
             }}
           >
-            Deal du moment
+            {tl(locale, 'product.dealOfMoment')}
           </span>
 
           {/* Badge catégorie + nom */}
@@ -171,7 +174,7 @@ function CTACard({ cta }: { cta: ArticleCTA }) {
               marginTop: 'var(--space-1)',
             }}
           >
-            Voir sur Amazon →
+            {tl(locale, 'product.viewOnAmazon')}
           </AffiliateLink>
 
           {/* Trust line */}
@@ -184,7 +187,7 @@ function CTACard({ cta }: { cta: ArticleCTA }) {
               opacity: 0.6,
             }}
           >
-            Livraison gratuite · Retour 30 jours
+            {tl(locale, 'product.trustLine')}
           </span>
         </div>
       </div>
@@ -192,7 +195,7 @@ function CTACard({ cta }: { cta: ArticleCTA }) {
   )
 }
 
-export function AutoProductCTAs({ ctas }: Props) {
+export function AutoProductCTAs({ ctas, locale = 'fr' }: Props) {
   const [targets, setTargets] = useState<HTMLElement[]>([])
 
   useEffect(() => {
@@ -232,7 +235,7 @@ export function AutoProductCTAs({ ctas }: Props) {
     <>
       {targets.map((el, i) => {
         const cta = ctas[i % ctas.length]
-        return createPortal(<CTACard key={i} cta={cta} />, el)
+        return createPortal(<CTACard key={i} cta={cta} locale={locale} />, el)
       })}
     </>
   )

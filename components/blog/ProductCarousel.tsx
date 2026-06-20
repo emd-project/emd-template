@@ -10,12 +10,15 @@
 import Image from 'next/image'
 import { AffiliateLink } from '@/components/ui/AffiliateLink'
 import { getProduct, getPrimaryLink } from '@/lib/products'
+import { tl } from '@/lib/i18n'
 
 type ProductCarouselProps = {
   products: string
+  /** Locale active (défaut fr). */
+  locale?: string
 }
 
-export function ProductCarousel({ products }: ProductCarouselProps) {
+export function ProductCarousel({ products, locale = 'fr' }: ProductCarouselProps) {
   const slugs = products
     .split(',')
     .map((s) => s.trim())
@@ -198,7 +201,7 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
                   marginTop: 'var(--space-2)',
                 }}
               >
-                Voir le prix →
+                {tl(locale, 'product.viewPrice')}
               </AffiliateLink>
             </div>
           </div>

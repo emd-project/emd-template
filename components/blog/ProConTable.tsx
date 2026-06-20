@@ -3,13 +3,18 @@
  * Usage MDX :
  *   <ProConTable pros="Avantage 1|Avantage 2" cons="Inconvénient 1|Inconvénient 2" />
  * Props MUST be strings (compileMDX drops JSX expression props).
+ * Libellés par défaut localisés via `locale` (défaut fr).
  */
+
+import { tl } from '@/lib/i18n'
 
 type Props = {
   pros: string | string[]
   cons: string | string[]
   labelPro?: string
   labelCon?: string
+  /** Locale active (défaut fr). */
+  locale?: string
 }
 
 function parseList(val: string | string[] | undefined): string[] {
@@ -21,11 +26,14 @@ function parseList(val: string | string[] | undefined): string[] {
 export function ProConTable({
   pros,
   cons,
-  labelPro = 'Pour',
-  labelCon = 'Contre',
+  labelPro,
+  labelCon,
+  locale = 'fr',
 }: Props) {
   const proList = parseList(pros)
   const conList = parseList(cons)
+  const proLabel = labelPro ?? tl(locale, 'proConTable.pros')
+  const conLabel = labelCon ?? tl(locale, 'proConTable.cons')
 
   return (
     <div
@@ -56,7 +64,7 @@ export function ProConTable({
             margin: '0 0 var(--space-3)',
           }}
         >
-          ✓ {labelPro}
+          ✓ {proLabel}
         </p>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
           {proList.map((item, i) => (
@@ -102,7 +110,7 @@ export function ProConTable({
             margin: '0 0 var(--space-3)',
           }}
         >
-          ✗ {labelCon}
+          ✗ {conLabel}
         </p>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
           {conList.map((item, i) => (

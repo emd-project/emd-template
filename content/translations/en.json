@@ -124,11 +124,18 @@
     "fallbackLabel": "Comparator",
     "fallbackDesc": "Compare {entities} side by side."
   },
+  "proConTable": {
+    "pros": "Pros",
+    "cons": "Cons"
+  },
   "callout": {
     "warning": "Warning"
   },
   "product": {
     "viewPrice": "See price →",
+    "viewOnAmazon": "View on Amazon →",
+    "dealOfMoment": "Deal of the moment",
+    "trustLine": "Free delivery · 30-day returns",
     "stickyAriaLabel": "Product offer"
   }
 }

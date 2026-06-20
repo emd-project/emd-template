@@ -4,20 +4,16 @@
  * LangSwitch — bascule FR ⇄ EN vers la PAGE ÉQUIVALENTE (jamais une 404).
  *
  * Routing emd-template = `localePrefix: 'as-needed'` :
- *  - locale par défaut (FR) → routes SANS préfixe   : /blog/[cat]/[slug]
- *  - autres locales (EN)    → routes AVEC préfixe    : /en/blog/[cat]/[slug]
+ *  - locale par défaut (FR) → routes SANS préfixe   : /comparer, /blog/[cat]/[slug]
+ *  - autres locales (EN)    → routes AVEC préfixe    : /en/comparer, /en/blog/...
  *
- * IMPORTANT — l'arbre /en ne mirrore PAS tout le site. Seules ont une version EN :
- *  - l'accueil (/ ⇄ /en)
- *  - le blog (/blog, /blog/[cat], /blog/[cat]/[slug])
- *  - les pages légales (slugs DIFFÉRENTS : /mentions-legales ⇄ /en/legal-notice,
- *    /confidentialite ⇄ /en/privacy)
- * Les outils (comparer, quiz, simulateur, deals, choisir) et les pages auteur
- * n'ont pas (encore) de route EN → la bascule renvoie vers l'accueil de la
- * locale cible plutôt que vers une 404.
- *
+ * Sections mirrorées (même structure d'URL dans les deux locales) :
+ *  accueil, blog (+ catégorie + article), comparer (+ produit), choisir/[produit],
+ *  deals, quiz, simulateur, auteurs/[slug] → simple swap du préfixe de locale.
+ * Pages légales : slugs DIFFÉRENTS (/mentions-legales ⇄ /en/legal-notice,
+ *  /confidentialite ⇄ /en/privacy) → mapping explicite.
  * Articles : version traduite si le slug est connu (lib/i18n/article-slugs.ts),
- * sinon lien DÉSACTIVÉ (grisé) — jamais une 404, jamais un faux équivalent.
+ *  sinon lien DÉSACTIVÉ (grisé). Tout chemin sans équivalent → accueil cible.
  */
 
 import Link from 'next/link'
@@ -33,6 +29,11 @@ const LEGAL_EQUIV: Record<string, string> = {
   'privacy': 'confidentialite',
 }
 
+/** Sections dont la route EN existe avec la MÊME structure (swap de préfixe). */
+const MIRRORED = new Set([
+  'blog', 'comparer', 'choisir', 'deals', 'quiz', 'simulateur', 'auteurs',
+])
+
 /** Décompose un chemin en { locale active, reste sans préfixe }. */
 function stripLocale(path: string): { locale: string; rest: string } {
   const seg = path.split('/').filter(Boolean)
@@ -47,7 +48,6 @@ type Resolved = { href: string; available: boolean }
 /**
  * Résout l'équivalent de `pathname` dans la locale `target`.
  * `available: false` = article sans traduction connue → lien grisé.
- * Sinon on garantit une URL qui existe (équivalent réel, ou accueil cible).
  */
 function resolve(pathname: string, target: string): Resolved {
   const { locale: from, rest } = stripLocale(pathname)
@@ -57,16 +57,11 @@ function resolve(pathname: string, target: string): Resolved {
   // Accueil
   if (seg.length === 0) return { href: localePath(target, '/'), available: true }
 
-  // Blog
-  if (seg[0] === 'blog') {
-    // Article : /blog/[categorie]/[slug] → traduction si connue, sinon grisé
-    if (seg.length === 3) {
-      const translated = articleSlugInOrNull(seg[2], from, target)
-      if (translated == null) return { href: localePath(target, '/'), available: false }
-      return { href: localePath(target, `/blog/${seg[1]}/${translated}`), available: true }
-    }
-    // /blog ou /blog/[categorie] — existent dans les deux locales
-    return { href: localePath(target, rest), available: true }
+  // Article blog : /blog/[categorie]/[slug] → traduction si connue, sinon grisé
+  if (seg[0] === 'blog' && seg.length === 3) {
+    const translated = articleSlugInOrNull(seg[2], from, target)
+    if (translated == null) return { href: localePath(target, '/'), available: false }
+    return { href: localePath(target, `/blog/${seg[1]}/${translated}`), available: true }
   }
 
   // Pages légales (slugs différents par locale)
@@ -74,8 +69,12 @@ function resolve(pathname: string, target: string): Resolved {
     return { href: localePath(target, `/${LEGAL_EQUIV[seg[0]]}`), available: true }
   }
 
-  // Pas d'équivalent dans la locale cible (outils, auteurs, articles standalone…)
-  // → accueil de la locale cible. Jamais une 404.
+  // Sections mirrorées (même structure d'URL) → swap du préfixe de locale
+  if (MIRRORED.has(seg[0])) {
+    return { href: localePath(target, rest), available: true }
+  }
+
+  // Article standalone /[slug] ou chemin sans équivalent EN → accueil cible (jamais une 404)
   return { href: localePath(target, '/'), available: true }
 }
 

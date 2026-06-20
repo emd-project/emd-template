@@ -8,22 +8,15 @@
 import { niche } from '@/niche.config'
 
 // ─── Home ────────────────────────────────────────────────────────────────
-// magazine · comparateur · marche (« Marché en direct ») · fil (« Le fil »)
 export type HomeVariant = 'magazine' | 'comparateur' | 'marche' | 'fil'
 export const HOME_VARIANTS: readonly HomeVariant[] = ['magazine', 'comparateur', 'marche', 'fil']
 
-/**
- * Variante home effective.
- * 1. `niche.layouts.home` si défini et valide.
- * 2. Sinon, rétro-compat : `style.hero === 'split'` → comparateur, sinon magazine.
- */
 export function resolveHomeVariant(): HomeVariant {
   const explicit = niche.layouts?.home
   if (explicit && HOME_VARIANTS.includes(explicit)) return explicit
   return niche.style.hero === 'split' ? 'comparateur' : 'magazine'
 }
 
-/** Mapping URL de preview → variante (/home-vN, dev/preview, noindex). */
 export const HOME_PREVIEW: Record<string, HomeVariant> = {
   'home-v1': 'magazine',
   'home-v2': 'comparateur',
@@ -35,7 +28,6 @@ export const HOME_PREVIEW: Record<string, HomeVariant> = {
 export type CategoryVariant = 'classic' | 'editorial'
 export const CATEGORY_VARIANTS: readonly CategoryVariant[] = ['classic', 'editorial']
 
-/** Variante catégorie effective (défaut : 'classic' = hub-hero + grille). */
 export function resolveCategoryVariant(): CategoryVariant {
   const explicit = niche.layouts?.category
   if (explicit && CATEGORY_VARIANTS.includes(explicit)) return explicit
@@ -47,10 +39,25 @@ export const CATEGORY_PREVIEW: Record<string, CategoryVariant> = {
   'cat-v2': 'editorial',
 }
 
+// ─── Article ───────────────────────────────────────────────────────
+// classic = 2 colonnes (sommaire sticky + prose) · feature = colonne unique immersive
+export type ArticleVariant = 'classic' | 'feature'
+export const ARTICLE_VARIANTS: readonly ArticleVariant[] = ['classic', 'feature']
+
+export function resolveArticleVariant(): ArticleVariant {
+  const explicit = niche.layouts?.article
+  if (explicit && ARTICLE_VARIANTS.includes(explicit)) return explicit
+  return 'classic'
+}
+
+export const ARTICLE_PREVIEW: Record<string, ArticleVariant> = {
+  'art-v1': 'classic',
+  'art-v2': 'feature',
+}
+
 // ─── Permutation : forme (radius) ─────────────────────────────────────────
 export type Shape = 'rounded' | 'soft' | 'sharp'
 
-/** Forme effective (défaut : 'rounded' = look V1 historique). */
 export function resolveShape(): Shape {
   return niche.permutations?.shape ?? 'rounded'
 }

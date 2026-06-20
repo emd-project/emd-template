@@ -9,7 +9,7 @@
  *
  * Sections mirrorées (même structure d'URL dans les deux locales) :
  *  accueil, blog (+ catégorie + article), comparer (+ produit), choisir/[produit],
- *  deals, quiz, simulateur, auteurs/[slug] → simple swap du préfixe de locale.
+ *  classement/[produit], deals, quiz, simulateur, auteurs/[slug] → swap du préfixe.
  * Pages légales : slugs DIFFÉRENTS (/mentions-legales ⇄ /en/legal-notice,
  *  /confidentialite ⇄ /en/privacy) → mapping explicite.
  * Articles : version traduite si le slug est connu (lib/i18n/article-slugs.ts),
@@ -31,7 +31,7 @@ const LEGAL_EQUIV: Record<string, string> = {
 
 /** Sections dont la route EN existe avec la MÊME structure (swap de préfixe). */
 const MIRRORED = new Set([
-  'blog', 'comparer', 'choisir', 'deals', 'quiz', 'simulateur', 'auteurs',
+  'blog', 'comparer', 'choisir', 'classement', 'deals', 'quiz', 'simulateur', 'auteurs',
 ])
 
 /** Décompose un chemin en { locale active, reste sans préfixe }. */

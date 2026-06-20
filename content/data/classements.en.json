@@ -1,0 +1,27 @@
+{
+  "exemple": {
+    "slug": "exemple",
+    "label": "Sample",
+    "title": "Top 3 — sample comparison",
+    "updated": "2026-06-20",
+    "intro": "Demo ranking — replace at init with the niche's real Top (content/data/classements.en.json), built from a SERP check.",
+    "tldr": [
+      "The best overall pick is Model A, ahead of Model B and Model C.",
+      "Small budget: Model B offers the best value for money.",
+      "Premium: Model C is the most complete."
+    ],
+    "criteria": ["Performance", "Value for money", "Reliability", "Availability"],
+    "methodology": "Ranking based on 4 weighted criteria, from public data and independent tests. Updated regularly.",
+    "sources": [{ "label": "Manufacturer data / independent tests", "url": "" }],
+    "faq": [
+      { "q": "What is the best overall pick?", "a": "Model A: the best balance of performance, price and reliability." },
+      { "q": "What is the best small-budget pick?", "a": "Model B, the best value for money in the selection." },
+      { "q": "Is the ranking independent?", "a": "Yes: editorial selection, no affiliate links or sponsored placement." }
+    ],
+    "items": [
+      { "rank": 1, "nom": "Model A", "score": "9.2/10", "badge": "Best overall", "bestFor": "Versatility", "verdict": "The best all-round balance: capable, reliable and well priced. Our default pick for most profiles.", "pros": ["Versatile", "Reliable", "Good price"], "cons": ["Not the cheapest"], "prix": "€299", "url": "" },
+      { "rank": 2, "nom": "Model B", "score": "8.7/10", "badge": "Best value", "bestFor": "Small budget", "verdict": "The smart choice when budget comes first: the essentials at a contained price, with a longer warranty.", "pros": ["Cheapest", "3-year warranty"], "cons": ["Less complete"], "prix": "€249", "url": "" },
+      { "rank": 3, "nom": "Model C", "score": "8.9/10", "badge": "Premium", "bestFor": "High-end", "verdict": "The most complete and high-end, for those who want the maximum regardless of price.", "pros": ["High-end", "Finish"], "cons": ["Most expensive", "On order"], "prix": "€399", "url": "" }
+    ]
+  }
+}

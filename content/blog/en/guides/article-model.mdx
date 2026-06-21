@@ -1,9 +1,12 @@
 ---
 # article-model.mdx — MODEL ARTICLE (EN mirror of content/blog/guides/article-modele.mdx).
 # Strict mirror: same structure, English copy. Slug pair declared in lib/i18n/article-slugs.ts.
+# Images (see docs/IMAGES-WORKFLOW.md): 1 GENERATED cover (featureImage) +
+# 2 <ArticleImage> REUSED from the category visuals (no extra generation).
 # Delete on init of a new site (same as the FR seed).
 title: "Model article: structure, sidebar and table of contents"
 description: "A sample blog article showing the expected layout: automatic table of contents, sticky sidebar, editorial callouts and FAQ."
+# featureImage = generated cover ([slug]-cover.webp). Empty here as it's the model article.
 featureImage: ""
 publishedAt: "2026-06-19"
 updatedAt: "2026-06-19"
@@ -92,13 +95,23 @@ At the top of the article, the “Key takeaways” box reuses the `aiSummary` fr
 | Rating    | 4.5/5    | 4.2/5    | 4.8/5    |
 | Warranty  | 2 years  | 3 years  | 2 years  |
 
-## Images and carousels (syntax)
+## Article images (1 cover + 2 reused)
 
-These components need real assets. Copy the syntax and replace the paths/slugs:
+**Image doctrine** (see `docs/IMAGES-WORKFLOW.md`): **only one generated image per article**,
+the **cover** (frontmatter `featureImage`, file `[slug]-cover.webp`). The body then gets **2
+reused images** from the category visuals already generated (no extra generation), placed at
+~1/3 and ~2/3 via `<ArticleImage>`. Syntax (replace with real paths):
 
 ```mdx
-<ArticleImage src="/images/blog/my-image.webp" alt="Precise description" caption="Source: 2026 report" />
+<ArticleImage src="/images/categories/guides.webp" alt="Precise description" caption="Category illustration" />
 
+<ArticleImage src="/images/blog/category-guides.webp" alt="Another precise description" />
+```
+
+Never reuse the current article's own cover; for variety, use a sibling article's cover from the
+same category. The product carousel uses real slugs:
+
+```mdx
 <ProductCarousel products="product-slug-1,product-slug-2,product-slug-3" />
 ```
 

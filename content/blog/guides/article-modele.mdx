@@ -2,9 +2,12 @@
 # article-modele.mdx — ARTICLE MODÈLE (démo de mise en page).
 # Montre la structure blog : sidebar sticky + sommaire auto (H2/H3) +
 # encadré « En bref » (aiSummary) + FAQ + composants éditoriaux MDX.
+# Images (cf. docs/IMAGES-WORKFLOW.md) : 1 cover GÉNÉRÉ (featureImage) +
+# 2 <ArticleImage> RÉUTILISÉES des visuels de catégorie (aucune génération en plus).
 # À SUPPRIMER lors de l'init d'un nouveau site (comme content/articles/_example.mdx).
 title: "Article modèle : structure, sidebar et sommaire"
 description: "Exemple d'article de blog montrant la mise en page attendue : sommaire automatique, sidebar collante, encadrés éditoriaux et FAQ."
+# featureImage = cover généré ([slug]-cover.webp). Vide ici car article modèle.
 featureImage: ""
 publishedAt: "2026-06-19"
 updatedAt: "2026-06-19"
@@ -94,13 +97,23 @@ frontmatter (3 à 5 puces). C'est ce que le lecteur — et les moteurs — lisen
 | Note      | 4,5/5    | 4,2/5    | 4,8/5    |
 | Garantie  | 2 ans    | 3 ans    | 2 ans    |
 
-## Images et carrousels (syntaxe)
+## Images de l'article (1 cover + 2 réutilisées)
 
-Ces composants ont besoin d'assets réels. Copiez-collez la syntaxe et remplacez les chemins/slugs :
+**Doctrine images** (cf. `docs/IMAGES-WORKFLOW.md`) : **une seule image générée par article**,
+le **cover** (champ `featureImage` du frontmatter, fichier `[slug]-cover.webp`). Le corps reçoit
+ensuite **2 images réutilisées** des visuels déjà générés de la catégorie (aucune génération en
+plus), placées à ~1/3 et ~2/3 via `<ArticleImage>`. La syntaxe (remplacer par les chemins réels) :
 
 ```mdx
-<ArticleImage src="/images/blog/mon-image.webp" alt="Description précise" caption="Source : rapport 2026" />
+<ArticleImage src="/images/categories/guides.webp" alt="Description précise" caption="Illustration de la catégorie" />
 
+<ArticleImage src="/images/blog/category-guides.webp" alt="Autre description précise" />
+```
+
+Ne jamais réutiliser le cover de l'article courant ; pour varier, employer le cover d'un article
+voisin de la même catégorie. Le carrousel produit, lui, utilise des slugs réels :
+
+```mdx
 <ProductCarousel products="slug-produit-1,slug-produit-2,slug-produit-3" />
 ```
 

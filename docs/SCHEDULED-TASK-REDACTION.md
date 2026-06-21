@@ -58,21 +58,25 @@ JAMAIS d'année en dur dans le titre/frontmatter (sinon « 2026 2027 » l'an pro
 # 6 — Frontmatter MDX (obligatoire)
 title, seoTitle (si différent), description (140-155 car.), slug (kebab-case, head term en tête,
 SANS année), category, author: [authorSlug], publishedAt (date du run), readingTimeMin,
-tldr[], faq[] (6-7), related[] (2-4), cover + coverAlt (fr + locales), mid + midAlt si > 1500 mots.
-Composants dispo : PullQuote, Verdict, StatCard/StatRow, CompareBar, ProConTable, Tip, Warning…
+tldr[], faq[] (6-7), related[] (2-4), featureImage + featureImageAlt (fr + locales).
+Composants dispo : ArticleImage, PullQuote, Verdict, StatCard/StatRow, CompareBar, ProConTable, Tip, Warning…
 Pas de TL;DR/AiSummary dans le corps : injectés par le template depuis le frontmatter.
 
-# 7 — Images (cf. docs/IMAGES-WORKFLOW.md — pattern fire-and-poll)
-Cover : mcp__nano-mentionbox__generate_image (prompt <= 20 mots, cohérent niche + DA, finir par
-« no text no logos no watermark no readable plate no magazine overlay »), 16:9, puis wait_for_image.
-Retry une fois en `[slug]-cover-v2`. Échec → skip l'article, log « Bloqué » dans PROGRESS.md, fin.
-Mid : si article > 1500 mots. WebP. Push via mcp__nano-mentionbox__github_push_images sous
-`public/blog/[categorie]/[slug]/`.
+# 7 — Images (cf. docs/IMAGES-WORKFLOW.md) : 1 cover GÉNÉRÉ + 2 in-content RÉUTILISÉES
+Cover (1 seule génération) : mcp__nano-mentionbox__generate_image (prompt <= 20 mots, cohérent niche +
+DA, finir par « no text no logos no watermark no readable plate no magazine overlay »), 16:9, puis
+wait_for_image. Retry une fois en `[slug]-cover-v2`. Échec → skip l'article, log « Bloqué » dans
+PROGRESS.md, fin. WebP, push via mcp__nano-mentionbox__github_push_images sous
+`public/blog/[categorie]/[slug]/`. Renseigner `featureImage` au frontmatter.
+Deux images in-content (AUCUNE génération) : insérer exactement 2 <ArticleImage> dans le corps, à
+~1/3 et ~2/3 (après le 2e puis le 4e H2), `src` = images EXISTANTES de la catégorie
+(`/images/categories/[categorie].webp` et `/images/blog/category-[categorie].webp`), `alt` dans
+toutes les locales. Ne JAMAIS réutiliser le cover de l'article courant ; ne RIEN générer de plus.
 
 # 8 — Miroir des langues (si locales.length >= 2)
 Traduire l'article dans TOUTES les locales (content/blog/[locale]/[categorie]/[slug].mdx).
 Slug naturel par langue. Voix transposée, FAQ traduite, acronymes [market] gardés + explicités.
-alt images dans toutes les locales. Si une traduction bloque, ne pousse RIEN.
+alt images (cover + in-content) dans toutes les locales. Si une traduction bloque, ne pousse RIEN.
 Si mono-langue : ignorer cette étape.
 
 # 9 — Mapping i18n (si locales.length >= 2)
@@ -80,18 +84,20 @@ Ajouter le couple dans lib/i18n/article-slugs.ts (articleSlugFrToEn). Obligatoir
 sélecteur de langue (zéro-404) et hreflang. cf. mirror-i18n.md.
 
 # 10 — Commit atomique
-Tous les MDX (toutes locales) + mapping i18n en UN commit. Images déjà poussées (étape 7, OK).
+Tous les MDX (toutes locales) + mapping i18n en UN commit. Cover déjà poussé (étape 7, OK) ;
+les images in-content sont des réemplois (rien à pousser).
 Message : feat(content): publish [slug] (locales: [...]).
 
 # 11 — Calendrier + PROGRESS
 Marquer le sujet [x] + date dans content/calendrier-edito.md. Entrée en tête de PROGRESS.md :
-slug(s), catégorie, head term, différenciateur SERP, liens commits, coût images estimé.
+slug(s), catégorie, head term, différenciateur SERP, liens commits, coût image (1 cover).
 
 # 12 — Hard rules
 - JAMAIS publier sans SERP analysis (étape 2).
 - JAMAIS un seul locale si miroir strict actif.
 - JAMAIS d'année en dur dans titre/slug/frontmatter (currentYear() seulement).
 - JAMAIS de marque réelle dans un prompt d'image ; prompts <= 20 mots.
+- UNE SEULE image générée par article (le cover) ; les 2 in-content sont des réemplois.
 - TOUJOURS alt dans toutes les locales · sources datées .[market_tld] · >= 70 % H2 en question ·
   >= 3 signaux d'Expérience.
 
@@ -100,7 +106,7 @@ Ne pousse RIEN. Ajoute une ligne « Bloqué » dans PROGRESS.md (ce qui a échou
 Termine proprement. Le run du lendemain repart sur un autre sujet, sans dette.
 
 # 14 — Output final (8-12 lignes max)
-Slug(s) publié(s) ou échec + raison · catégorie · head term · mots FR · lien commit · coût images.
+Slug(s) publié(s) ou échec + raison · catégorie · head term · mots FR · lien commit · coût image.
 Le détail est dans PROGRESS.md.
 ```
 
@@ -108,7 +114,7 @@ Le détail est dans PROGRESS.md.
 
 - **SERP-first** : pas de rédaction « hors-sol ». Le content gap est la condition d'entrée.
 - **GEO 2026** : Answer-Explanation-Example + signaux d'Expérience = citabilité LLM.
-- **Images V2** : chaque article est animé (cover + mid), jamais de placeholder.
+- **Images économes** : 1 cover généré + 2 images réutilisées par article → site animé, coût minimal, jamais de placeholder.
 - **Miroir conditionnel** : multilingue seulement si `locales >= 2`, sinon un seul fichier.
 - **Année dynamique** : `currentYear()` côté template, rien en dur → pas de péremption.
 - **Anti-footprint** : ne jamais copier le frontmatter/structure d'un autre site.

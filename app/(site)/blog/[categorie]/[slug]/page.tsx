@@ -7,7 +7,6 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { getAllArticles, getArticleRaw, articleExists, getRelatedArticles } from '@/lib/blog'
 import { articleSlugFrToEn } from '@/lib/i18n/article-slugs'
-import { currentYear } from '@/lib/utils/year'
 import { niche } from '@/niche.config'
 import { ArticleView } from '@/components/article/ArticleView'
 import { resolveArticleVariant } from '@/lib/variants'
@@ -26,7 +25,6 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { categorie, slug } = await params
   if (!articleExists(categorie, slug)) return {}
   const { meta } = getArticleRaw(categorie, slug)
-  const year = currentYear()
 
   const enSlug = articleSlugFrToEn[slug] ?? null
   const languages: Record<string, string> = {
@@ -35,8 +33,10 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   }
   if (enSlug) languages.en = `${SITE_URL}/en/blog/${categorie}/${enSlug}`
 
+  // Titre : libellé de l'article + marque. PAS d'année ajoutée ici (l'année
+  // éventuelle vit dans le H1/contenu via currentYear()) → évite "2026 2026".
   return {
-    title: `${meta.title} ${year} | ${niche.siteName}`,
+    title: `${meta.title} | ${niche.siteName}`,
     description: meta.description,
     alternates: {
       canonical: `${SITE_URL}/blog/${categorie}/${slug}`,

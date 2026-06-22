@@ -6,7 +6,6 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { getAllArticlesEn, getCategoriesEn, CATEGORY_LABELS } from '@/lib/blog'
-import { currentYear } from '@/lib/utils/year'
 import { CategoryView } from '@/components/category/CategoryView'
 import { niche } from '@/niche.config'
 
@@ -26,9 +25,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { categorie } = await params
   const label = catLabel(categorie)
-  const year = currentYear()
+  // No year in the title (avoids > 60 titles and yearly staleness).
   return {
-    title: `${label} — articles and guides ${year} | ${niche.siteName}`,
+    title: `${label} — articles and guides | ${niche.siteName}`,
     description: `All ${label} articles: guides, comparisons and advice.`,
     alternates: {
       canonical: `${SITE_URL}/en/blog/${categorie}`,

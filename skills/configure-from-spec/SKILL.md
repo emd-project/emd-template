@@ -1,7 +1,7 @@
 ---
 name: configure-from-spec
-version: 3.1.0
-description: Configure un nouveau site fork-é depuis emd-template À PARTIR D'UN FICHIER SPEC pré-rempli par le wizard nano-mentionbox. Lit `init-spec.md`, analyse les exports Semrush dans `semrush-exports/`, écrit `niche.config.ts` + tous les `content/*` (en miroir si N langues), PUIS compose un design Voltéo UNIQUE (type de home + mixage des variantes + tokens mutés dans app/styles/volteo.css) et le montre en PREVIEW minimal (home + 1 hub + 1 article, placeholders, zéro image) pour validation AVANT de bâtir. Après validation : build complet + images plafonnées (≤5) + tâche de rédaction. À utiliser SEULEMENT quand un init-spec.md fraîchement poussé par le wizard est présent à la racine et que l'utilisateur dit « configure le site depuis init-spec.md », « configure depuis la spec », « init from spec », « lance la configuration », « setup le repo ». Ne JAMAIS utiliser pour un site déjà configuré (niche.config.ts.market défini → init-site pour amender). Ne JAMAIS proposer si init-spec.md n'existe pas — proposer init-site.
+version: 3.2.0
+description: Configure un nouveau site fork-é depuis emd-template À PARTIR D'UN FICHIER SPEC pré-rempli par le wizard nano-mentionbox. Lit `init-spec.md`, analyse les exports Semrush dans `semrush-exports/`, écrit `niche.config.ts` + tous les `content/*` (en miroir si N langues), PUIS sélectionne la DA via le SYSTÈME DE VARIANTES (full-auto : suggestVariants + override thématique → niche.config.layouts + permutations + palette) et build directement. À utiliser SEULEMENT quand un init-spec.md fraîchement poussé par le wizard est présent à la racine et que l'utilisateur dit « configure le site depuis init-spec.md », « configure depuis la spec », « init from spec », « lance la configuration », « setup le repo ». Ne JAMAIS utiliser pour un site déjà configuré (niche.config.ts.market défini → init-site pour amender). Ne JAMAIS proposer si init-spec.md n'existe pas — proposer init-site.
 allowed-tools:
   - Read
   - Write
@@ -15,26 +15,21 @@ allowed-tools:
   - mcp__nano-mentionbox__github_push_images
 ---
 
-# configure-from-spec v3.1 — Configurer un site depuis un init-spec.md du wizard
+# configure-from-spec v3.2 — Configurer un site depuis un init-spec.md du wizard
 
-> **Changement v2.x → v3.0** : le design passe par une **PHASE PREVIEW** — Claude compose un design
-> Voltéo **unique** (type de home + **mixage** des variantes + **tokens mutés** dans
-> `app/styles/volteo.css`) et bâtit un **preview minimal** (home + 1 hub + 1 article, **placeholders,
-> zéro image**) → **STOP, validation utilisateur** → puis **BUILD** (arborescence + images **plafonnées
-> ≤ 5**, jamais par catégorie/article + tâche de rédaction). Le wizard reste « zéro question » côté
-> éditorial, mais s'arrête **une fois** pour valider le **design**. Cf. `docs/AUTO-DESIGN.md` +
-> `docs/design-reference/volteo/DESIGN-NOTES.md`.
->
-> **Changement v3.0 → v3.1** : le **seed est bilingue dès le provisioning** si `locales` ≥ 2 (cf.
-> étape 13). Plus de site « FR-only à enrichir plus tard » : un arbre `/en` promis mais vide = échec.
+> **v3.2** : la DA passe par le **SYSTÈME DE VARIANTES en full-auto** (étape 12). Fini le « mix V1-V4
+> à la main + mutation dans volteo.css » : on **sélectionne** une variante (`layouts`) + des
+> **permutations** (`shape`/`border`/`shadow`) + une **palette**, on les **écrit dans `niche.config`**,
+> on **dépublie les previews**, et on build — **sans phase de validation**. Cf. `docs/AUTO-DESIGN.md`.
+> Le seed reste **bilingue dès le provisioning** si `locales` ≥ 2 (étape 13).
 
 ## Pré-requis (seuls points d'arrêt « bloqueur »)
 1. **`init-spec.md` existe** à la racine. Sinon → proposer `init-site`.
-2. **MCP nano-mentionbox dispo** — sinon STOP (les images du BUILD ne tourneront pas ; la PREVIEW, elle, n'en génère aucune).
+2. **MCP nano-mentionbox dispo** — sinon STOP (les images du BUILD ne tourneront pas).
 3. **Champs critiques** : Bloc 0 (marché+langues), Bloc 1 (voix), Bloc 6 (mentions, email contact). Sinon STOP.
 4. **`niche.config.ts.market` vide** (sinon site déjà configuré → STOP).
 
-En dehors de ces 4 points + **la validation du design (preview)**, ne pas s'interrompre : la spec fait foi.
+En dehors de ces 4 points, ne pas s'interrompre : la spec fait foi. **Pas de validation de design** (full-auto).
 
 ---
 
@@ -42,69 +37,68 @@ En dehors de ces 4 points + **la validation du design (preview)**, ne pas s'inte
 Sections YAML : `## Identité`, `## Bloc 0..7`, `## Design` (`archetype`, `skin`, `vertical`, `brandColor`). Détecter les « 🤖 Mode AUTO ».
 
 ## Étape 2 — Validation sémantique
-`market` valide · `locales[0]===defaultLocale` · `localePrefix as-needed`⇒N≥2 · email contact (STOP si absent) · slug auteur kebab-case. Corrections mineures silencieuses (notées dans PROGRESS).
+`market` valide · `locales[0]===defaultLocale` · `localePrefix as-needed`⇒N≥2 · email contact (STOP si absent) · slug auteur kebab-case.
 
 ## Étape 3 — Analyser Semrush (`semrush-exports/*.csv`)
 Agréger/dédoublonner · classer l'intent · clusteriser (5-10) · dériver l'arborescence (`niche.config.ts.categories` TOUJOURS depuis les clusters).
 
 ## Étapes 4–11 — Écrire la config + le contenu
-`niche.config.ts` · `mots-cles.md` · `calendrier-edito.md` (50 articles priorisés) · `ton-of-voice.md` ·
+`niche.config.ts` · `mots-cles.md` · `calendrier-edito.md` (50 articles) · `ton-of-voice.md` ·
 `personas.md` (auto) · `concurrents.md` · `faq-base.md` · `pages/mentions-legales.yaml` (+ locales) ·
-`docs/AUTHOR-[slug].md` (si Bloc 7). (Écriture de fichiers — pas de génération lourde ici.)
+`docs/AUTHOR-[slug].md` (si Bloc 7).
 
 ---
 
-## Étape 12 — Design PREVIEW (assemblage Voltéo) — STOP POUR VALIDATION
+## Étape 12 — DA via le SYSTÈME DE VARIANTES (full-auto, AUCUNE validation)
 
 `ls -la design-incoming/` :
 - **non vide** → `integrate-claude-design`.
-- **vide** → `docs/AUTO-DESIGN.md` (Phase 1). Lire le bloc `## Design` (`archetype`, `skin`, `vertical`, `brandColor`) puis :
-  1. **Type de home** depuis `archetype` (comparateur/magazine/portail) → `niche.style.hero`.
-  2. **Mixage des variantes** : étudier `docs/design-reference/volteo/*-V1..V4` + `marche`/`fil`/`portail`,
-     **puiser et recombiner** (jamais copier une variante).
-  3. **Tokens** : appliquer + **muter** le `skin` (DESIGN-NOTES §2) dans **`app/styles/volteo.css :root`**
-     + **fonts** dans **`app/layout.tsx`**. (Si `skin`/`vertical` = `auto` → déduire de la niche.)
-     **PAS** `niche.config.palette` ni `globals.css --accent-1`.
-  4. **Preview minimal** : home + **1** hub/catégorie + **1** article, en **contenu bouchon** + **images
-     placeholder** — **ZÉRO génération d'images** (1 hero max).
-  5. **STOP.** Annoncer type de home + mix + tokens, **montrer le preview, ATTENDRE la validation.**
+- **vide** → dérouler `docs/AUTO-DESIGN.md` (procédure full-auto) :
+  1. **Variante** : `suggestVariants(niche.domain)` (`lib/variants.ts`) + **override thématique** →
+     écrire `niche.config.layouts.home` (magazine/comparateur/marche/fil) + `layouts.category`
+     (classic/editorial) + `niche.style.hero` cohérent. (`marche` seulement si classements générés.)
+  2. **Permutations** : depuis `suggestVariants` → écrire `niche.config.permutations`
+     (`shape`/`border`/`shadow`). (Appliquées par `PermutationStyle`, rien en CSS.)
+  3. **Palette & fonts** : depuis `## Design` (`brandColor`/`skin`) sinon **preset** déterministe
+     (`docs/DA-PRESETS.md`, par thématique + seed) → écrire **`niche.config.palette`** PUIS propager
+     dans **`app/globals.css :root`** (+ `@theme`) + **fonts** dans **`app/layout.tsx`**.
+     **JAMAIS** de valeur dans `app/styles/volteo.css :root` (alias only). PAS de `niche.config.palette`
+     ignorée au profit de volteo.css.
+  4. **Dépublier les previews** non retenues : supprimer `/home-vN`, `/cat-vN`, `/art-v1` (+ `/en/...`).
 
-⚠️ `niche.config.ts.categories` (clusters Semrush) ne doit PAS être écrasé par le design.
-**INTERDIT en preview** : arborescence complète, images en masse, tous les articles, tâche de rédaction.
+⚠️ `niche.config.ts.categories` (clusters Semrush) ne doit PAS être écrasé.
 
 ---
 
-## Étape 13 — BUILD (UNIQUEMENT après validation du design)
+## Étape 13 — BUILD
 
 1. **Arborescence + contenu d'amorçage réel** (sourcé) : catégories browsables, 1-2 articles seed.
-   **Seed BILINGUE si `locales` ≥ 2** : chaque article seed est écrit en FR **et** dans chaque autre
-   langue (miroir strict, `content/blog/[locale]/[categorie]/[slug].mdx`), **avec la paire ajoutée à
-   `lib/i18n/article-slugs.ts`** (`articleSlugFrToEn`). Sans ça : `/en` vide + `LangSwitch` 404 + hreflang
-   manquant = **échec d'init**. Le hreflang est ensuite émis automatiquement par les routes. Modèle de
-   référence : la paire `content/blog/guides/article-modele.mdx` ↔ `content/blog/en/guides/article-model.mdx`.
+   **Seed BILINGUE si `locales` ≥ 2** : chaque seed en FR **et** dans chaque autre langue (miroir strict,
+   `content/blog/[locale]/[categorie]/[slug].mdx`), **+ paire dans `lib/i18n/article-slugs.ts`**. Sinon
+   `/en` vide + `LangSwitch` 404 = **échec d'init**. Modèle : `article-modele.mdx` ↔ `en/article-model.mdx`.
    Si `locales` = 1 → un seul fichier, pas d'arbre `/en`.
 2. **Images — plafond strict** : **≤ ~5** (hero home + couverture hub). **JAMAIS** par catégorie/article.
-   Reste à la demande / tâche de rédaction. Cf. `docs/IMAGES-WORKFLOW.md`. WebP → `public/images/`.
-3. **Tâche de rédaction quotidienne** (la spec vaut consentement) : créer selon
-   `docs/SCHEDULED-TASK-REDACTION.md` (TaskId `[repoName]-article-daily`, cron du Bloc 3, `0 8 * * *` défaut).
+   Cf. `docs/IMAGES-WORKFLOW.md` (1 cover généré + 2 in-content réutilisées par article à la rédaction).
+3. **Tâche de rédaction quotidienne** : créer selon `docs/SCHEDULED-TASK-REDACTION.md`
+   (TaskId `[repoName]-article-daily`, cron du Bloc 3, `0 8 * * *` défaut).
 
-## Étape 14 — PROGRESS.md + DECISIONS.md (design retenu : type, mix, tokens, mutations ; images ; corrections).
+## Étape 14 — PROGRESS.md + DECISIONS.md (variante + permutations + palette retenues ; previews dépubliées ; images ; corrections).
 ## Étape 15 — Commit atomique (Conventional Commits anglais).
-## Étape 16 — Récap utilisateur (marché/locales/clusters/categories/design validé/images ≤5/tâche/repo).
+## Étape 16 — Récap utilisateur (marché/locales/clusters/variante+permutations+palette/images ≤5/tâche/repo).
 
 ---
 
 ## Règles strictes
 - **NE JAMAIS exécuter** sans `init-spec.md` · **NE JAMAIS écraser** un `niche.config.ts` rempli.
-- **PREVIEW avant BUILD** : design montré en placeholders (home + 1 hub + 1 article, **zéro image**),
-  **validation obligatoire** avant tout build. « Build tout + images en masse » avant validation = **échec d'init**.
-- **Seed bilingue dès N≥2** : un site bilingue ne sort JAMAIS du provisioning en FR-only. Le multilingue
-  n'est **pas** reporté aux boucles QA — le seed + le mapping i18n sont faits **maintenant** (miroir strict).
+- **DA = système de variantes** : `niche.config.layouts` + `permutations` + `palette` DOIVENT être écrits.
+  Un site qui sort sans `layouts` (fallback magazine non choisi) = la sélection auto n'a pas tourné = bug.
+- **Tokens = `niche.config.palette` → `app/globals.css`** + fonts dans `app/layout.tsx`. **Rien dans `volteo.css :root`.**
+- **Dépublier les previews** (`/home-vN`, `/cat-vN`, `/art-v1` + `/en`) une fois la variante choisie.
+- **Seed bilingue dès N≥2** : jamais FR-only ; le multilingue n'est pas reporté. Miroir strict + mapping i18n.
 - **Plafond images** au BUILD : ≤ ~5, jamais par catégorie/article.
-- **Tokens** dans `app/styles/volteo.css` + fonts dans `app/layout.tsx`. Unicité par **assemblage**, jamais un clone de variante.
-- Zéro question côté éditorial (la spec fait foi) **sauf** la validation du design · commit atomique · miroir strict si N≥2 · categories depuis Semrush.
+- Zéro question (la spec fait foi, DA full-auto) · commit atomique · categories depuis Semrush.
 
 ## Lien avec les autres skills / docs
-`nouveau-site` · `init-site` (sans spec) · `integrate-claude-design` (étape 12 cas A) · `docs/AUTO-DESIGN.md` ·
-`docs/design-reference/volteo/DESIGN-NOTES.md` · `docs/IMAGES-WORKFLOW.md` · `docs/SCHEDULED-TASK-REDACTION.md` ·
-`seo-geo-redaction` + `ton-of-voice` + `humaniser-fr`.
+`nouveau-site` · `init-site` (sans spec) · `integrate-claude-design` · `docs/AUTO-DESIGN.md` ·
+`lib/variants.ts` · `components/layout/PermutationStyle.tsx` · `docs/DA-PRESETS.md` · `docs/IMAGES-WORKFLOW.md` ·
+`docs/SCHEDULED-TASK-REDACTION.md` · `seo-geo-redaction` + `ton-of-voice` + `humaniser-fr`.

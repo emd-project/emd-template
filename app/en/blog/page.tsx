@@ -4,9 +4,7 @@
  * Server Component · ISR 3600s · searchParams: page
  *
  * i18n (block 2b) : reads the EN mirror via getAllArticlesEn()/getCategoriesEn().
- * Copy is written in English inline (t() is locked to niche.defaultLocale = fr,
- * so it cannot localise EN strings — same convention as /en/legal-notice).
- * Internal hrefs are built under /en/blog (articleHref() emits FR /blog paths).
+ * Copy is written in English inline (t() is locked to niche.defaultLocale = fr).
  */
 
 import Link from 'next/link'
@@ -40,10 +38,12 @@ const articleHrefEn = (a: ArticleMeta) => `/en/blog/${a.categorie}/${a.slug}`
 type SearchParams = Promise<{ page?: string }>
 
 export function generateMetadata(): Metadata {
-  const year = currentYear()
+  // Description riche EN (sans niche.entities qui est un mot FR → pas de fuite FR).
+  // Titre sans année (l'année reste dans le H1 visible).
+  const description = 'Independent guides, comparisons and reviews: data-backed analysis and practical advice to choose with confidence.'
   return {
-    title: `Blog ${year} | ${niche.siteName}`,
-    description: `Guides, comparisons and advice from ${niche.siteName}.`,
+    title: `Blog | ${niche.siteName}`,
+    description,
     alternates: {
       canonical: `${SITE_URL}/en/blog`,
       languages: {
@@ -53,8 +53,8 @@ export function generateMetadata(): Metadata {
       },
     },
     openGraph: {
-      title: `Blog ${year}`,
-      description: `Guides, comparisons and advice from ${niche.siteName}.`,
+      title: 'Blog',
+      description,
       url: `${SITE_URL}/en/blog`,
       siteName: niche.siteName,
       type: 'website',
@@ -104,7 +104,7 @@ export default async function BlogPageEn({ searchParams }: { searchParams: Searc
             </nav>
             <span className="kicker"><span className="tag c1" style={{ padding: '3px 10px' }}><span className="pip" />{niche.siteName}</span></span>
             <h1>Blog {currentYear()}</h1>
-            <p className="lead">Guides, comparisons and advice from {niche.siteName}.</p>
+            <p className="lead">Independent guides, comparisons and reviews from {niche.siteName}.</p>
             <div className="meta">
               <span>{allArticles.length} articles</span>
             </div>

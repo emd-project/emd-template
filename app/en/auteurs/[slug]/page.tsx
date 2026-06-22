@@ -13,6 +13,12 @@ type AuthorData = { slug: string; name: string; role: string; bio: string; longB
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
+/** SEO description = bio truncated to ~155 chars (word-safe), never the full bio. */
+function metaDescription(bio: string): string {
+  if (bio.length <= 155) return bio
+  return bio.slice(0, 152).replace(/\s+\S*$/, '').trimEnd() + '…'
+}
+
 function getAuthors(): Record<string, AuthorData> {
   if (!niche.author.slug) return {}
   return {
@@ -35,9 +41,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const author = getAuthors()[slug]
   if (!author) return {}
+  const description = metaDescription(author.bio)
   return {
     title: `${author.name} — ${author.role} | ${niche.siteName}`,
-    description: author.bio,
+    description,
     alternates: {
       canonical: `${SITE_URL}/en/auteurs/${slug}`,
       languages: {
@@ -46,7 +53,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         'x-default': `${SITE_URL}/auteurs/${slug}`,
       },
     },
-    openGraph: { title: `${author.name} — ${author.role}`, description: author.bio, url: `${SITE_URL}/en/auteurs/${slug}`, siteName: niche.siteName, type: 'profile', locale: 'en' },
+    openGraph: { title: `${author.name} — ${author.role}`, description, url: `${SITE_URL}/en/auteurs/${slug}`, siteName: niche.siteName, type: 'profile', locale: 'en' },
   }
 }
 

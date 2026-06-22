@@ -11,6 +11,12 @@ export const revalidate = 86400
 
 type AuthorData = { slug: string; name: string; role: string; bio: string; longBio: string[]; url: string }
 
+/** Description SEO = bio tronquée à ~155 car. (au mot près), jamais la bio entière. */
+function metaDescription(bio: string): string {
+  if (bio.length <= 155) return bio
+  return bio.slice(0, 152).replace(/\s+\S*$/, '').trimEnd() + '…'
+}
+
 function getAuthors(): Record<string, AuthorData> {
   if (!niche.author.slug) return {}
   return {
@@ -33,11 +39,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const author = getAuthors()[slug]
   if (!author) return {}
+  const description = metaDescription(author.bio)
   return {
     title: `${author.name} — ${author.role} | ${niche.siteName}`,
-    description: author.bio,
+    description,
     alternates: { canonical: author.url },
-    openGraph: { title: `${author.name} — ${author.role}`, description: author.bio, url: author.url, siteName: niche.siteName, type: 'profile' },
+    openGraph: { title: `${author.name} — ${author.role}`, description, url: author.url, siteName: niche.siteName, type: 'profile' },
   }
 }
 

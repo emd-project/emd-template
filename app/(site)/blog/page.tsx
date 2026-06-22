@@ -29,10 +29,12 @@ const catLabel = (slug: string) =>
 type SearchParams = Promise<{ page?: string }>
 
 export function generateMetadata(): Metadata {
-  const year = currentYear()
+  // Description riche (140-160 visé) au lieu de blog.heroSubtitle (trop court pour le SEO).
+  // Titre sans année (l'année reste dans le H1 visible via currentYear()).
+  const description = `Guides, comparatifs et tests indépendants sur les ${niche.entities} : analyses chiffrées et conseils concrets pour choisir en toute confiance.`
   return {
-    title: `${t('nav.blog')} ${year} | ${niche.siteName}`,
-    description: t('blog.heroSubtitle'),
+    title: `${t('nav.blog')} | ${niche.siteName}`,
+    description,
     // hreflang réciproque (bloc 4) : la hub FR pointe vers son miroir EN (/en/blog).
     alternates: {
       canonical: `${SITE_URL}/blog`,
@@ -43,8 +45,8 @@ export function generateMetadata(): Metadata {
       },
     },
     openGraph: {
-      title: `${t('nav.blog')} ${year}`,
-      description: t('blog.heroSubtitle'),
+      title: t('nav.blog'),
+      description,
       url: `${SITE_URL}/blog`,
       siteName: niche.siteName,
       type: 'website',

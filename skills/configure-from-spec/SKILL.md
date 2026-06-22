@@ -1,6 +1,6 @@
 ---
 name: configure-from-spec
-version: 3.0.0
+version: 3.1.0
 description: Configure un nouveau site fork-é depuis emd-template À PARTIR D'UN FICHIER SPEC pré-rempli par le wizard nano-mentionbox. Lit `init-spec.md`, analyse les exports Semrush dans `semrush-exports/`, écrit `niche.config.ts` + tous les `content/*` (en miroir si N langues), PUIS compose un design Voltéo UNIQUE (type de home + mixage des variantes + tokens mutés dans app/styles/volteo.css) et le montre en PREVIEW minimal (home + 1 hub + 1 article, placeholders, zéro image) pour validation AVANT de bâtir. Après validation : build complet + images plafonnées (≤5) + tâche de rédaction. À utiliser SEULEMENT quand un init-spec.md fraîchement poussé par le wizard est présent à la racine et que l'utilisateur dit « configure le site depuis init-spec.md », « configure depuis la spec », « init from spec », « lance la configuration », « setup le repo ». Ne JAMAIS utiliser pour un site déjà configuré (niche.config.ts.market défini → init-site pour amender). Ne JAMAIS proposer si init-spec.md n'existe pas — proposer init-site.
 allowed-tools:
   - Read
@@ -15,7 +15,7 @@ allowed-tools:
   - mcp__nano-mentionbox__github_push_images
 ---
 
-# configure-from-spec v3.0 — Configurer un site depuis un init-spec.md du wizard
+# configure-from-spec v3.1 — Configurer un site depuis un init-spec.md du wizard
 
 > **Changement v2.x → v3.0** : le design passe par une **PHASE PREVIEW** — Claude compose un design
 > Voltéo **unique** (type de home + **mixage** des variantes + **tokens mutés** dans
@@ -24,6 +24,9 @@ allowed-tools:
 > ≤ 5**, jamais par catégorie/article + tâche de rédaction). Le wizard reste « zéro question » côté
 > éditorial, mais s'arrête **une fois** pour valider le **design**. Cf. `docs/AUTO-DESIGN.md` +
 > `docs/design-reference/volteo/DESIGN-NOTES.md`.
+>
+> **Changement v3.0 → v3.1** : le **seed est bilingue dès le provisioning** si `locales` ≥ 2 (cf.
+> étape 13). Plus de site « FR-only à enrichir plus tard » : un arbre `/en` promis mais vide = échec.
 
 ## Pré-requis (seuls points d'arrêt « bloqueur »)
 1. **`init-spec.md` existe** à la racine. Sinon → proposer `init-site`.
@@ -74,6 +77,12 @@ Agréger/dédoublonner · classer l'intent · clusteriser (5-10) · dériver l'a
 ## Étape 13 — BUILD (UNIQUEMENT après validation du design)
 
 1. **Arborescence + contenu d'amorçage réel** (sourcé) : catégories browsables, 1-2 articles seed.
+   **Seed BILINGUE si `locales` ≥ 2** : chaque article seed est écrit en FR **et** dans chaque autre
+   langue (miroir strict, `content/blog/[locale]/[categorie]/[slug].mdx`), **avec la paire ajoutée à
+   `lib/i18n/article-slugs.ts`** (`articleSlugFrToEn`). Sans ça : `/en` vide + `LangSwitch` 404 + hreflang
+   manquant = **échec d'init**. Le hreflang est ensuite émis automatiquement par les routes. Modèle de
+   référence : la paire `content/blog/guides/article-modele.mdx` ↔ `content/blog/en/guides/article-model.mdx`.
+   Si `locales` = 1 → un seul fichier, pas d'arbre `/en`.
 2. **Images — plafond strict** : **≤ ~5** (hero home + couverture hub). **JAMAIS** par catégorie/article.
    Reste à la demande / tâche de rédaction. Cf. `docs/IMAGES-WORKFLOW.md`. WebP → `public/images/`.
 3. **Tâche de rédaction quotidienne** (la spec vaut consentement) : créer selon
@@ -89,6 +98,8 @@ Agréger/dédoublonner · classer l'intent · clusteriser (5-10) · dériver l'a
 - **NE JAMAIS exécuter** sans `init-spec.md` · **NE JAMAIS écraser** un `niche.config.ts` rempli.
 - **PREVIEW avant BUILD** : design montré en placeholders (home + 1 hub + 1 article, **zéro image**),
   **validation obligatoire** avant tout build. « Build tout + images en masse » avant validation = **échec d'init**.
+- **Seed bilingue dès N≥2** : un site bilingue ne sort JAMAIS du provisioning en FR-only. Le multilingue
+  n'est **pas** reporté aux boucles QA — le seed + le mapping i18n sont faits **maintenant** (miroir strict).
 - **Plafond images** au BUILD : ≤ ~5, jamais par catégorie/article.
 - **Tokens** dans `app/styles/volteo.css` + fonts dans `app/layout.tsx`. Unicité par **assemblage**, jamais un clone de variante.
 - Zéro question côté éditorial (la spec fait foi) **sauf** la validation du design · commit atomique · miroir strict si N≥2 · categories depuis Semrush.

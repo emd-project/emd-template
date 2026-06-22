@@ -1,6 +1,6 @@
 ---
 name: init-site
-version: 4.0.0
+version: 4.1.0
 description: Bootstrap d'un nouveau site forké du template emd-template, SANS init-spec wizard (interview en chat). Lance UN interview groupé par blocs (Bloc 0 marché+langues d'abord, puis voix, mots-clés, calendrier, concurrents, FAQ, mentions, auteur), écrit niche.config.ts + tous les content/*, PUIS compose un design Voltéo UNIQUE (type de home + mixage des variantes + tokens mutés) et le montre en PREVIEW minimal (home + 1 hub + 1 article, placeholders, zéro image) pour validation AVANT de bâtir. Après validation : build complet + images plafonnées (≤5) + tâche de rédaction. À utiliser une fois après "Use this template" quand il n'y a PAS d'init-spec.md. Triggers — « initialise ce site », « configure ce site », « setup le site », « bootstrap le site », « init-site », « lance la conf ». Trigger implicite — première rédaction sur un site visiblement non configuré (niche.config.ts.market vide ou content/ avec TODO). Le routeur nouveau-site appelle ce skill quand aucun init-spec.md n'est présent.
 allowed-tools:
   - Read
@@ -24,6 +24,9 @@ on ne recopie rien.
 > placeholders, **zéro image générée**) → **STOP, validation utilisateur** → puis **BUILD** (images
 > plafonnées ≤ 5, jamais par catégorie/article). On ne part **jamais** en « build tout + génère toutes
 > les images » avant validation. Cf. `docs/AUTO-DESIGN.md` + `docs/design-reference/volteo/DESIGN-NOTES.md`.
+>
+> **Nouveau en v4.1** : le **seed est bilingue dès l'init** si `locales` ≥ 2 (cf. étape 9). Un arbre
+> `/en` promis mais vide = échec d'init.
 
 ## Pré-requis (au démarrage)
 **MCP nano-mentionbox disponible** (`mcp__nano-mentionbox__generate_image`). Si absent → prévenir : les
@@ -82,6 +85,11 @@ articles, créer la tâche de rédaction. On valide la **direction visuelle** d'
 
 Une fois l'utilisateur OK sur le design :
 1. **Arborescence + contenu d'amorçage réel** (sourcé) : pages, catégories browsables, 1-2 articles seed.
+   **Seed BILINGUE si `locales` ≥ 2** : chaque article seed est écrit en FR **et** dans chaque autre
+   langue (miroir strict, `content/blog/[locale]/[categorie]/[slug].mdx`), **avec la paire ajoutée à
+   `lib/i18n/article-slugs.ts`**. Sinon `/en` vide + `LangSwitch` 404 + hreflang manquant = **échec d'init**.
+   Modèle de référence : `content/blog/guides/article-modele.mdx` ↔ `content/blog/en/guides/article-model.mdx`.
+   Si `locales` = 1 → un seul fichier, pas d'arbre `/en`.
 2. **Images — plafond strict** : **≤ ~5** (hero home + couverture hub `/blog`). **JAMAIS** une image par
    catégorie ni par article. Le reste **à la demande** ou via la **tâche de rédaction**. Cf. `docs/IMAGES-WORKFLOW.md`.
    `mcp__nano-mentionbox__generate_image` → WebP → `public/images/`.
@@ -95,7 +103,7 @@ Une fois l'utilisateur OK sur le design :
 Init terminé.
 - Config : niche.config.ts + content/* (voix, mots-cles, personas, calendrier, concurrents, faq, légal, auteur)
 - Design VALIDÉ : type de home [x] · variantes mixées [..] · tokens (volteo.css) mutés
-- Build : arborescence + contenu seed · images ≤5 (hero + cover hub) · tâche de rédaction [si confirmée]
+- Build : arborescence + contenu seed (bilingue si N≥2) · images ≤5 (hero + cover hub) · tâche de rédaction [si confirmée]
 Routing : [..] · Miroir strict : [oui/non] · Marché : [x] · Locales : [..]
 Prochaines étapes : pnpm dev · déploiement Vercel
 ```
@@ -104,6 +112,8 @@ Prochaines étapes : pnpm dev · déploiement Vercel
 - **Bloc 0 en PREMIER**.
 - **PREVIEW avant BUILD** : design montré en placeholders (home + 1 hub + 1 article, **zéro image**),
   **validation obligatoire** avant tout build. Partir en « build tout + images en masse » avant validation = **échec d'init**.
+- **Seed bilingue dès N≥2** : un site bilingue ne sort JAMAIS de l'init en FR-only (routes `/en` vides = échec).
+  Le multilingue n'est **pas** reporté à plus tard — seed + mapping i18n faits **maintenant**.
 - **Plafond images** au BUILD : ≤ ~5, jamais par catégorie/article.
 - **Tokens** dans `app/styles/volteo.css` + fonts dans `app/layout.tsx`. Unicité par **assemblage** (type + mix + mutation), jamais un clone de variante.
 - **NE JAMAIS inventer** une réponse → `TODO`. **Miroir strict** dès N≥2.

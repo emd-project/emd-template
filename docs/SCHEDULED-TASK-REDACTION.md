@@ -27,15 +27,26 @@ skills/humaniser-fr (mode production).
 Si locales.length >= 2 : skills/seo-geo-redaction/references/mirror-i18n.md.
 Toute règle modifiée depuis le dernier run l'emporte.
 
-# 1 — Choisir UN sujet (content gap)
+# 1 — Choisir UN sujet (content gap) — BLOG = INFORMATIONNEL UNIQUEMENT
 Lister les articles publiés (content/blog/[locale]/[categorie]/ et le calendrier). Choisir le
 premier sujet non publié du calendrier OU une catégorie sous-couverte. Sujet concret, ciblé,
 ancré [market], intention de recherche identifiable, faisable en 1 article de 1100-2100 mots.
 Formuler le head term exact. UN SEUL sujet par run.
+ANTI-CANNIBALISATION (cf. CLAUDE.md « Classements ») : le sujet doit être INFORMATIONNEL.
+INTERDIT de cibler un terme tête commercial appartenant à un asset dédié :
+  - « meilleur/top/classement/les meilleurs X » → page /classement (PAS le blog) ;
+  - « X vs Y / comparer X et Y » → /comparer ;
+  - « quel X choisir / quel X pour [profil] » → /choisir ou /quiz.
+Si le calendrier propose un tel sujet : le requalifier en angle informationnel (comment, pourquoi,
+qu'est-ce que, prix, définition, avantages/inconvénients, use-case) qui MAILLE vers l'asset, ou passer
+au suivant. Le blog ne double jamais un asset commercial.
 
-# 2 — SERP analysis OBLIGATOIRE (non-skippable)
+# 2 — SERP analysis OBLIGATOIRE (non-skippable) + check d'intention
 WebSearch sur le head term → top 3 Google.[market_tld]. Pour chacun : titre, chapô, longueur,
 H2, FAQ ?, tableau ?. Documenter le content gap (le différenciateur) en 2-3 lignes. Pas de SERP = run échoué.
+CHECK D'INTENTION : si la SERP du head term est dominée par des listes « meilleurs/top » ou des
+comparatifs 1:1, l'intention appartient au CLASSEMENT/COMPARATEUR, pas au blog → ne pas écrire,
+requalifier en angle informationnel ou choisir un autre sujet.
 
 # 3 — Brief (interne, non commité)
 Cluster, head term, longue traîne (3-5), persona, intention, format, longueur cible,
@@ -94,6 +105,8 @@ slug(s), catégorie, head term, différenciateur SERP, liens commits, coût imag
 
 # 12 — Hard rules
 - JAMAIS publier sans SERP analysis (étape 2).
+- JAMAIS un article blog sur un terme tête commercial (meilleur/top/classement/vs/quel choisir) —
+  ces intentions appartiennent aux assets /classement, /comparer, /choisir (cf. CLAUDE.md). Le blog maille vers eux.
 - JAMAIS un seul locale si miroir strict actif.
 - JAMAIS d'année en dur dans titre/slug/frontmatter (currentYear() seulement).
 - JAMAIS de marque réelle dans un prompt d'image ; prompts <= 20 mots.
@@ -113,6 +126,7 @@ Le détail est dans PROGRESS.md.
 ## Pourquoi ce gabarit
 
 - **SERP-first** : pas de rédaction « hors-sol ». Le content gap est la condition d'entrée.
+- **Anti-cannibalisation** : le blog est informationnel ; les intentions commerciales (meilleur/top, vs, quel choisir) appartiennent aux assets dédiés (classement/comparateur/choisir). Cf. CLAUDE.md.
 - **GEO 2026** : Answer-Explanation-Example + signaux d'Expérience = citabilité LLM.
 - **Images économes** : 1 cover généré + 2 images réutilisées par article → site animé, coût minimal, jamais de placeholder.
 - **Miroir conditionnel** : multilingue seulement si `locales >= 2`, sinon un seul fichier.

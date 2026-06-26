@@ -8,6 +8,7 @@ import type { Metadata } from 'next'
 import { currentYear } from '@/lib/utils/year'
 import { COMPARATEURS } from '@/lib/comparateur'
 import { niche } from '@/niche.config'
+import { tousLes } from '@/lib/utils/grammar'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
@@ -17,7 +18,7 @@ export function generateMetadata(): Metadata {
   const year = currentYear()
   return {
     title: `Comparateur ${year} | ${niche.siteName}`,
-    description: `Comparez tous les ${niche.entities} côte à côte. Données à jour, sourcées et neutres.`,
+    description: `Comparez ${tousLes(niche.entityGender, true)} ${niche.entities} côte à côte. Données à jour, sourcées et neutres.`,
     alternates: { canonical: `${SITE_URL}/comparer` },
     openGraph: { title: `Comparateur ${year}`, description: `Tous les comparateurs ${niche.entities} en un endroit.`, url: `${SITE_URL}/comparer`, siteName: niche.siteName, type: 'website' },
   }

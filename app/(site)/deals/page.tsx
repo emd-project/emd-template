@@ -11,9 +11,12 @@ import { MarqueeStrip } from '@/components/effects/MarqueeStrip'
 import { DealsGrid } from '@/components/deals/DealsGrid'
 import { FaqAccordion } from '@/components/blog/FaqAccordion'
 import { niche } from '@/niche.config'
+import { best } from '@/lib/utils/grammar'
 import type { Deal } from '@/components/deals/DealsGrid'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
+
+const gd = niche.dealWordGender ?? niche.entityGender
 
 export const revalidate = 900
 
@@ -35,10 +38,10 @@ export function generateMetadata(): Metadata {
 }
 
 const DEALS: Deal[] = []
-const MARQUEE_ITEMS = ['Sélection mise à jour chaque semaine', `Les meilleurs ${niche.dealWord} du moment`]
+const MARQUEE_ITEMS = ['Sélection mise à jour chaque semaine', `Les ${best(gd, true)} ${niche.dealWord} du moment`]
 
 const FAQ_ITEMS = [
-  { q: `Où trouver les meilleurs ${niche.dealWord} en ce moment ?`, a: `Sur ${niche.domain}/deals, on sélectionne manuellement les meilleures réductions chaque semaine. Pas de faux deals ni de prix gonflés avant promo.` },
+  { q: `Où trouver les ${best(gd, true)} ${niche.dealWord} en ce moment ?`, a: `Sur ${niche.domain}/deals, on sélectionne manuellement les meilleures réductions chaque semaine. Pas de faux deals ni de prix gonflés avant promo.` },
   { q: `Quand acheter au meilleur prix ?`, a: `Les meilleurs moments : le Black Friday, les soldes, et juste après la sortie d'un nouveau modèle — l'ancien baisse immédiatement.` },
   { q: `Comment vérifiez-vous les deals ?`, a: `On compare le prix affiché au prix officiel et à l'historique. Si le prix barré est gonflé, on ne publie pas. Sélection éditoriale indépendante, sans deal sponsorisé.` },
   { q: 'Comment savoir si une réduction est une vraie promo ?', a: `On compare le prix affiché avec le prix officiel et l'historique. Si le prix barré est gonflé, on ne publie pas.` },

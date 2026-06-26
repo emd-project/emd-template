@@ -8,21 +8,24 @@ import type { Metadata } from 'next'
 import { currentYear } from '@/lib/utils/year'
 import { getClassements } from '@/lib/classement'
 import { niche } from '@/niche.config'
+import { best, accord } from '@/lib/utils/grammar'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
+
+const g = niche.entityGender
 
 export const revalidate = 86400
 
 export function generateMetadata(): Metadata {
   const year = currentYear()
   return {
-    title: `Classements ${year} — les meilleurs ${niche.entities} | ${niche.siteName}`,
-    description: `Nos classements indépendants des meilleurs ${niche.entities} en ${year} : Top par catégorie, scores et verdicts.`,
+    title: `Classements ${year} — les ${best(g, true)} ${niche.entities} | ${niche.siteName}`,
+    description: `Nos classements indépendants des ${best(g, true)} ${niche.entities} en ${year} : Top par catégorie, scores et verdicts.`,
     alternates: {
       canonical: `${SITE_URL}/classement`,
       languages: { fr: `${SITE_URL}/classement`, en: `${SITE_URL}/en/classement`, 'x-default': `${SITE_URL}/classement` },
     },
-    openGraph: { title: `Classements ${year}`, description: `Les meilleurs ${niche.entities}, classés.`, url: `${SITE_URL}/classement`, siteName: niche.siteName, type: 'website' },
+    openGraph: { title: `Classements ${year}`, description: `Les ${best(g, true)} ${niche.entities}, ${accord('classé', g, true)}.`, url: `${SITE_URL}/classement`, siteName: niche.siteName, type: 'website' },
   }
 }
 
@@ -49,7 +52,7 @@ export default function ClassementHubPage() {
             </nav>
             <div className="sec-head" style={{ marginBottom: 8 }}>
               <span className="eyebrow">Classements</span>
-              <h2 style={{ margin: '16px 0 12px' }}>Les meilleurs {niche.entities}, classés.</h2>
+              <h2 style={{ margin: '16px 0 12px' }}>Les {best(g, true)} {niche.entities}, {accord('classé', g, true)}.</h2>
               <p>Nos Top indépendants par catégorie — scores, verdicts et tableau comparatif.</p>
             </div>
           </div>

@@ -10,6 +10,7 @@ import { getClassement, getClassements, CLASSEMENT_SLUGS } from '@/lib/classemen
 import { getProduit } from '@/lib/comparateur'
 import { ClassementList, type ClassementLabels } from '@/components/classement/ClassementList'
 import { currentYear } from '@/lib/utils/year'
+import { best } from '@/lib/utils/grammar'
 import { niche } from '@/niche.config'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
@@ -37,9 +38,11 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   if (!c) return {}
   const year = currentYear()
   const label = stripYear(c.label)
+  const g = c.genre ?? niche.entityGender
+  const plural = c.items.length > 1
   return {
-    title: `Top ${c.items.length} meilleur${c.items.length > 1 ? 's' : ''} ${label} ${year} — classement | ${niche.siteName}`,
-    description: c.intro || `Le classement des meilleurs ${label} en ${year} : Top ${c.items.length}, scores, verdict et tableau comparatif.`,
+    title: `Top ${c.items.length} ${best(g, plural)} ${label} ${year} — classement | ${niche.siteName}`,
+    description: c.intro || `Le classement des ${best(g, true)} ${label} en ${year} : Top ${c.items.length}, scores, verdict et tableau comparatif.`,
     alternates: {
       canonical: `${SITE_URL}/classement/${produit}`,
       languages: {
@@ -48,7 +51,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
         'x-default': `${SITE_URL}/classement/${produit}`,
       },
     },
-    openGraph: { title: `Top ${c.items.length} meilleurs ${label} ${year}`, description: c.intro, url: `${SITE_URL}/classement/${produit}`, siteName: niche.siteName, type: 'article' },
+    openGraph: { title: `Top ${c.items.length} ${best(g, plural)} ${label} ${year}`, description: c.intro, url: `${SITE_URL}/classement/${produit}`, siteName: niche.siteName, type: 'article' },
   }
 }
 
@@ -59,6 +62,8 @@ export default async function ClassementPage({ params }: { params: Params }) {
 
   const year = currentYear()
   const label = stripYear(c.label)
+  const g = c.genre ?? niche.entityGender
+  const plural = c.items.length > 1
   const tabs = Object.values(getClassements('fr'))
   const hasComparateur = Boolean(getProduit(produit))
 
@@ -102,7 +107,7 @@ export default async function ClassementPage({ params }: { params: Params }) {
               </div>
             )}
             <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 4.4vw, 48px)', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.08, marginBottom: 12 }}>
-              Top {c.items.length} meilleurs {label} {year}
+              Top {c.items.length} {best(g, plural)} {label} {year}
             </h1>
             {c.intro && <p style={{ fontSize: 17, color: 'var(--ink-2)', maxWidth: 620, lineHeight: 1.6 }}>{c.intro}</p>}
             {c.updated && <p style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 10 }}>{LABELS.methodology === 'Méthodologie' ? 'Mis à jour le' : 'Updated'} {new Date(c.updated).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>}

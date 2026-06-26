@@ -11,6 +11,7 @@ import { currentYear } from '@/lib/utils/year'
 import { COMPARATEURS, PRODUIT_SLUGS } from '@/lib/comparateur'
 import { getChoisirContent } from '@/lib/choisir-content'
 import { niche } from '@/niche.config'
+import { quel, son } from '@/lib/utils/grammar'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
@@ -26,12 +27,13 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { produit } = await params
   const data = COMPARATEURS[produit]
   if (!data) return {}
+  const g = niche.entityGender
   const year = currentYear()
   return {
-    title: `Quel ${data.label} choisir en ${year} ? Guide complet + quiz | ${niche.siteName}`,
-    description: `Quel ${data.label} ${niche.entityVerb} en ${year} ? Quiz en 4 questions, comparatif par profil, prix et verdict honnête. Guide mis à jour.`,
+    title: `${quel(g)} ${data.label} choisir en ${year} ? Guide complet + quiz | ${niche.siteName}`,
+    description: `${quel(g)} ${data.label} ${niche.entityVerb} en ${year} ? Quiz en 4 questions, comparatif par profil, prix et verdict honnête. Guide mis à jour.`,
     alternates: { canonical: `${SITE_URL}/choisir/${produit}` },
-    openGraph: { title: `Quel ${data.label} choisir en ${year} ?`, description: `Quiz en 4 questions, comparatif par profil et verdict honnête pour choisir son ${data.label} en ${year}.`, url: `${SITE_URL}/choisir/${produit}`, siteName: niche.siteName, type: 'article' },
+    openGraph: { title: `${quel(g)} ${data.label} choisir en ${year} ?`, description: `Quiz en 4 questions, comparatif par profil et verdict honnête pour choisir ${son(g, false, data.label)} ${data.label} en ${year}.`, url: `${SITE_URL}/choisir/${produit}`, siteName: niche.siteName, type: 'article' },
   }
 }
 
@@ -49,6 +51,7 @@ export default async function ChoisirPage({ params }: { params: Params }) {
   const data = COMPARATEURS[produit]
   if (!data) notFound()
 
+  const g = niche.entityGender
   const year = currentYear()
   const accent = getHeroAccent(produit)
   const editorial = getChoisirContent(produit, year)
@@ -57,7 +60,7 @@ export default async function ChoisirPage({ params }: { params: Params }) {
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE_URL },
-      { '@type': 'ListItem', position: 2, name: `Choisir son ${data.label}`, item: `${SITE_URL}/choisir/${produit}` },
+      { '@type': 'ListItem', position: 2, name: `Choisir ${son(g, false, data.label)} ${data.label}`, item: `${SITE_URL}/choisir/${produit}` },
     ],
   }
 
@@ -69,7 +72,7 @@ export default async function ChoisirPage({ params }: { params: Params }) {
         <div className="wrap" style={{ maxWidth: 680 }}>
           <span className="tag" style={{ marginBottom: 16, background: `color-mix(in srgb, ${accent} 12%, transparent)`, color: accent }}>Guide {year}</span>
           <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 5vw, 52px)', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.1, margin: '14px 0 16px', textWrap: 'balance' }}>
-            Quel {data.label} choisir en {year}&nbsp;?
+            {quel(g)} {data.label} choisir en {year}&nbsp;?
           </h1>
           <p style={{ fontSize: 'clamp(15px, 2vw, 18px)', color: 'var(--ink-2)', lineHeight: 1.6, maxWidth: 520, margin: '0 auto' }}>{data.description}</p>
         </div>

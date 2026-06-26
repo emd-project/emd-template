@@ -27,6 +27,11 @@ export type ClassementItem = {
 export type Classement = {
   slug: string
   label: string
+  /**
+   * Genre grammatical du `label` (ex. « néobanques » → 'f'). Pilote l'accord du
+   * titre « Top N meilleur·e·s … » (cf. lib/utils/grammar.ts). Repli : niche.entityGender.
+   */
+  genre?: 'm' | 'f'
   title?: string
   updated?: string
   intro?: string

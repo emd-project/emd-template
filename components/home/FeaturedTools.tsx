@@ -11,6 +11,7 @@ import { niche } from '@/niche.config'
 import { t } from '@/lib/i18n'
 import { FadeIn } from '@/components/motion/FadeIn'
 import { Stagger, StaggerItem } from '@/components/motion/Stagger'
+import { accord, leMot } from '@/lib/utils/grammar'
 
 type ToolCardProps = {
   href: string
@@ -152,11 +153,13 @@ const IconSimulator = () => (
 )
 
 export function FeaturedTools() {
+  const g = niche.entityGender
+
   const comparatorTitle = niche.comparator.enabled
     ? `Comparez les ${niche.entities} côte à côte`
     : `Découvrez nos ${niche.entities}`
 
-  const quizTitle = niche.quiz.question || `Trouvez votre ${niche.entity} idéal`
+  const quizTitle = niche.quiz.question || `Trouvez votre ${niche.entity} ${accord('idéal', g)}`
 
   const simulatorTitle = niche.simulator.title || `Calculez votre budget`
   const simulatorDesc = niche.simulator.description || `Simulez le coût réel de votre ${niche.entity}.`
@@ -231,7 +234,7 @@ export function FeaturedTools() {
                 href="/quiz"
                 eyebrow={t('tools.quiz.eyebrow')}
                 title={quizTitle}
-                description={`Quelques questions pour identifier le ${niche.entity} fait pour vous.`}
+                description={`Quelques questions pour identifier ${leMot(niche.entity, g)} ${accord('fait', g)} pour vous.`}
                 cta={t('tools.quiz.cta')}
                 accent="var(--accent-2)"
                 icon={<IconQuiz />}

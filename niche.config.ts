@@ -17,6 +17,14 @@ export type NicheConfig = {
   entities: string
   entityVerb: string
   dealWord: string
+  /**
+   * Genre grammatical de l'entité (`entity`/`entities`) — pilote TOUS les accords FR
+   * (meilleur·e·s, Quel/Quelle, le/la, son/sa, tous/toutes, participes). OBLIGATOIRE.
+   * Ex. « néobanque » → 'f' ; « opérateur » → 'm'. Cf. lib/utils/grammar.ts.
+   */
+  entityGender: 'm' | 'f'
+  /** Genre de `dealWord` si différent (sinon repli sur `entityGender`). OPTIONNEL. */
+  dealWordGender?: 'm' | 'f'
 
   // Hero
   heroPrefix: string
@@ -154,6 +162,7 @@ export const niche: NicheConfig = {
   entities: 'produits',
   entityVerb: 'choisir',
   dealWord: 'deals',
+  entityGender: 'm', // « produit » = masculin (placeholder). À accorder au genre réel à l'init.
 
   heroPrefix: 'Choisir votre',
   heroSuffix: 'en toute confiance',

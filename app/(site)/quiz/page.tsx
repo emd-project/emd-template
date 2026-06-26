@@ -9,19 +9,22 @@ import { currentYear } from '@/lib/utils/year'
 import { QuizEngine } from '@/components/quiz/QuizEngine'
 import { niche } from '@/niche.config'
 import { getPageContent } from '@/lib/cms-pages'
+import { quel, leMot, accord, ton } from '@/lib/utils/grammar'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
+
+const g = niche.entityGender
 
 export const revalidate = 86400
 
 export function generateMetadata(): Metadata {
   const year = currentYear()
-  const question = niche.quiz.question || `Quel ${niche.entity} choisir ${year} ?`
+  const question = niche.quiz.question || `${quel(g)} ${niche.entity} choisir ${year} ?`
   return {
     title: `${question} Quiz | ${niche.siteName}`,
-    description: `4 questions pour trouver le ${niche.entity} fait pour toi. Résultat immédiat.`,
+    description: `4 questions pour trouver ${leMot(niche.entity, g)} ${accord('fait', g)} pour toi. Résultat immédiat.`,
     alternates: { canonical: `${SITE_URL}/quiz` },
-    openGraph: { title: question, description: `Quiz 4 questions — trouve ton ${niche.entity}.`, url: `${SITE_URL}/quiz`, siteName: niche.siteName, type: 'website' },
+    openGraph: { title: question, description: `Quiz 4 questions — trouve ${ton(g, false, niche.entity)} ${niche.entity}.`, url: `${SITE_URL}/quiz`, siteName: niche.siteName, type: 'website' },
   }
 }
 
@@ -48,7 +51,7 @@ export default function QuizPage() {
             </nav>
             <span className="tag mobi" style={{ marginBottom: 20 }}><span className="pip" />4 questions · 2 minutes</span>
             <h1 style={{ fontSize: 'clamp(30px, 5vw, 52px)', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.1, margin: '14px 0', textWrap: 'balance' }}>
-              {niche.quiz.question || `Quel ${niche.entity} est fait pour toi ?`}
+              {niche.quiz.question || `${quel(g)} ${niche.entity} est ${accord('fait', g)} pour toi ?`}
             </h1>
             <p style={{ fontSize: 'clamp(15px, 2vw, 17px)', color: 'var(--ink-2)', lineHeight: 1.6, maxWidth: 500, margin: '0 auto' }}>
               Clique sur une réponse et obtiens une recommandation directe.

@@ -30,7 +30,7 @@
     "emailPlaceholder": "votre@email.com",
     "stayInformed": "Restez informé",
     "optimized": "Optimisé",
-    "comparedNeutral": "Comparé & neutre",
+    "comparedNeutral": "Comparatif neutre",
     "takeQuiz": "Faire le quiz",
     "compare": "Comparer",
     "cmpCatEyebrow": "Que voulez-vous comparer ?",
@@ -79,7 +79,7 @@
     "boardDesc": "On compare en continu et on ne garde que l'option gagnante du moment.",
     "updated": "Dernière analyse",
     "cCat": "Élément",
-    "cPick": "Meilleur",
+    "cPick": "Top",
     "cProv": "Référence",
     "cScore": "Score",
     "cTrend": "Tendance",
@@ -204,7 +204,7 @@
   },
   "toolCTA": {
     "comparator": "Comparateur {label}",
-    "comparatorDesc": "Compare tous les {label} côte à côte.",
+    "comparatorDesc": "Compare les {label} côte à côte.",
     "compareNow": "Comparer maintenant →",
     "simulator": "Simulateur",
     "simulatorDesc": "Simulez le coût réel de votre {entity}.",
@@ -219,7 +219,7 @@
   "comparator": {
     "remove": "Retirer",
     "add": "+ Ajouter un modèle",
-    "new": "Nouveau",
+    "new": "Nouveauté",
     "modelAria": "Modèle {n}",
     "selectModels": "Sélectionnez les modèles à comparer côte à côte."
   },

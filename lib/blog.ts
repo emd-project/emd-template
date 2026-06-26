@@ -91,6 +91,27 @@ export type ArticleRaw = {
   content: string
 }
 
+/**
+ * Cover effective d'un article : `featureImage` du frontmatter si défini, SINON
+ * l'image de CATÉGORIE (`/images/blog/category-[cat].webp`) **uniquement si le fichier
+ * existe** — on ne renvoie jamais un chemin d'image inexistant (pas d'image cassée).
+ * → Un article sans cover généré affiche l'illustration de sa catégorie (dans l'article
+ *   ET dans les cartes/listings) plutôt qu'un placeholder rayé. Les standalone n'ont
+ *   pas d'image de catégorie. Si rien n'existe, retourne undefined (placeholder dev).
+ */
+function resolveFeatureImage(raw: unknown, categorie: string, standalone: boolean): string | undefined {
+  const v = typeof raw === 'string' ? raw.trim() : ''
+  if (v) return v
+  if (standalone) return undefined
+  const catImg = `/images/blog/category-${categorie}.webp`
+  try {
+    if (fs.existsSync(path.join(process.cwd(), 'public', catImg))) return catImg
+  } catch {
+    /* ignore — pas d'accès fs au runtime serverless : on laisse undefined */
+  }
+  return undefined
+}
+
 function parseMeta(data: Record<string, unknown>, slug: string, categorie: string, standalone = false): ArticleMeta {
   return {
     slug,
@@ -100,7 +121,7 @@ function parseMeta(data: Record<string, unknown>, slug: string, categorie: strin
     publishedAt: (data.publishedAt as string) ?? '',
     updatedAt: data.updatedAt as string | undefined,
     readingTimeMin: (data.readingTimeMin as number) ?? 5,
-    featureImage: data.featureImage as string | undefined,
+    featureImage: resolveFeatureImage(data.featureImage, categorie, standalone),
     aiSummary: data.aiSummary as string[] | undefined,
     tags: data.tags as string[] | undefined,
     faq: data.faq as { q: string; a: string }[] | undefined,

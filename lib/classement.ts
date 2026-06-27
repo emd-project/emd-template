@@ -24,6 +24,18 @@ export type ClassementItem = {
   url?: string
 }
 
+/**
+ * Section d'analyse long-form (asset GEO). `q` est un H2 **formulé en QUESTION**
+ * (≥70% des H2 doivent être des questions) ; `body` est la réponse **answer-first**
+ * (1re phrase = réponse directe, puis développement). Plusieurs paragraphes :
+ * séparer par une ligne vide (`\n\n`). L'ensemble des sections + intro + FAQ doit
+ * porter la page à **≥ 1000 mots** (doctrine classement = asset GEO #1).
+ */
+export type ClassementSection = {
+  q: string
+  body: string
+}
+
 export type Classement = {
   slug: string
   label: string
@@ -36,6 +48,8 @@ export type Classement = {
   updated?: string
   intro?: string
   tldr?: string[]
+  /** Sections d'analyse long-form (H2 en questions, answer-first). ≥1000 mots avec l'intro + FAQ. */
+  sections?: ClassementSection[]
   criteria?: string[]
   methodology?: string
   sources?: { label: string; url?: string }[]

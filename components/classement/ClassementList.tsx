@@ -109,6 +109,20 @@ export function ClassementList({ classement, labels, comparerHref, quizHref }: P
         ))}
       </ol>
 
+      {/* Analyse long-form (GEO) : H2 en questions, answer-first (≥1000 mots avec intro + FAQ) */}
+      {classement.sections && classement.sections.length > 0 && (
+        <section aria-label="Analyse détaillée" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-7)' }}>
+          {classement.sections.map((s, i) => (
+            <div key={i}>
+              <h2 style={{ fontFamily: 'var(--next-font-display), system-ui, sans-serif', fontSize: 'clamp(18px, 2.4vw, 24px)', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.25, margin: '0 0 var(--space-3)' }}>{s.q}</h2>
+              {s.body.split('\n\n').map((para, j) => (
+                <p key={j} style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.7, margin: '0 0 var(--space-3)' }}>{para}</p>
+              ))}
+            </div>
+          ))}
+        </section>
+      )}
+
       {/* Tableau comparatif compact */}
       <section aria-label={labels.tableTitle}>
         <h2 style={{ fontFamily: 'var(--next-font-display), system-ui, sans-serif', fontSize: 'clamp(18px, 2.4vw, 24px)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 'var(--space-4)' }}>{labels.tableTitle}</h2>

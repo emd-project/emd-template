@@ -46,6 +46,13 @@ export type Classement = {
   genre?: 'm' | 'f'
   title?: string
   updated?: string
+  /**
+   * Résumé COURT (≤ ~160 caractères) — utilisé pour la CARTE du hub `/classement`
+   * et la `<meta description>`. À NE PAS confondre avec `intro` (paragraphe long
+   * answer-first du corps de page). Si absent, le rendu tronque `intro` (cf. lib/utils/text.ts).
+   */
+  excerpt?: string
+  /** Paragraphe d'introduction LONG (answer-first) affiché en tête du corps de page. */
   intro?: string
   tldr?: string[]
   /** Sections d'analyse long-form (H2 en questions, answer-first). ≥1000 mots avec l'intro + FAQ. */

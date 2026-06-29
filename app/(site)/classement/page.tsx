@@ -9,6 +9,7 @@ import { currentYear } from '@/lib/utils/year'
 import { getClassements } from '@/lib/classement'
 import { niche } from '@/niche.config'
 import { best, accord } from '@/lib/utils/grammar'
+import { excerpt } from '@/lib/utils/text'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
@@ -66,6 +67,7 @@ export default function ClassementHubPage() {
               <div className="cat-grid">
                 {classements.map((c, i) => {
                   const n = (i % 5) + 1
+                  const teaser = c.excerpt || excerpt(c.intro, 130)
                   return (
                     <Link key={c.slug} href={`/classement/${c.slug}`} className="cat">
                       <span className="glow" style={{ background: `var(--cat-${n})` }} />
@@ -73,7 +75,7 @@ export default function ClassementHubPage() {
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="28" height="28"><path d="M4 19V5M4 19h16M9 19v-7M14 19V9M19 19v-4" /></svg>
                       </span>
                       <h3>{c.label}</h3>
-                      {c.intro && <p>{c.intro}</p>}
+                      {teaser && <p>{teaser}</p>}
                       <span className="go" style={{ color: `var(--cat-${n})` }}>Top {c.items.length} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></span>
                     </Link>
                   )

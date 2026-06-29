@@ -11,6 +11,7 @@ import { getProduit } from '@/lib/comparateur'
 import { ClassementList, type ClassementLabels } from '@/components/classement/ClassementList'
 import { currentYear } from '@/lib/utils/year'
 import { best } from '@/lib/utils/grammar'
+import { excerpt } from '@/lib/utils/text'
 import { niche } from '@/niche.config'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
@@ -40,9 +41,10 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const label = stripYear(c.label)
   const g = c.genre ?? niche.entityGender
   const plural = c.items.length > 1
+  const desc = c.excerpt || excerpt(c.intro) || `Le classement des ${best(g, true)} ${label} en ${year} : Top ${c.items.length}, scores, verdict et tableau comparatif.`
   return {
     title: `Top ${c.items.length} ${best(g, plural)} ${label} ${year} — classement | ${niche.siteName}`,
-    description: c.intro || `Le classement des ${best(g, true)} ${label} en ${year} : Top ${c.items.length}, scores, verdict et tableau comparatif.`,
+    description: desc,
     alternates: {
       canonical: `${SITE_URL}/classement/${produit}`,
       languages: {
@@ -51,7 +53,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
         'x-default': `${SITE_URL}/classement/${produit}`,
       },
     },
-    openGraph: { title: `Top ${c.items.length} ${best(g, plural)} ${label} ${year}`, description: c.intro, url: `${SITE_URL}/classement/${produit}`, siteName: niche.siteName, type: 'article' },
+    openGraph: { title: `Top ${c.items.length} ${best(g, plural)} ${label} ${year}`, description: desc, url: `${SITE_URL}/classement/${produit}`, siteName: niche.siteName, type: 'article' },
   }
 }
 

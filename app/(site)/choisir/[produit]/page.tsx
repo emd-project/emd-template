@@ -1,15 +1,20 @@
 /**
  * /choisir/[produit] — "Quel [produit] choisir en {year} ?" (style Voltéo)
  * Server Component — QuizEngine isolé en 'use client'.
+ *
+ * ANTI-PLACEHOLDER : le bloc quiz n'est rendu QUE si des questions existent
+ * (content/pages/quiz.yaml). Sans questions, la section disparaît — on n'affiche
+ * plus un faux quiz « Catégorie A / B / C ». Cf. scripts/check-placeholders.mjs.
  */
 
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import { QuizEngine } from '@/components/quiz/QuizEngine'
+import { QuizEngine, type Step } from '@/components/quiz/QuizEngine'
 import { ChoisirEditorial } from '@/components/choisir/ChoisirEditorial'
 import { currentYear } from '@/lib/utils/year'
 import { COMPARATEURS, PRODUIT_SLUGS } from '@/lib/comparateur'
 import { getChoisirContent } from '@/lib/choisir-content'
+import { getPageContent } from '@/lib/cms-pages'
 import { niche } from '@/niche.config'
 import { quel, son } from '@/lib/utils/grammar'
 
@@ -23,6 +28,11 @@ export function generateStaticParams() {
   return PRODUIT_SLUGS.map((produit) => ({ produit }))
 }
 
+function getSteps(): Step[] {
+  const steps = getPageContent('quiz')?.steps as Step[] | undefined
+  return Array.isArray(steps) ? steps : []
+}
+
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { produit } = await params
   const data = COMPARATEURS[produit]
@@ -31,9 +41,9 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const year = currentYear()
   return {
     title: `${quel(g)} ${data.label} choisir en ${year} ? Guide complet + quiz | ${niche.siteName}`,
-    description: `${quel(g)} ${data.label} ${niche.entityVerb} en ${year} ? Quiz en 4 questions, comparatif par profil, prix et verdict honnête. Guide mis à jour.`,
+    description: `${quel(g)} ${data.label} ${niche.entityVerb} en ${year} ? Quiz, comparatif par profil, prix et verdict honnête. Guide mis à jour.`,
     alternates: { canonical: `${SITE_URL}/choisir/${produit}` },
-    openGraph: { title: `${quel(g)} ${data.label} choisir en ${year} ?`, description: `Quiz en 4 questions, comparatif par profil et verdict honnête pour choisir ${son(g, false, data.label)} ${data.label} en ${year}.`, url: `${SITE_URL}/choisir/${produit}`, siteName: niche.siteName, type: 'article' },
+    openGraph: { title: `${quel(g)} ${data.label} choisir en ${year} ?`, description: `Comparatif par profil et verdict honnête pour choisir ${son(g, false, data.label)} ${data.label} en ${year}.`, url: `${SITE_URL}/choisir/${produit}`, siteName: niche.siteName, type: 'article' },
   }
 }
 
@@ -55,6 +65,7 @@ export default async function ChoisirPage({ params }: { params: Params }) {
   const year = currentYear()
   const accent = getHeroAccent(produit)
   const editorial = getChoisirContent(produit, year)
+  const steps = getSteps()
 
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',
@@ -78,16 +89,18 @@ export default async function ChoisirPage({ params }: { params: Params }) {
         </div>
       </section>
 
-      <section aria-labelledby="quiz-titre" className="section" style={{ paddingBottom: 16 }}>
-        <div className="wrap" style={{ maxWidth: 720 }}>
-          <h2 id="quiz-titre" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(18px, 2.5vw, 22px)', fontWeight: 800, color: 'var(--ink)', marginBottom: 24, textAlign: 'center' }}>
-            Trouve ton modèle en 4 questions
-          </h2>
-          <div style={{ background: 'var(--paper)', border: '1px solid var(--line)', borderRadius: 'var(--r-xl)', padding: 32, boxShadow: 'var(--shadow)' }}>
-            <QuizEngine defaultProduit={produit} />
+      {steps.length > 0 && (
+        <section aria-labelledby="quiz-titre" className="section" style={{ paddingBottom: 16 }}>
+          <div className="wrap" style={{ maxWidth: 720 }}>
+            <h2 id="quiz-titre" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(18px, 2.5vw, 22px)', fontWeight: 800, color: 'var(--ink)', marginBottom: 24, textAlign: 'center' }}>
+              Trouve ton modèle en {steps.length} questions
+            </h2>
+            <div style={{ background: 'var(--paper)', border: '1px solid var(--line)', borderRadius: 'var(--r-xl)', padding: 32, boxShadow: 'var(--shadow)' }}>
+              <QuizEngine steps={steps} defaultProduit={produit} />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {editorial && (
         <ChoisirEditorial content={editorial} produit={produit} publishedAt={DEFAULT_PUBLISHED} />

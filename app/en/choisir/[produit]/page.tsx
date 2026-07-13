@@ -2,13 +2,17 @@
  * /en/choisir/[produit] — "Which [produit] to choose?" (EN mirror, quiz-first).
  * Server Component — QuizEngine ('use client') with locale="en".
  * EN data via getProduit(slug, 'en'). The FR editorial block is omitted until localized.
+ *
+ * ANTI-PLACEHOLDER : the quiz block renders only if EN steps exist (quiz.en.yaml).
+ * No steps → no section, never a fake « Category A / B / C » quiz.
  */
 
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import { QuizEngine } from '@/components/quiz/QuizEngine'
+import { QuizEngine, type Step } from '@/components/quiz/QuizEngine'
 import { currentYear } from '@/lib/utils/year'
 import { getProduit, PRODUIT_SLUGS } from '@/lib/comparateur'
+import { getPageContent } from '@/lib/cms-pages'
 import { niche } from '@/niche.config'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
@@ -23,6 +27,11 @@ export function generateStaticParams() {
   return PRODUIT_SLUGS.map((produit) => ({ produit }))
 }
 
+function getSteps(): Step[] {
+  const steps = getPageContent('quiz.en')?.steps as Step[] | undefined
+  return Array.isArray(steps) ? steps : []
+}
+
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { produit } = await params
   const data = getProduit(produit, 'en')
@@ -31,7 +40,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const label = stripYear(data.label)
   return {
     title: `Which ${label} to choose in ${year}? Guide + quiz | ${niche.siteName}`,
-    description: `Which ${label} should you ${niche.entityVerb} in ${year}? A 4-question quiz to find the right model for your profile.`,
+    description: `Which ${label} should you ${niche.entityVerb} in ${year}? Find the right model for your profile.`,
     alternates: {
       canonical: `${SITE_URL}/en/choisir/${produit}`,
       languages: {
@@ -58,6 +67,7 @@ export default async function ChoisirPageEn({ params }: { params: Params }) {
   const year = currentYear()
   const label = stripYear(data.label)
   const accent = getHeroAccent(produit)
+  const steps = getSteps()
 
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',
@@ -81,16 +91,18 @@ export default async function ChoisirPageEn({ params }: { params: Params }) {
         </div>
       </section>
 
-      <section aria-labelledby="quiz-titre" className="section" style={{ paddingBottom: 16 }}>
-        <div className="wrap" style={{ maxWidth: 720 }}>
-          <h2 id="quiz-titre" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(18px, 2.5vw, 22px)', fontWeight: 800, color: 'var(--ink)', marginBottom: 24, textAlign: 'center' }}>
-            Find your model in 4 questions
-          </h2>
-          <div style={{ background: 'var(--paper)', border: '1px solid var(--line)', borderRadius: 'var(--r-xl)', padding: 32, boxShadow: 'var(--shadow)' }}>
-            <QuizEngine defaultProduit={produit} locale="en" />
+      {steps.length > 0 && (
+        <section aria-labelledby="quiz-titre" className="section" style={{ paddingBottom: 16 }}>
+          <div className="wrap" style={{ maxWidth: 720 }}>
+            <h2 id="quiz-titre" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(18px, 2.5vw, 22px)', fontWeight: 800, color: 'var(--ink)', marginBottom: 24, textAlign: 'center' }}>
+              Find your model in {steps.length} questions
+            </h2>
+            <div style={{ background: 'var(--paper)', border: '1px solid var(--line)', borderRadius: 'var(--r-xl)', padding: 32, boxShadow: 'var(--shadow)' }}>
+              <QuizEngine steps={steps} defaultProduit={produit} locale="en" />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </main>
   )
 }

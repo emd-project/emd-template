@@ -1,19 +1,29 @@
 /**
  * /en/quiz — personalised quiz (EN mirror of /quiz).
  * Server Component — QuizEngine ('use client') with locale="en".
- * EN steps via quiz.en.yaml (getPageContent('quiz.en')) ; sinon défauts EN du moteur.
+ * EN steps via quiz.en.yaml (getPageContent('quiz.en')).
+ *
+ * ANTI-PLACEHOLDER : no steps → 404. The engine has no default questions anymore
+ * (no more « Category A / B / C »). Cf. scripts/check-placeholders.mjs.
  */
 
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { currentYear } from '@/lib/utils/year'
-import { QuizEngine } from '@/components/quiz/QuizEngine'
+import { QuizEngine, type Step } from '@/components/quiz/QuizEngine'
 import { niche } from '@/niche.config'
 import { getPageContent } from '@/lib/cms-pages'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
 export const revalidate = 86400
+
+function getSteps(): Step[] {
+  const quizContent = getPageContent('quiz.en')
+  const steps = quizContent?.steps as Step[] | undefined
+  return Array.isArray(steps) ? steps : []
+}
 
 export function generateMetadata(): Metadata {
   const year = currentYear()
@@ -42,8 +52,10 @@ const jsonLd = {
 }
 
 export default function QuizPageEn() {
-  const quizContent = getPageContent('quiz.en')
-  const steps = quizContent?.steps as { id: string; question: string; options: { label: string; value: string; emoji?: string }[] }[] | undefined
+  const steps = getSteps()
+  // No questions → no page. An absent section beats a fake one.
+  if (steps.length === 0) notFound()
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
@@ -54,7 +66,7 @@ export default function QuizPageEn() {
             <nav className="crumb" aria-label="Breadcrumb" style={{ justifyContent: 'center' }}>
               <Link href="/en">Home</Link><span className="sep">/</span><span className="cur">Quiz</span>
             </nav>
-            <span className="tag c1" style={{ marginBottom: 20 }}><span className="pip" />4 questions · 2 minutes</span>
+            <span className="tag c1" style={{ marginBottom: 20 }}><span className="pip" />{steps.length} questions · 2 minutes</span>
             <h1 style={{ fontSize: 'clamp(30px, 5vw, 52px)', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.1, margin: '14px 0', textWrap: 'balance' }}>
               Which {niche.entity} is right for you?
             </h1>

@@ -1,10 +1,12 @@
 ---
 # article-modele.mdx — ARTICLE MODÈLE (démo de mise en page).
+# ⚠️ À SUPPRIMER à l'init d'un nouveau site (comme content/articles/_example.mdx).
+# `draft: true` → il n'est PAS publié tant qu'il traîne, mais le garde-fou
+# `npm run check:placeholders` (enchaîné au build) ÉCHOUE tant que ce fichier existe.
 # Montre la structure blog : sidebar sticky + sommaire auto (H2/H3) +
 # encadré « En bref » (aiSummary) + FAQ + composants éditoriaux MDX.
 # Images (cf. docs/IMAGES-WORKFLOW.md) : 1 cover GÉNÉRÉ (featureImage) +
 # 2 <ArticleImage> RÉUTILISÉES des visuels de catégorie (aucune génération en plus).
-# À SUPPRIMER lors de l'init d'un nouveau site (comme content/articles/_example.mdx).
 title: "Article modèle : structure, sidebar et sommaire"
 description: "Exemple d'article de blog montrant la mise en page attendue : sommaire automatique, sidebar collante, encadrés éditoriaux et FAQ."
 # featureImage = cover généré ([slug]-cover.webp). Vide ici car article modèle.
@@ -30,7 +32,7 @@ stickyCta:
   - label: "Voir le comparateur"
     url: "/comparer"
 stickyCtaMessage: "Comparez les options côte à côte"
-draft: false
+draft: true
 ---
 
 ## Introduction
@@ -87,15 +89,15 @@ frontmatter (3 à 5 puces). C'est ce que le lecteur — et les moteurs — lisen
 
 ## Recommander un produit
 
-<ProductCTA name="Produit exemple" price="299 €" url="/comparer" badge="Recommandé" hook="Une phrase d'accroche : pourquoi ce produit, pour quel profil." />
+<ProductCTA name="Nom réel du produit" price="0 €" url="/comparer" badge="Recommandé" hook="Une phrase d'accroche : pourquoi ce produit, pour quel profil." />
 
 ## Tableau comparatif (Markdown standard)
 
-| Critère   | Option A | Option B | Option C |
+| Critère   | Option 1 | Option 2 | Option 3 |
 |-----------|----------|----------|----------|
-| Prix      | 299 €    | 399 €    | 499 €    |
-| Note      | 4,5/5    | 4,2/5    | 4,8/5    |
-| Garantie  | 2 ans    | 3 ans    | 2 ans    |
+| Prix      | …        | …        | …        |
+| Note      | …        | …        | …        |
+| Garantie  | …        | …        | …        |
 
 ## Images de l'article (1 cover + 2 réutilisées)
 

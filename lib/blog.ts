@@ -9,6 +9,10 @@
  *    catégories. Un dossier de locale (`en`/`nl`/…) n'apparaît JAMAIS comme catégorie.
  *  - Lecteurs miroir `…En()` : lisent la version EN des articles sans toucher au FR.
  *  cf. emd-methodo/references/i18n-multilingue.md
+ *
+ * ANTI-PLACEHOLDER : les fichiers préfixés par `_` (gabarits type `_example.mdx`) ne
+ * sont JAMAIS lus — donc jamais publiés. Ils doivent quand même être supprimés à l'init :
+ * `npm run check:placeholders` (enchaîné au build) échoue tant qu'ils sont là.
  */
 
 import fs from 'fs'
@@ -22,6 +26,11 @@ const ARTICLES_DIR = path.join(process.cwd(), 'content/articles')
 
 export const CATEGORY_LABELS: Record<string, string> = categoryLabels()
 export const CATEGORY_ACCENT: Record<string, string> = categoryAccents()
+
+/** Un fichier publiable : .mdx, et pas un gabarit `_*.mdx`. */
+function isPublishableFile(f: string): boolean {
+  return f.endsWith('.mdx') && !f.startsWith('_')
+}
 
 /**
  * Dossiers de locale réservés : ne doivent JAMAIS être lus comme des catégories FR.
@@ -136,6 +145,7 @@ function parseMeta(data: Record<string, unknown>, slug: string, categorie: strin
 /**
  * Lit tous les .mdx de baseDir/[categorie]/ (un niveau).
  * `categoryFilter` décide quels sous-dossiers comptent comme catégories.
+ * Les gabarits `_*.mdx` sont ignorés.
  */
 function readArticlesDir(baseDir: string, categoryFilter: (dir: string) => boolean): ArticleMeta[] {
   const articles: ArticleMeta[] = []
@@ -144,7 +154,7 @@ function readArticlesDir(baseDir: string, categoryFilter: (dir: string) => boole
     .readdirSync(baseDir)
     .filter((f) => fs.statSync(path.join(baseDir, f)).isDirectory() && categoryFilter(f))
   for (const categorie of categories) {
-    const files = fs.readdirSync(path.join(baseDir, categorie)).filter((f) => f.endsWith('.mdx'))
+    const files = fs.readdirSync(path.join(baseDir, categorie)).filter(isPublishableFile)
     for (const file of files) {
       const slug = file.replace(/\.mdx$/, '')
       const raw = fs.readFileSync(path.join(baseDir, categorie, file), 'utf-8')
@@ -165,9 +175,9 @@ export function getAllArticles(): ArticleMeta[] {
   // 1. Blog articles FR (content/blog/[categorie]/[slug].mdx) — catégories en liste blanche.
   const articles: ArticleMeta[] = readArticlesDir(BLOG_DIR, isFrCategory)
 
-  // 2. Standalone articles (content/articles/[slug].mdx)
+  // 2. Standalone articles (content/articles/[slug].mdx) — gabarits `_*.mdx` exclus.
   if (fs.existsSync(ARTICLES_DIR)) {
-    const files = fs.readdirSync(ARTICLES_DIR).filter((f) => f.endsWith('.mdx'))
+    const files = fs.readdirSync(ARTICLES_DIR).filter(isPublishableFile)
     for (const file of files) {
       const slug = file.replace(/\.mdx$/, '')
       const raw = fs.readFileSync(path.join(ARTICLES_DIR, file), 'utf-8')
@@ -198,6 +208,7 @@ export function getArticleRaw(categorie: string, slug: string): ArticleRaw {
 }
 
 export function articleExists(categorie: string, slug: string): boolean {
+  if (slug.startsWith('_')) return false
   return fs.existsSync(path.join(BLOG_DIR, categorie, `${slug}.mdx`))
 }
 
@@ -216,7 +227,7 @@ export function getRelatedArticles(
   return [...sameCat, ...otherCat].slice(0, limit)
 }
 
-// ─── EN (miroir) ─────────────────────────────────────────
+// ─── EN (miroir) ─────────────────────────────────────
 // Lecteurs miroir de la version EN des articles. Additifs : ils NE sont importés
 // par aucune route tant que l'arbre `app/en/` (bloc 2) n'existe pas, mais compilent.
 // content/blog/en/ utilise les MÊMES slugs de catégories que le FR → on réutilise
@@ -243,6 +254,7 @@ export function getArticleRawEn(categorie: string, slug: string): ArticleRaw {
 }
 
 export function articleExistsEn(categorie: string, slug: string): boolean {
+  if (slug.startsWith('_')) return false
   return fs.existsSync(path.join(BLOG_DIR_EN, categorie, `${slug}.mdx`))
 }
 

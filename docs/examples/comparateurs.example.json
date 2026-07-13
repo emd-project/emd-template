@@ -1,0 +1,28 @@
+{
+  "_README": "GABARIT DE STRUCTURE — documentation, PAS du contenu livrable. Copiez la FORME dans content/data/comparateurs.json avec les VRAIS modèles de la niche. Ne recopiez jamais les valeurs ci-dessous telles quelles : le build échoue (scripts/check-placeholders.mjs).",
+  "slug-de-la-famille": {
+    "id": "slug-de-la-famille",
+    "label": "Label de la famille",
+    "description": "Une phrase factuelle sur cette famille de produits.",
+    "specsLabels": {
+      "note": "Note",
+      "pointFort": "Point fort",
+      "garantie": "Garantie",
+      "dispo": "Disponibilité"
+    },
+    "modeles": [
+      {
+        "nom": "Nom réel du modèle",
+        "prix": 0,
+        "nouveaute": true,
+        "sourceUrl": "",
+        "specs": {
+          "note": "x,y / 5",
+          "pointFort": "...",
+          "garantie": "...",
+          "dispo": "..."
+        }
+      }
+    ]
+  }
+}

@@ -4,7 +4,15 @@
  * QuizEngine — moteur interactif du quiz, piloté par la DA + locale-aware.
  * 'use client' isolé — la page /quiz reste Server Component.
  * 100% token-driven (var(--accent-1)…). Prop `locale` (défaut fr).
- * Questions/recommandations = placeholders remplacés à l'init.
+ *
+ * CONTRAT ANTI-PLACEHOLDER (cf. scripts/check-placeholders.mjs) :
+ * ce composant n'a AUCUNE question par défaut. Sans `steps`, il ne fabrique pas
+ * un faux quiz « Catégorie A / B / C » : il ÉCHOUE BRUYAMMENT en dev (throw) et
+ * ne rend RIEN en prod (`return null`). Une section absente vaut mieux qu'une
+ * section qui ment. Les questions viennent du CMS (page `quiz`) ou de la prop.
+ * La recommandation finale vient de la prop `recommend` ; sans elle, on affiche
+ * uniquement des faits réels (le choix du visiteur + liens vers comparer/choisir),
+ * jamais un modèle ni un prix inventés.
  */
 
 import { useState } from 'react'
@@ -12,17 +20,20 @@ import type { CSSProperties } from 'react'
 import Link from 'next/link'
 import { tl } from '@/lib/i18n'
 
-type Step = {
+export type Step = {
   id: string
   question: string
   options: { label: string; value: string; emoji?: string }[]
 }
-type Answers = Record<string, string>
-type Recommendation = {
+export type Answers = Record<string, string>
+export type Recommendation = {
+  /** Intitulé de la recommandation (ex. la famille choisie). Jamais un modèle inventé. */
   produit: string
-  modele: string
-  pourquoi: string
-  prix: string
+  /** Modèle réel recommandé. Optionnel — omis si la niche ne le fournit pas. */
+  modele?: string
+  /** Prix réel. Optionnel — jamais un prix fictif. */
+  prix?: string
+  pourquoi?: string
   href: string
   comparerHref: string
 }
@@ -30,73 +41,58 @@ type Recommendation = {
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F']
 const TINT = 'color-mix(in srgb, var(--accent-1) 7%, transparent)'
 
-const DEFAULT_STEPS_FR: Step[] = [
-  { id: 'categorie', question: 'Quelle catégorie vous intéresse ?', options: [
-    { label: 'Catégorie A', value: 'cat-a' },
-    { label: 'Catégorie B', value: 'cat-b' },
-    { label: 'Catégorie C', value: 'cat-c' },
-  ] },
-  { id: 'budget', question: 'Quel est votre budget ?', options: [
-    { label: 'Petit budget', value: 'eco' },
-    { label: 'Budget moyen', value: 'mid' },
-    { label: 'Budget élevé', value: 'high' },
-  ] },
-  { id: 'usage', question: 'Votre usage principal ?', options: [
-    { label: 'Usage quotidien', value: 'daily' },
-    { label: 'Usage professionnel', value: 'pro' },
-    { label: 'Loisirs', value: 'leisure' },
-  ] },
-]
-
-const DEFAULT_STEPS_EN: Step[] = [
-  { id: 'categorie', question: 'Which category are you interested in?', options: [
-    { label: 'Category A', value: 'cat-a' },
-    { label: 'Category B', value: 'cat-b' },
-    { label: 'Category C', value: 'cat-c' },
-  ] },
-  { id: 'budget', question: 'What is your budget?', options: [
-    { label: 'Small budget', value: 'eco' },
-    { label: 'Mid-range', value: 'mid' },
-    { label: 'High budget', value: 'high' },
-  ] },
-  { id: 'usage', question: 'Your main use?', options: [
-    { label: 'Daily use', value: 'daily' },
-    { label: 'Professional use', value: 'pro' },
-    { label: 'Leisure', value: 'leisure' },
-  ] },
-]
-
-function recommend(answers: Answers, locale: string): Recommendation {
-  const { categorie } = answers
-  const en = locale === 'en'
+/**
+ * Recommandation par défaut : purement factuelle. Reprend le choix du visiteur et
+ * l'oriente vers le comparateur / le guide. Aucune donnée inventée.
+ */
+function defaultRecommend(answers: Answers, steps: Step[]): Recommendation {
+  const first = steps[0]
+  const firstAnswer = first ? answers[first.id] : undefined
+  const chosen = first?.options.find((o) => o.value === firstAnswer)
+  const slug = firstAnswer ?? ''
   return {
-    produit: en ? 'Recommended product' : 'Produit recommandé',
-    modele: en ? 'Placeholder model' : 'Modèle placeholder',
-    pourquoi: en
-      ? 'This product matches your criteria. The content will be tailored to your niche at init.'
-      : "Ce produit correspond à vos critères. Le contenu sera personnalisé selon votre niche à l'init.",
-    prix: en ? 'TBD' : 'À définir',
-    href: `/choisir/${categorie ?? ''}`,
-    comparerHref: `/comparer/${categorie ?? ''}`,
+    produit: chosen?.label ?? '',
+    href: slug ? `/choisir/${slug}` : '/choisir',
+    comparerHref: slug ? `/comparer/${slug}` : '/comparer',
   }
 }
 
 type QuizEngineProps = {
-  defaultProduit?: string
+  /** Questions du quiz. OBLIGATOIRE de fait : sans elles, le composant ne rend rien. */
   steps?: Step[]
+  /** Recommandation finale, calculée par la niche à partir des réponses. */
+  recommend?: (answers: Answers, steps: Step[]) => Recommendation
+  defaultProduit?: string
   /** Locale active (défaut fr). */
   locale?: string
 }
 
-export function QuizEngine({ defaultProduit, steps, locale = 'fr' }: QuizEngineProps = {}) {
-  const fallback = locale === 'en' ? DEFAULT_STEPS_EN : DEFAULT_STEPS_FR
-  const STEPS = steps && steps.length > 0 ? steps : fallback
-  const initialStep = defaultProduit ? 1 : 0
-  const initialAnswers: Answers = defaultProduit ? { categorie: defaultProduit } : {}
+export function QuizEngine({ steps, recommend, defaultProduit, locale = 'fr' }: QuizEngineProps = {}) {
+  const STEPS = steps ?? []
+  const configured = STEPS.length > 0
+
+  // `defaultProduit` pré-répond à la 1re question (page /choisir/[produit]).
+  const seeded = Boolean(defaultProduit && STEPS[0])
+  const initialStep = seeded ? Math.min(1, STEPS.length - 1) : 0
+  const initialAnswers: Answers = seeded ? { [STEPS[0].id]: defaultProduit as string } : {}
 
   const [step, setStep] = useState(initialStep)
   const [answers, setAnswers] = useState<Answers>(initialAnswers)
-  const [done, setDone] = useState(false)
+  const [done, setDone] = useState(seeded && STEPS.length === 1)
+
+  // ── Garde anti-placeholder ────────────────────────────
+  // Dev : on casse, fort et tôt. Prod : on n'affiche rien plutôt que du faux.
+  if (!configured) {
+    if (process.env.NODE_ENV !== 'production') {
+      throw new Error(
+        'QuizEngine: aucun `steps` fourni — configurez le quiz de la niche ' +
+        '(content/pages/quiz.yaml ou CMS /admin → page « quiz ») ou désactivez le quiz ' +
+        '(niche.config.ts → quiz.enabled: false). Le composant ne fabrique plus de ' +
+        'questions placeholder.'
+      )
+    }
+    return null
+  }
 
   const current = STEPS[step]
   const progress = Math.round((step / STEPS.length) * 100)
@@ -113,7 +109,10 @@ export function QuizEngine({ defaultProduit, steps, locale = 'fr' }: QuizEngineP
     setDone(false)
   }
 
-  if (done) return <Result rec={recommend(answers, locale)} onRestart={restart} locale={locale} />
+  if (done) {
+    const rec = (recommend ?? defaultRecommend)(answers, STEPS)
+    return <Result rec={rec} onRestart={restart} locale={locale} />
+  }
 
   return (
     <div>
@@ -207,24 +206,32 @@ function Result({ rec, onRestart, locale }: { rec: Recommendation; onRestart: ()
     fontWeight: 600, fontSize: '14px', padding: 'var(--space-3) var(--space-6)', borderRadius: 'var(--radius-full)', textDecoration: 'none',
   }
 
+  const heading = rec.modele || rec.produit
+
   return (
     <div>
       <div className="eyebrow" style={{ marginBottom: 'var(--space-5)' }}>
         {tl(locale, 'quiz.recommendation')}
       </div>
 
-      <h2 style={{ fontFamily: 'var(--next-font-display), system-ui, sans-serif', fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 'var(--space-2)', lineHeight: 1.1 }}>
-        {rec.modele}
-      </h2>
-      <div style={{ fontFamily: 'var(--next-font-mono), monospace', fontVariantNumeric: 'tabular-nums', fontSize: '18px', fontWeight: 700, color: 'var(--accent-1)', marginBottom: 'var(--space-5)' }}>
-        {rec.prix}
-      </div>
+      {heading && (
+        <h2 style={{ fontFamily: 'var(--next-font-display), system-ui, sans-serif', fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 'var(--space-2)', lineHeight: 1.1 }}>
+          {heading}
+        </h2>
+      )}
+      {rec.prix && (
+        <div style={{ fontFamily: 'var(--next-font-mono), monospace', fontVariantNumeric: 'tabular-nums', fontSize: '18px', fontWeight: 700, color: 'var(--accent-1)', marginBottom: 'var(--space-5)' }}>
+          {rec.prix}
+        </div>
+      )}
 
-      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderLeft: '3px solid var(--accent-1)', borderRadius: '0 var(--radius-md) var(--radius-md) 0', padding: 'var(--space-5) var(--space-6)', marginBottom: 'var(--space-8)', fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.65 }}>
-        {rec.pourquoi}
-      </div>
+      {rec.pourquoi && (
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderLeft: '3px solid var(--accent-1)', borderRadius: '0 var(--radius-md) var(--radius-md) 0', padding: 'var(--space-5) var(--space-6)', marginBottom: 'var(--space-8)', fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.65 }}>
+          {rec.pourquoi}
+        </div>
+      )}
 
-      <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap', marginBottom: 'var(--space-8)' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap', marginBottom: 'var(--space-8)', marginTop: 'var(--space-6)' }}>
         <Link href={rec.comparerHref} style={primaryCta}>{tl(locale, 'quiz.compareNow')}</Link>
         <Link href={rec.href} style={ghostCta}>{tl(locale, 'quiz.seeGuide')}</Link>
       </div>

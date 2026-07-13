@@ -1,30 +1,22 @@
+# Quiz de la niche — À REMPLIR À L'INIT.
+#
+# Le moteur (components/quiz/QuizEngine.tsx) n'a AUCUNE question par défaut :
+# plus de « Catégorie A / B / C », plus de « Modèle placeholder » à « À définir ».
+#
+# Deux issues valables, aucune troisième :
+#  1. renseigner de vraies questions ci-dessous (3 à 5 steps, options de la niche) ;
+#  2. désactiver le quiz : niche.config.ts → quiz.enabled: false.
+#
+# Tant que `steps` est vide ET que quiz.enabled vaut true, `npm run build` ÉCHOUE
+# (scripts/check-placeholders.mjs) et /quiz renvoie 404. C'est voulu.
+#
+# Forme attendue :
+# steps:
+#   - id: "categorie"
+#     question: "..."
+#     options:
+#       - label: "..."
+#         value: "slug-de-la-famille"   # doit exister dans content/data/comparateurs.json
 title: "Quiz"
-subtitle: "Trouvez le produit idéal en quelques questions."
-steps:
-  - id: "categorie"
-    question: "Quelle catégorie vous intéresse ?"
-    options:
-      - label: "Catégorie A"
-        value: "cat-a"
-      - label: "Catégorie B"
-        value: "cat-b"
-      - label: "Catégorie C"
-        value: "cat-c"
-  - id: "budget"
-    question: "Quel est votre budget ?"
-    options:
-      - label: "Petit budget"
-        value: "eco"
-      - label: "Budget moyen"
-        value: "mid"
-      - label: "Budget élevé"
-        value: "high"
-  - id: "usage"
-    question: "Votre usage principal ?"
-    options:
-      - label: "Usage quotidien"
-        value: "daily"
-      - label: "Usage professionnel"
-        value: "pro"
-      - label: "Loisirs"
-        value: "leisure"
+subtitle: ""
+steps: []

@@ -1,0 +1,32 @@
+{
+  "_README": "GABARIT DE STRUCTURE — documentation, PAS du contenu livrable. Copiez la FORME dans content/data/classements.json avec le VRAI Top de la niche (construit à partir d'un check SERP). Ne recopiez jamais les valeurs ci-dessous telles quelles : le build échoue (scripts/check-placeholders.mjs).",
+  "slug-du-classement": {
+    "slug": "slug-du-classement",
+    "label": "Label du classement",
+    "genre": "m",
+    "title": "Top N — ...",
+    "updated": "AAAA-MM-JJ",
+    "excerpt": "Résumé court (≤ 160 caractères) pour la carte du hub et la meta description.",
+    "intro": "Paragraphe d'introduction long, answer-first.",
+    "tldr": ["Point clé 1", "Point clé 2"],
+    "criteria": ["Critère 1", "Critère 2"],
+    "methodology": "Comment le classement est établi.",
+    "sections": [{ "q": "H2 formulé en question ?", "body": "Réponse directe, puis développement." }],
+    "sources": [{ "label": "Source", "url": "" }],
+    "faq": [{ "q": "Question ?", "a": "Réponse." }],
+    "items": [
+      {
+        "rank": 1,
+        "nom": "Nom réel",
+        "score": "x,y/10",
+        "badge": "Meilleur global",
+        "bestFor": "...",
+        "verdict": "Verdict factuel.",
+        "pros": ["..."],
+        "cons": ["..."],
+        "prix": "... €",
+        "url": ""
+      }
+    ]
+  }
+}

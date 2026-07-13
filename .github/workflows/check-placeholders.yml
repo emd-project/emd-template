@@ -1,0 +1,26 @@
+name: check-placeholders
+
+# Garde-fou anti-placeholder : aucun gabarit du template ne doit partir en prod.
+# Le script s'auto-désarme tant que niche.config.ts n'est pas configuré (template nu)
+# et s'arme tout seul dès qu'un vrai site est configuré.
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  check-placeholders:
+    name: Placeholders
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check placeholders
+        run: npm run check:placeholders

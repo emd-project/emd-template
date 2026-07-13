@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/check-placeholders.mjs && next build",
     "start": "next start",
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
+    "check:placeholders": "node scripts/check-placeholders.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",

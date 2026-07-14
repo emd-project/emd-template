@@ -2,7 +2,7 @@
  * /en/legal-notice — Legal notice (EN mirror of /mentions-legales, Voltéo style).
  * Static. noindex: legal page. Company data is identical to the FR version
  * (legal facts: MentionBox SRL, BE 0784.700.405…), only the copy is translated.
- * Note: EMD has no affiliation — no « affiliate links » section.
+ * MENTION model: outbound links are never monetised → no such clause here.
  */
 
 import Link from 'next/link'

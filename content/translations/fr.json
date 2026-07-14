@@ -20,6 +20,9 @@
     "privacy": "Confidentialité",
     "independent": "Site indépendant."
   },
+  "ui": {
+    "viewOfficial": "Voir la fiche officielle"
+  },
   "presse": {
     "edition": "Édition FR",
     "newsletter": "Newsletter",
@@ -264,12 +267,5 @@
   },
   "callout": {
     "warning": "Attention"
-  },
-  "product": {
-    "viewPrice": "Voir le prix →",
-    "viewOnAmazon": "Voir sur Amazon →",
-    "dealOfMoment": "Deal du moment",
-    "trustLine": "Livraison gratuite · Retour 30 jours",
-    "stickyAriaLabel": "Offre produit"
   }
 }

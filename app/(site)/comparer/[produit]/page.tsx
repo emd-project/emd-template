@@ -1,6 +1,7 @@
 /**
  * /comparer/[produit] — comparateur côte à côte (style Voltéo).
  * Server Component — ComparateurSelector isolé en 'use client'.
+ * Modèle MENTION : comparatif neutre, aucun lien monétisé.
  */
 
 import { notFound } from 'next/navigation'
@@ -92,7 +93,7 @@ export default async function ComparateurProduitPage({ params }: { params: Param
             <ComparateurSelector modeles={data.modeles} specsLabels={data.specsLabels} />
 
             <p style={{ marginTop: 24, fontSize: 12, color: 'var(--ink-3)', lineHeight: 1.5 }}>
-              Prix indicatifs, sourcés et datés. Comparatif neutre et indépendant, sans lien affilié.
+              Prix indicatifs, sourcés et datés. Comparatif neutre et indépendant, sans lien monétisé.
             </p>
 
             <div style={{ marginTop: 32, padding: 28, background: 'var(--cream-2)', border: '1px solid var(--line)', borderRadius: 'var(--r-lg)', textAlign: 'center' }}>

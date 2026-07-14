@@ -13,9 +13,12 @@
  *
  * ZÉRO donnée inventée : chaque bloc n'existe que si le frontmatter le fournit.
  * ZÉRO hex : accents = `--accent-1..5`, surfaces/textes/filets = tokens.
+ *
+ * NOTE : `niche.config` ne porte PAS de photo d'auteur (le type `author` n'a ni
+ * `image` ni `avatar`) → l'avatar est un aplat dégradé teinté par l'accent de la
+ * catégorie, avec l'initiale. Aucune donnée inventée, aucune image cassée.
  */
 import Link from 'next/link'
-import Image from 'next/image'
 import type { ReactNode } from 'react'
 import { type ArticleMeta } from '@/lib/blog'
 import { articleHrefL, formatDateL } from '@/lib/blog-l10n'
@@ -196,10 +199,7 @@ export function PresseArticle({
             {/* Sommaire sticky */}
             {headings.length > 0 ? (
               <aside className="presse-toc">
-                <nav
-                  aria-label={t('toc')}
-                  style={{ borderLeft: '1px solid var(--border)', paddingLeft: 16 }}
-                >
+                <nav aria-label={t('toc')} style={{ borderLeft: '1px solid var(--border)', paddingLeft: 16 }}>
                   <div
                     style={{
                       fontSize: 10.5,
@@ -217,12 +217,7 @@ export function PresseArticle({
                       <li key={h.id}>
                         <a
                           href={`#${h.id}`}
-                          style={{
-                            fontSize: 13,
-                            lineHeight: 1.45,
-                            color: 'var(--text-secondary)',
-                            textDecoration: 'none',
-                          }}
+                          style={{ fontSize: 13, lineHeight: 1.45, color: 'var(--text-secondary)', textDecoration: 'none' }}
                         >
                           {h.text}
                         </a>
@@ -293,10 +288,7 @@ export function PresseArticle({
                     {t('faq')}
                   </h2>
                   {meta.faq.map(({ q, a }, i) => (
-                    <details
-                      key={i}
-                      style={{ borderBottom: '1px solid var(--border)', padding: '16px 0' }}
-                    >
+                    <details key={i} style={{ borderBottom: '1px solid var(--border)', padding: '16px 0' }}>
                       <summary
                         style={{
                           fontFamily: SERIF,
@@ -305,7 +297,6 @@ export function PresseArticle({
                           lineHeight: 1.35,
                           color: 'var(--text-primary)',
                           cursor: 'pointer',
-                          listStyle: 'none',
                         }}
                       >
                         {q}

@@ -1,15 +1,1 @@
-# _example.yaml — Produit template avec format multi-liens affiliés.
-# Supprimer ce fichier lors de l'init d'un nouveau site.
-
-name: "Produit Exemple"
-categorie: "general"
-prix: "99 €"
-badge: "Exemple"
-hook: "Description courte du produit"
-active: false
-stickyCta: "Amazon"
-links:
-  - store: "Amazon"
-    url: "https://www.amazon.fr/dp/XXXXXXXXXX"
-  - store: "Fnac"
-    url: "https://www.fnac.com/exemple"
+# Supprimé — modèle MENTION : aucune affiliation. Ce fichier est un vestige vide, à supprimer du repo (ainsi que le dossier content/produits/).

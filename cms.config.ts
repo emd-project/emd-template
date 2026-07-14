@@ -1,6 +1,13 @@
 import type { CmsConfig } from '@/packages/cms/types'
 import { niche } from '@/niche.config'
 
+/**
+ * cms.config.ts — schéma des collections éditables dans /admin.
+ *
+ * MODÈLE MENTION : aucune collection ni aucun champ de monétisation (liens
+ * marchands, CTA d'achat, disclaimer). Le CMS n'édite que de l'éditorial.
+ */
+
 // Build category options from niche config
 const categoryOptions = niche.categories.map((cat) => ({
   label: cat.label,
@@ -11,7 +18,6 @@ const categoryOptions = niche.categories.map((cat) => ({
 const articleCategoryOptions = [
   ...categoryOptions,
   { label: 'Astuces', value: 'astuces' },
-  { label: 'Deals', value: 'deals' },
 ]
 
 export const cmsConfig: CmsConfig = {
@@ -42,15 +48,6 @@ export const cmsConfig: CmsConfig = {
             a: { type: 'textarea', label: 'Réponse', required: true },
           },
         },
-        stickyCta: {
-          type: 'repeater',
-          label: 'Sticky CTA',
-          fields: {
-            label: { type: 'text', label: 'Label bouton', required: true },
-            url: { type: 'text', label: 'URL affilié', required: true },
-          },
-        },
-        stickyCtaMessage: { type: 'text', label: 'Message CTA' },
       },
     },
     authors: {
@@ -61,36 +58,6 @@ export const cmsConfig: CmsConfig = {
         name: { type: 'text', label: 'Nom', required: true },
         bio: { type: 'textarea', label: 'Bio' },
         jobTitle: { type: 'text', label: 'Titre' },
-      },
-    },
-    produits: {
-      label: 'Produits',
-      path: 'content/produits',
-      format: 'yaml',
-      fields: {
-        name: { type: 'text', label: 'Nom du produit', required: true },
-        categorie: { type: 'select', label: 'Catégorie', options: [
-          ...categoryOptions,
-          { label: 'Concurrent', value: 'concurrent' },
-        ]},
-        prix: { type: 'text', label: 'Prix', required: true },
-        url: { type: 'text', label: 'Lien principal (rétrocompat)' },
-        links: {
-          type: 'repeater',
-          label: 'Liens affiliés',
-          fields: {
-            store: { type: 'text', label: 'Boutique (ex: Amazon, Fnac, Darty)', required: true },
-            url: { type: 'text', label: 'URL affilié', required: true },
-          },
-        },
-        stickyCta: { type: 'text', label: 'Sticky CTA — nom de la boutique prioritaire (ex: Amazon)' },
-        badge: { type: 'text', label: 'Badge (ex: Nouveau, Promo)' },
-        hook: { type: 'text', label: 'Accroche (1 ligne)' },
-        image: { type: 'image', label: 'Photo produit' },
-        active: { type: 'select', label: 'Statut', options: [
-          { label: 'Actif', value: 'true' },
-          { label: 'Inactif', value: 'false' },
-        ]},
       },
     },
     categories: {
@@ -116,7 +83,6 @@ export const cmsConfig: CmsConfig = {
         cta_secondary_url: { type: 'text', label: 'URL bouton secondaire' },
         marquee: { type: 'list', label: 'Bandeau défilant', itemType: 'text' },
         faq_title: { type: 'text', label: 'Titre section FAQ' },
-        affiliate_disclaimer: { type: 'textarea', label: 'Disclaimer affiliation' },
         // Home page fields
         h1_prefix: { type: 'text', label: 'H1 — préfixe' },
         h1_suffix: { type: 'text', label: 'H1 — suffixe' },

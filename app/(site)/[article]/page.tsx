@@ -3,6 +3,10 @@
  * Sert les MDX depuis content/articles/[slug].mdx aux mêmes URLs que WordPress.
  * Intégré au système blog : apparaît dans listings, auteur, articles liés.
  * Mise en page : hero visuel + corps 2 colonnes (sommaire sticky + prose MDX).
+ *
+ * MODÈLE MENTION : aucun CTA d'achat, aucun bloc produit monétisé, aucun lien
+ * sortant monétisé.
+ *
  * Server Component.
  */
 
@@ -13,13 +17,11 @@ import type { Metadata } from 'next'
 import Balancer from 'react-wrap-balancer'
 import { compileMDX } from 'next-mdx-remote/rsc'
 import remarkGfm from 'remark-gfm'
-import { remarkAmazonAffiliate } from '@/lib/plugins/remarkAmazonAffiliate'
 import { processShortcodes } from '@/lib/content/shortcodes'
 import { getRelatedArticles, articleHref, CATEGORY_LABELS } from '@/lib/blog'
 import { extractHeadings, slugify, type TocItem } from '@/lib/utils/headings'
 import { AISummarize } from '@/components/blog/AISummarize'
 import { TableOfContents } from '@/components/blog/TableOfContents'
-import { getCTAsForCategory } from '@/lib/article-ctas'
 import { getStandaloneArticle, getAllStandaloneSlugs } from '@/lib/articles'
 import { niche } from '@/niche.config'
 import { t } from '@/lib/i18n'
@@ -32,15 +34,11 @@ import { ProConTable } from '@/components/blog/ProConTable'
 import { PullQuote } from '@/components/blog/PullQuote'
 import { StatCard, StatRow } from '@/components/blog/StatCard'
 import { CompareBar, CompareBarGroup } from '@/components/blog/CompareBar'
-import { ProductCTA } from '@/components/blog/ProductCTA'
 import { ArticleImage } from '@/components/blog/ArticleImage'
-import { AutoProductCTAs } from '@/components/blog/AutoProductCTAs'
-import { ProductCarousel } from '@/components/blog/ProductCarousel'
 import { ReadingProgress } from '@/components/blog/ReadingProgress'
 import { FaqAccordion } from '@/components/blog/FaqAccordion'
 import { AuthorByline } from '@/components/ui/AuthorByline'
 import { AuthorCard } from '@/components/ui/AuthorCard'
-import { StickyCTA } from '@/components/blog/StickyCTA'
 import type { ReactNode } from 'react'
 
 export const revalidate = 86400
@@ -94,9 +92,9 @@ export default async function StandaloneArticlePage({ params }: { params: Params
   const { meta, content } = data
   const { content: mdxContent } = await compileMDX({
     source: processShortcodes(content),
-    options: { mdxOptions: { remarkPlugins: [remarkGfm, remarkAmazonAffiliate] } },
+    options: { mdxOptions: { remarkPlugins: [remarkGfm] } },
     components: {
-      Tip, Warning, Verdict, ProConTable, PullQuote, StatCard, StatRow, CompareBar, CompareBarGroup, ProductCTA, ArticleImage, ProductCarousel,
+      Tip, Warning, Verdict, ProConTable, PullQuote, StatCard, StatRow, CompareBar, CompareBarGroup, ArticleImage,
       h2: ({ children }: { children?: ReactNode }) => <h2 id={slugify(nodeText(children))}>{children}</h2>,
       h3: ({ children }: { children?: ReactNode }) => <h3 id={slugify(nodeText(children))}>{children}</h3>,
       table: ({ children }: { children: ReactNode }) => (
@@ -252,7 +250,6 @@ export default async function StandaloneArticlePage({ params }: { params: Params
                 )}
 
                 <div className="prose-article">{mdxContent}</div>
-                <AutoProductCTAs ctas={getCTAsForCategory(meta.categorie)} />
 
                 {/* FAQ */}
                 {meta.faq && meta.faq.length > 0 && (
@@ -302,14 +299,6 @@ export default async function StandaloneArticlePage({ params }: { params: Params
           </div>
         </article>
       </main>
-
-      {/* Sticky CTA */}
-      {meta.stickyCta && meta.stickyCta.length > 0 && (
-        <StickyCTA
-          items={meta.stickyCta}
-          message={meta.stickyCtaMessage}
-        />
-      )}
     </>
   )
 }

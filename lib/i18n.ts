@@ -5,7 +5,7 @@
  *   import { t } from '@/lib/i18n'
  *   t('nav.blog')           → "Blog"
  *   t('article.readingTime', { min: 5 })  → "5 min de lecture"
- *   t('footer.affiliateDisclaimer', { store: 'Amazon' }) → "Liens affiliés Amazon..."
+ *   t('ui.viewOfficial')    → "Voir la fiche officielle"
  *
  * `t()` lit la locale depuis niche.defaultLocale (FR) — comportement HISTORIQUE,
  * inchangé. Pour localiser le « chrome » (Nav/Footer) sur les routes /en, utiliser
@@ -50,7 +50,7 @@ function interpolate(value: string, vars?: Record<string, string | number>): str
  *
  * @param locale Locale cible ('fr' | 'en' | …)
  * @param key    Clé en dot-notation (ex: 'nav.blog')
- * @param vars   Variables à interpoler (ex: { store: 'Amazon' })
+ * @param vars   Variables à interpoler (ex: { label: 'Vélos' })
  */
 export function tl(locale: string, key: string, vars?: Record<string, string | number>): string {
   const messages = ALL_MESSAGES[locale] ?? ALL_MESSAGES[niche.defaultLocale] ?? ALL_MESSAGES.fr
@@ -66,7 +66,7 @@ export function tl(locale: string, key: string, vars?: Record<string, string | n
  * Traduit une clé avec interpolation optionnelle.
  *
  * @param key   Clé en dot-notation (ex: 'nav.blog', 'article.readingTime')
- * @param vars  Variables à interpoler (ex: { min: 5, store: 'Amazon' })
+ * @param vars  Variables à interpoler (ex: { min: 5 })
  * @returns     Le texte traduit ou la clé si non trouvée
  */
 export function t(key: string, vars?: Record<string, string | number>): string {

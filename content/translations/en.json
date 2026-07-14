@@ -1,5 +1,6 @@
 {
   "nav": {
+    "home": "Home",
     "choose": "Choose",
     "compare": "Compare",
     "rankings": "Ranking",
@@ -14,9 +15,39 @@
     "tools": "Tools",
     "about": "About",
     "author": "Author",
+    "legal": "Legal notice",
     "legalNotice": "Legal notice",
     "privacy": "Privacy policy",
     "independent": "Independent site."
+  },
+  "presse": {
+    "edition": "English edition",
+    "newsletter": "Newsletter",
+    "allArticles": "All articles",
+    "seeAll": "See all",
+    "editorsNote": "From the editor",
+    "selection": "The selection",
+    "selectionTitle": "Our independent ranking",
+    "selectionDesc": "Tested, compared, rated. Our independent buying guide.",
+    "selectionCta": "See the ranking",
+    "picks": "Don't miss",
+    "letterTitle": "The weekly letter",
+    "letterDesc": "Our guides and favourites, once a week. No spam.",
+    "magazine": "The magazine",
+    "about": "About",
+    "featured": "Featured",
+    "byTheme": "By theme",
+    "exploreThemes": "Explore our guides",
+    "articles": "articles",
+    "all": "All",
+    "category": "Category",
+    "articlesIn": "{label} articles",
+    "guideOfMonth": "Guide of the month",
+    "inBrief": "In brief",
+    "toc": "Contents",
+    "writtenBy": "Written by",
+    "keepReading": "Keep reading",
+    "faq": "Frequently asked questions"
   },
   "hero": {
     "eyebrow": "Independent guides · Honest comparisons"

@@ -3,17 +3,17 @@
  * Traverse le WYSIWYG sans casse (pas de < > à encoder).
  *
  * Syntaxe :
- *   Raccourci  : [[product:mon-produit]]
  *   Inline     : [[stat value="45 min" label="Durée"]]
  *   Bloc       : [[tip title="Conseil"]]Contenu…[[/tip]]
+ *
+ * MODÈLE MENTION : plus aucun raccourci produit (carte d'achat, carrousel
+ * marchand). Les shortcodes restants sont purement éditoriaux.
  *
  * Pipeline : decodeEncodedJsx → expandShorthand → expandBlock → expandInline
  * Appelé AVANT compileMDX sur le contenu brut.
  */
 
 export const SHORTCODE_COMPONENTS: Record<string, string> = {
-  product: 'ProductCTA',
-  productcard: 'ProductCarousel',
   stat: 'StatCard',
   statrow: 'StatRow',
   procon: 'ProConTable',
@@ -43,7 +43,10 @@ function decodeEncodedJsx(content: string): string {
 function expandShorthand(content: string): string {
   return content.replace(
     /\[\[([a-z]+):([^\]\s]+)\]\]/g,
-    (_m, alias, value) => {
+    (match, alias, value) => {
+      const lower = String(alias).toLowerCase()
+      // Alias inconnu → on laisse le texte brut (aucun composant fantôme dans le MDX).
+      if (!SHORTCODE_COMPONENTS[lower]) return match
       const component = resolveComponent(alias)
       return `<${component} slug="${value}" />`
     },
@@ -97,13 +100,6 @@ export interface ShortcodeDoc {
 
 export const SHORTCODE_DOCS: ShortcodeDoc[] = [
   {
-    alias: 'product',
-    component: 'ProductCTA',
-    description: 'Bouton CTA produit avec lien affilié. Lu depuis content/produits/{slug}.yaml.',
-    example: '[[product:mon-produit]]',
-    type: 'shorthand',
-  },
-  {
     alias: 'stat',
     component: 'StatCard',
     description: 'Carte statistique — valeur mise en avant avec label et sous-texte.',
@@ -127,8 +123,8 @@ export const SHORTCODE_DOCS: ShortcodeDoc[] = [
   {
     alias: 'compare',
     component: 'CompareBar',
-    description: 'Barre de comparaison produit avec note et lien.',
-    example: '[[compare slug="mon-produit" score="8.5"]]',
+    description: 'Barre de comparaison entre deux modèles, notée sur 10.',
+    example: '[[compare label="Photo" left="88" right="95" leftName="Modèle A" rightName="Modèle B"]]',
     type: 'inline',
   },
   {

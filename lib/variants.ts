@@ -5,30 +5,35 @@
  * fallbacks gracieux, jamais de crash si un champ est absent. La SÉLECTION se fait
  * à l'INIT (suggestVariants écrit le choix dans niche.config), pas au runtime.
  *
- * 4 DESIGNS DISTINCTS (cf. components/home/HomeRouter) :
+ * DESIGNS DE HOME (cf. components/home/HomeRouter) :
  *  - `marche`      → MarcheHome  ⭐ (orbites/chips, ticker, tableau du marché, spotlight n°1)
  *  - `comparateur` → ComparateurHome (hero split + carte + steps + stats)
  *  - `magazine`    → MagazineHome
  *  - `fil`         → FilHome
+ *  - `presse`      → PresseHome ✦ (identité ÉDITORIALE complète : masthead sérif centré,
+ *                    nav catégories sticky, une + sections par catégorie + colonne « les plus
+ *                    lus », et des vues blog/catégorie/article dédiées). Réservée BEAUTÉ & MODE.
  *
- * ┌─ CHOIX DU DESIGN : le SECTEUR d'abord, le hasard ensuite ─────────────────┐
- * │ Le design n'est PAS un tirage aveugle : il dépend de l'intention de       │
- * │ l'utilisateur dans la niche.                                              │
- * │  • Assurance / Banque / Énergie / Télécom / Crédit / Casino → l'internaute│
- * │    vient COMPARER une offre à souscrire → famille **comparateur**         │
- * │    (⅔ `marche`, ⅓ `comparateur`).                                         │
- * │  • Voiture / Beauté / Retail & Tech / Hospitality / autres → thématique   │
- * │    éditoriale, on vient LIRE et se documenter → famille **éditoriale**    │
- * │    (⅔ `magazine`, ⅓ `fil`).                                               │
- * │ Dans chaque famille, le seed (domaine) tranche → deux sites du même       │
- * │ secteur ne tombent pas forcément sur le même design (anti-empreinte).     │
- * └──────────────────────────────────────────────────────────────────────────┘
+ * ┌─ CHOIX DU DESIGN : le SECTEUR d'abord, le seed ensuite ────────────────────┐
+ * │  • Assurance / Banque / Énergie / Télécom / Crédit / Casino → on vient     │
+ * │    COMPARER une offre à souscrire → famille `comparateur`                  │
+ * │    (⅔ `marche`, ⅓ `comparateur`).                                          │
+ * │  • Beauté / Mode → magazine éditorial haut de gamme → famille `beaute`     │
+ * │    (`presse`). La VARIÉTÉ vient de la palette + typo (seedées au domaine),  │
+ * │    pas du layout : deux sites beauté partagent la structure mais pas la DA. │
+ * │  • Voiture / Retail & Tech / Hospitality / autres → thématique éditoriale   │
+ * │    → famille `editorial` (⅔ `magazine`, ⅓ `fil`).                           │
+ * └───────────────────────────────────────────────────────────────────────────┘
+ *
+ * La variante `presse` est une IDENTITÉ, pas seulement une home : quand elle est
+ * active, le layout monte un masthead/footer éditoriaux (cf. `isPresse()`), et les
+ * pages catégorie/article prennent leur rendu presse.
  */
 import { niche } from '@/niche.config'
 
 // ─── Home ────────────────────────────────────────────────────────────────
-export type HomeVariant = 'magazine' | 'comparateur' | 'marche' | 'fil'
-export const HOME_VARIANTS: readonly HomeVariant[] = ['magazine', 'comparateur', 'marche', 'fil']
+export type HomeVariant = 'magazine' | 'comparateur' | 'marche' | 'fil' | 'presse'
+export const HOME_VARIANTS: readonly HomeVariant[] = ['magazine', 'comparateur', 'marche', 'fil', 'presse']
 
 export function resolveHomeVariant(): HomeVariant {
   const explicit = niche.layouts?.home
@@ -36,40 +41,52 @@ export function resolveHomeVariant(): HomeVariant {
   return niche.style.hero === 'split' ? 'comparateur' : 'magazine'
 }
 
+/**
+ * L'identité ÉDITORIALE (presse) est-elle active ? Le layout `(site)` s'en sert pour
+ * monter le masthead + footer presse à la place de la Nav/Footer standard.
+ */
+export function isPresse(): boolean {
+  return resolveHomeVariant() === 'presse'
+}
+
 export const HOME_PREVIEW: Record<string, HomeVariant> = {
   'home-v1': 'magazine',
   'home-v2': 'comparateur',
   'home-v3': 'marche',
   'home-v4': 'fil',
+  'home-v5': 'presse',
 }
 
 // ─── Catégorie ──────────────────────────────────────────────────────
-export type CategoryVariant = 'classic' | 'editorial'
-export const CATEGORY_VARIANTS: readonly CategoryVariant[] = ['classic', 'editorial']
+export type CategoryVariant = 'classic' | 'editorial' | 'presse'
+export const CATEGORY_VARIANTS: readonly CategoryVariant[] = ['classic', 'editorial', 'presse']
 
 export function resolveCategoryVariant(): CategoryVariant {
   const explicit = niche.layouts?.category
   if (explicit && CATEGORY_VARIANTS.includes(explicit)) return explicit
-  return 'classic'
+  // L'identité presse impose ses pages catégorie.
+  return isPresse() ? 'presse' : 'classic'
 }
 
 export const CATEGORY_PREVIEW: Record<string, CategoryVariant> = {
   'cat-v1': 'classic',
   'cat-v2': 'editorial',
+  'cat-v3': 'presse',
 }
 
 // ─── Article ───────────────────────────────────────────────────────
-export type ArticleVariant = 'classic'
-export const ARTICLE_VARIANTS: readonly ArticleVariant[] = ['classic']
+export type ArticleVariant = 'classic' | 'presse'
+export const ARTICLE_VARIANTS: readonly ArticleVariant[] = ['classic', 'presse']
 
 export function resolveArticleVariant(): ArticleVariant {
   const explicit = niche.layouts?.article
   if (explicit && ARTICLE_VARIANTS.includes(explicit)) return explicit
-  return 'classic'
+  return isPresse() ? 'presse' : 'classic'
 }
 
 export const ARTICLE_PREVIEW: Record<string, ArticleVariant> = {
   'art-v1': 'classic',
+  'art-v2': 'presse',
 }
 
 // ─── Permutations structurelles (anti-empreinte) ────────────────────────────
@@ -88,37 +105,48 @@ export function resolveShadow(): Shadow {
 }
 
 // ─── Famille de home, déduite du SECTEUR ────────────────────────────────────
-export type HomeFamily = 'comparateur' | 'editorial'
+export type HomeFamily = 'comparateur' | 'editorial' | 'beaute'
 
-/**
- * Secteurs « offre à souscrire » : l'internaute vient comparer des prix/conditions.
- * (Colonne CATÉGORIE de pipeline/sites.csv, ou secteur de la spec.)
- */
+/** Secteurs « offre à souscrire » : on vient comparer des prix/conditions. */
 const COMPARATEUR_KEYWORDS = [
   'assurance', 'banque', 'energie', 'énergie', 'telecom', 'télécom',
   'fournisseur', 'credit', 'crédit', 'pret', 'prêt', 'casino', 'paris',
   'mutuelle', 'abonnement',
 ]
 
+/** Secteurs beauté / mode → identité magazine éditorial (`presse`). */
+const BEAUTE_KEYWORDS = [
+  'beauty', 'beaute', 'beauté', 'mode', 'cosmetique', 'cosmétique', 'maquillage',
+  'parfum', 'soin', 'cheveux', 'coiffure', 'fashion',
+]
+
 /**
- * Famille de design à partir du secteur/catégorie de la niche.
+ * Famille de design à partir du secteur/catégorie de la niche
+ * (colonne CATÉGORIE de `pipeline/sites.csv`, ou secteur de la spec).
+ *  - « Beauty », « Mode » → 'beaute'   (→ `presse`)
  *  - « Assurance », « Banque », « Énergie », « Télécom », « Casino & Paris » → 'comparateur'
- *  - « Voiture », « Beauty », « Retailer & Tech », « Hospitality », … → 'editorial'
+ *  - « Voiture », « Retailer & Tech », « Hospitality », … → 'editorial'
  * Défaut prudent : 'editorial' (une home magazine ne choque jamais ; un comparateur
  * plaqué sur une thématique éditoriale, si).
  */
 export function homeFamily(sector: string | undefined | null): HomeFamily {
   const s = (sector ?? '').toLowerCase()
-  return COMPARATEUR_KEYWORDS.some((k) => s.includes(k)) ? 'comparateur' : 'editorial'
+  if (BEAUTE_KEYWORDS.some((k) => s.includes(k))) return 'beaute'
+  if (COMPARATEUR_KEYWORDS.some((k) => s.includes(k))) return 'comparateur'
+  return 'editorial'
 }
 
-/** Pools pondérés par famille — ⅔ / ⅓ (le 1er design est tiré 2× plus souvent). */
+/**
+ * Pools par famille. ⅔ / ⅓ (le 1er design est tiré 2× plus souvent).
+ * `beaute` ne contient QUE `presse` : c'est une identité complète, et la variété
+ * inter-sites y est portée par la **palette + la typo seedées sur le domaine**
+ * (deux sites beauté = même structure, DA différente).
+ */
 const POOL_COMPARATEUR = ['marche', 'marche', 'comparateur'] as const
 const POOL_EDITORIAL = ['magazine', 'magazine', 'fil'] as const
+const POOL_BEAUTE = ['presse'] as const
 
 // ─── Sélection AUTO déterministe (anti-empreinte) — à utiliser À L'INIT ──────
-// Hash FNV-1a du seed (domaine) → combinaison stable & distincte par site.
-// L'init ÉCRIT le résultat dans niche.config (layouts + permutations) ; le runtime lit.
 function seedHash(s: string): number {
   let h = 2166136261
   for (let i = 0; i < s.length; i++) {
@@ -135,12 +163,8 @@ function at<T>(arr: readonly T[], n: number): T {
  * Suggestion déterministe d'une combinaison complète.
  *
  * @param seed    domaine du site (fait diverger deux forks automatiquement)
- * @param family  famille de home. Passer `homeFamily(secteur)` — secteur = colonne
- *                CATÉGORIE de sites.csv. Le SECTEUR décide de la famille, le SEED
+ * @param family  `homeFamily(secteur)` — le SECTEUR décide de la famille, le SEED
  *                décide du design DANS la famille.
- *
- * `marche` est éligible d'office : depuis l'init, un classement seed est toujours
- * écrit (`content/data/classements.json`), donc son tableau du marché a des données.
  */
 export function suggestVariants(
   seed: string = niche.domain || niche.siteName,
@@ -153,10 +177,13 @@ export function suggestVariants(
   shadow: Shadow
 } {
   const h = seedHash(seed)
-  const pool = family === 'comparateur' ? POOL_COMPARATEUR : POOL_EDITORIAL
+  const pool =
+    family === 'comparateur' ? POOL_COMPARATEUR : family === 'beaute' ? POOL_BEAUTE : POOL_EDITORIAL
+  const home = at(pool, h) as HomeVariant
   return {
-    home: at(pool, h),
-    category: at(CATEGORY_VARIANTS, h >>> 2),
+    home,
+    // L'identité presse impose ses propres pages catégorie.
+    category: home === 'presse' ? 'presse' : at(['classic', 'editorial'] as const, h >>> 2),
     shape: at(['rounded', 'soft', 'sharp'] as const, h >>> 4),
     border: at(['hairline', 'standard', 'bold'] as const, h >>> 6),
     shadow: at(['flat', 'standard', 'deep'] as const, h >>> 8),

@@ -122,15 +122,24 @@ export type NicheConfig = {
   /**
    * Choix de variante par type de page. OPTIONNEL & RÉTRO-COMPATIBLE :
    * - `home` absent → resolver retombe sur `style.hero` (split→comparateur, sinon magazine).
-   * Home : 'magazine' | 'comparateur' | 'marche' | 'fil'. Catégorie : 'classic' | 'editorial'.
-   * Article : 'classic'. Preview : /home-v1..4 · /cat-v1..2 · /art-v1.
+   *
+   * Home     : 'magazine' | 'comparateur' | 'marche' | 'fil' | 'presse'
+   * Catégorie: 'classic' | 'editorial' | 'presse'
+   * Article  : 'classic' | 'presse'
+   * Preview  : /home-v1..v5 · /cat-v1..v3 · /art-v1..v2
+   *
+   * ⚠️ `presse` est une IDENTITÉ, pas une simple home : dès que `home: 'presse'`,
+   * `isPresse()` bascule le layout (masthead + footer éditoriaux + PresseStyle) ET
+   * les pages blog/catégorie/article prennent leur rendu presse. Les 3 champs sont
+   * donc cohérents entre eux par défaut (cf. resolveCategoryVariant/ResolveArticleVariant).
+   *
    * À l'init : suggestVariants(domaine) propose une combinaison ; Claude l'écrit ici
    * puis dépublie (supprime) les routes preview restantes (cf. docs/AUTO-DESIGN.md).
    */
   layouts?: {
-    home?: 'magazine' | 'comparateur' | 'marche' | 'fil'
-    category?: 'classic' | 'editorial'
-    article?: 'classic'
+    home?: 'magazine' | 'comparateur' | 'marche' | 'fil' | 'presse'
+    category?: 'classic' | 'editorial' | 'presse'
+    article?: 'classic' | 'presse'
   }
 
   /**

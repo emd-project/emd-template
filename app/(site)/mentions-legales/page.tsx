@@ -2,7 +2,7 @@
  * /mentions-legales — Mentions légales (style Voltéo).
  * Infos éditeur en dur : même entité (MentionBox SRL) pour tous les sites EMD.
  * noindex : page légale.
- * Note : EMD n'a aucune affiliation — pas de section « liens affiliés ».
+ * Modèle MENTION : aucune monétisation des liens sortants → aucune clause de ce type.
  */
 
 import Link from 'next/link'

@@ -20,6 +20,9 @@
     "privacy": "Privacy policy",
     "independent": "Independent site."
   },
+  "ui": {
+    "viewOfficial": "View official page"
+  },
   "presse": {
     "edition": "English edition",
     "newsletter": "Newsletter",
@@ -264,12 +267,5 @@
   },
   "callout": {
     "warning": "Warning"
-  },
-  "product": {
-    "viewPrice": "See price →",
-    "viewOnAmazon": "View on Amazon →",
-    "dealOfMoment": "Deal of the moment",
-    "trustLine": "Free delivery · 30-day returns",
-    "stickyAriaLabel": "Product offer"
   }
 }

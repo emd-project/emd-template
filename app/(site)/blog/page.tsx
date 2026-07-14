@@ -1,6 +1,11 @@
 /**
  * /blog — hub éditorial à la structure Voltéo.
  * hub-hero + barre de filtres + article à la une + grille d'articles + guides.
+ *
+ * Identité ÉDITORIALE (`presse`) : le CORPS est remplacé par `PresseBlogHub`
+ * (masthead/footer presse déjà montés par le layout). Metadata, JSON-LD et ISR
+ * restent STRICTEMENT identiques — le SEO ne dépend pas de la variante.
+ *
  * Server Component · ISR 3600s · searchParams: page
  */
 
@@ -10,6 +15,8 @@ import type { Metadata } from 'next'
 import { getAllArticles, getCategories, formatDate, articleHref, type ArticleMeta } from '@/lib/blog'
 import { currentYear } from '@/lib/utils/year'
 import { Pagination } from '@/components/blog/Pagination'
+import { PresseBlogHub } from '@/components/presse/PresseBlogHub'
+import { isPresse } from '@/lib/variants'
 import { niche } from '@/niche.config'
 import { t } from '@/lib/i18n'
 
@@ -80,9 +87,23 @@ export default async function BlogPage({ searchParams }: { searchParams: SearchP
     ],
   }
 
+  const schema = (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+  )
+
+  // ── Identité ÉDITORIALE : hub presse (même data, même SEO) ────────────────
+  if (isPresse()) {
+    return (
+      <>
+        {schema}
+        <PresseBlogHub locale="fr" articles={allArticles} categories={categories} currentPage={currentPage} />
+      </>
+    )
+  }
+
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {schema}
 
       <main id="main-content">
 

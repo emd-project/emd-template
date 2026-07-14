@@ -5,6 +5,14 @@
  * fallbacks gracieux, jamais de crash si un champ est absent. La SÉLECTION se fait
  * à l'INIT (suggestVariants écrit le choix dans niche.config), pas au runtime.
  * Ici on LIT le choix figé + on EXPOSE le helper de suggestion déterministe.
+ *
+ * DESIGNS RÉELLEMENT RENDUS (cf. components/home/HomeRouter) :
+ *  - `magazine`    → MagazineHome
+ *  - `comparateur` → **MarcheHome** (design « Marché », porté de home-comparateur-marche) ⭐
+ *  - `marche`      → MarcheHome (alias du même rendu — route preview /home-v3)
+ *  - `fil`         → FilHome
+ * L'ancien `ComparateurHome` (hero split + carte facture) n'est PLUS routé.
+ * → Le pool auto (magazine | comparateur | fil) donne donc **3 designs distincts**.
  */
 import { niche } from '@/niche.config'
 
@@ -88,8 +96,9 @@ function at<T>(arr: readonly T[], n: number): T {
 
 /**
  * Suggestion déterministe d'une combinaison complète à partir d'un seed (domaine).
- * `marche` est exclu du pool auto (il dépend de classements.json) : l'init peut
- * forcer 'marche' séparément s'il a généré des classements.
+ * Pool home = `magazine | comparateur | fil` → 3 designs RÉELLEMENT distincts
+ * (`comparateur` rend le design Marché). `marche` n'est pas tiré : c'est un alias
+ * du même rendu que `comparateur`, réservé à la route preview /home-v3.
  */
 export function suggestVariants(seed: string = niche.domain || niche.siteName): {
   home: HomeVariant

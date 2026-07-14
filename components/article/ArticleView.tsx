@@ -2,8 +2,14 @@
  * ArticleView — rendu d'un article MDX, UNIQUE et LOCALE-AWARE (FR + EN).
  * Server Component async (compile le MDX). Remplace la logique dupliquée des
  * routes FR et EN : tout le « chrome » passe par tl(locale, …) → plus aucune
- * chaîne en dur à traduire. La VARIANTE (classic|feature) est pilotée par une
- * classe CSS sur <article> ; le pipeline MDX/SEO est inchangé.
+ * chaîne en dur à traduire.
+ *
+ * VARIANTES :
+ *  - 'classic' : mise en page historique (classe CSS sur <article>).
+ *  - 'presse'  : identité ÉDITORIALE → la MISE EN PAGE est déléguée à
+ *                `PresseArticle`, mais le MDX est compilé ICI (mêmes composants,
+ *                même TOC, même JSON-LD, même StickyCTA). Une seule source de
+ *                compilation MDX dans tout le template.
  *
  * Les routes restent responsables de : data loading (lecteurs FR/EN), notFound,
  * generateMetadata, generateStaticParams. Elles passent meta/content/related ici.
@@ -37,6 +43,7 @@ import { ProductCarousel } from '@/components/blog/ProductCarousel'
 import { ReadingProgress } from '@/components/blog/ReadingProgress'
 import { FaqAccordion } from '@/components/blog/FaqAccordion'
 import { TableOfContents } from '@/components/blog/TableOfContents'
+import { PresseArticle } from '@/components/presse/PresseArticle'
 import { getCTAsForCategory } from '@/lib/article-ctas'
 import { AuthorByline } from '@/components/ui/AuthorByline'
 import { AuthorCard } from '@/components/ui/AuthorCard'
@@ -158,11 +165,36 @@ export async function ArticleView({
     }] : []),
   ]
 
+  const schemas = jsonLd.map((schema, i) => (
+    <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+  ))
+
+  const stickyCta = meta.stickyCta && meta.stickyCta.length > 0
+    ? <StickyCTA items={meta.stickyCta} message={meta.stickyCtaMessage} locale={locale} />
+    : null
+
+  // ── Identité ÉDITORIALE : même MDX, même TOC, autre mise en page ──────────
+  if (v === 'presse') {
+    return (
+      <>
+        {schemas}
+        <ReadingProgress />
+        <PresseArticle
+          locale={locale}
+          categorie={categorie}
+          meta={meta}
+          related={related}
+          mdxContent={mdxContent}
+          toc={tocItems}
+        />
+        {stickyCta}
+      </>
+    )
+  }
+
   return (
     <>
-      {jsonLd.map((schema, i) => (
-        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
-      ))}
+      {schemas}
 
       <ReadingProgress />
       <main id="main-content">
@@ -273,9 +305,7 @@ export async function ArticleView({
         </article>
       </main>
 
-      {meta.stickyCta && meta.stickyCta.length > 0 && (
-        <StickyCTA items={meta.stickyCta} message={meta.stickyCtaMessage} locale={locale} />
-      )}
+      {stickyCta}
     </>
   )
 }

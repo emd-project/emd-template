@@ -1,5 +1,6 @@
 {
   "nav": {
+    "home": "Accueil",
     "choose": "Choisir",
     "compare": "Comparer",
     "rankings": "Classement",
@@ -14,9 +15,39 @@
     "tools": "Outils",
     "about": "À propos",
     "author": "Auteur",
+    "legal": "Mentions légales",
     "legalNotice": "Mentions légales",
     "privacy": "Confidentialité",
     "independent": "Site indépendant."
+  },
+  "presse": {
+    "edition": "Édition FR",
+    "newsletter": "Newsletter",
+    "allArticles": "Tous les articles",
+    "seeAll": "Tout voir",
+    "editorsNote": "Le mot de la rédaction",
+    "selection": "La sélection",
+    "selectionTitle": "Notre classement indépendant",
+    "selectionDesc": "Testés, comparés, notés. Notre guide d'achat indépendant.",
+    "selectionCta": "Voir le classement",
+    "picks": "À ne pas manquer",
+    "letterTitle": "La lettre hebdo",
+    "letterDesc": "Nos guides et nos coups de cœur, une fois par semaine. Sans spam.",
+    "magazine": "Le magazine",
+    "about": "À propos",
+    "featured": "À la une",
+    "byTheme": "Par thème",
+    "exploreThemes": "Explorer nos guides",
+    "articles": "articles",
+    "all": "Tous",
+    "category": "Catégorie",
+    "articlesIn": "Articles {label}",
+    "guideOfMonth": "Le guide du mois",
+    "inBrief": "En bref",
+    "toc": "Sommaire",
+    "writtenBy": "Écrit par",
+    "keepReading": "Continuer la lecture",
+    "faq": "Questions fréquentes"
   },
   "hero": {
     "eyebrow": "Guides indépendants · Comparatifs honnêtes"

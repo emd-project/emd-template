@@ -8,8 +8,12 @@
  *  - 'classic' : mise en page historique (classe CSS sur <article>).
  *  - 'presse'  : identité ÉDITORIALE → la MISE EN PAGE est déléguée à
  *                `PresseArticle`, mais le MDX est compilé ICI (mêmes composants,
- *                même TOC, même JSON-LD, même StickyCTA). Une seule source de
- *                compilation MDX dans tout le template.
+ *                même TOC, même JSON-LD). Une seule source de compilation MDX
+ *                dans tout le template.
+ *
+ * MODÈLE MENTION : aucun CTA d'achat, aucun bloc produit monétisé, aucun lien
+ * sortant monétisé. Les seuls CTA rendus pointent vers les outils du site
+ * (comparateur, quiz, simulateur) via `ToolCTA`.
  *
  * Les routes restent responsables de : data loading (lecteurs FR/EN), notFound,
  * generateMetadata, generateStaticParams. Elles passent meta/content/related ici.
@@ -19,7 +23,6 @@ import Image from 'next/image'
 import { compileMDX } from 'next-mdx-remote/rsc'
 import remarkGfm from 'remark-gfm'
 import type { ComponentProps, ReactNode } from 'react'
-import { remarkAmazonAffiliate } from '@/lib/plugins/remarkAmazonAffiliate'
 import { processShortcodes } from '@/lib/content/shortcodes'
 import { type ArticleMeta } from '@/lib/blog'
 import { articleHrefL, formatDateL } from '@/lib/blog-l10n'
@@ -36,18 +39,13 @@ import { PullQuote } from '@/components/blog/PullQuote'
 import { StatCard, StatRow } from '@/components/blog/StatCard'
 import { CompareBar, CompareBarGroup } from '@/components/blog/CompareBar'
 import { ToolCTA } from '@/components/blog/ToolCTA'
-import { ProductCTA } from '@/components/blog/ProductCTA'
 import { ArticleImage } from '@/components/blog/ArticleImage'
-import { AutoProductCTAs } from '@/components/blog/AutoProductCTAs'
-import { ProductCarousel } from '@/components/blog/ProductCarousel'
 import { ReadingProgress } from '@/components/blog/ReadingProgress'
 import { FaqAccordion } from '@/components/blog/FaqAccordion'
 import { TableOfContents } from '@/components/blog/TableOfContents'
 import { PresseArticle } from '@/components/presse/PresseArticle'
-import { getCTAsForCategory } from '@/lib/article-ctas'
 import { AuthorByline } from '@/components/ui/AuthorByline'
 import { AuthorCard } from '@/components/ui/AuthorCard'
-import { StickyCTA } from '@/components/blog/StickyCTA'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
@@ -94,7 +92,7 @@ export async function ArticleView({
 
   const { content: mdxContent } = await compileMDX({
     source: processShortcodes(content),
-    options: { mdxOptions: { remarkPlugins: [remarkGfm, remarkAmazonAffiliate] } },
+    options: { mdxOptions: { remarkPlugins: [remarkGfm] } },
     components: {
       Tip,
       Warning: (mp: ComponentProps<typeof Warning>) => <Warning {...mp} locale={locale} />,
@@ -102,9 +100,7 @@ export async function ArticleView({
       ProConTable: (mp: ComponentProps<typeof ProConTable>) => <ProConTable {...mp} locale={locale} />,
       PullQuote, StatCard, StatRow,
       CompareBar, CompareBarGroup,
-      ProductCTA: (mp: ComponentProps<typeof ProductCTA>) => <ProductCTA {...mp} locale={locale} />,
       ArticleImage,
-      ProductCarousel: (mp: ComponentProps<typeof ProductCarousel>) => <ProductCarousel {...mp} locale={locale} />,
       h2: ({ children }: { children?: ReactNode }) => <h2 id={slugify(nodeText(children))}>{children}</h2>,
       h3: ({ children }: { children?: ReactNode }) => <h3 id={slugify(nodeText(children))}>{children}</h3>,
       table: ({ children }: { children: ReactNode }) => (
@@ -169,10 +165,6 @@ export async function ArticleView({
     <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
   ))
 
-  const stickyCta = meta.stickyCta && meta.stickyCta.length > 0
-    ? <StickyCTA items={meta.stickyCta} message={meta.stickyCtaMessage} locale={locale} />
-    : null
-
   // ── Identité ÉDITORIALE : même MDX, même TOC, autre mise en page ──────────
   if (v === 'presse') {
     return (
@@ -187,7 +179,6 @@ export async function ArticleView({
           mdxContent={mdxContent}
           toc={tocItems}
         />
-        {stickyCta}
       </>
     )
   }
@@ -263,7 +254,6 @@ export async function ArticleView({
                 )}
 
                 <div className="prose-article">{mdxContent}</div>
-                <AutoProductCTAs ctas={getCTAsForCategory(categorie)} locale={locale} />
                 <ToolCTA categorie={categorie} locale={locale} />
 
                 {meta.faq && meta.faq.length > 0 && (
@@ -304,8 +294,6 @@ export async function ArticleView({
           </div>
         </article>
       </main>
-
-      {stickyCta}
     </>
   )
 }

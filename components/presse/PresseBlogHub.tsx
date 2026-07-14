@@ -174,18 +174,19 @@ export function PresseBlogHub({
       {/* ── À la une ────────────────────────────────────────────── */}
       {showFeatured && featured && (
         <section style={{ maxWidth: 1200, margin: '0 auto', padding: '44px 24px 0' }}>
-          <Link
-            href={href(featured)}
+          <div
             style={{
-              display: 'grid',
-              gridTemplateColumns: '1.1fr 1fr',
-              gap: 34,
-              alignItems: 'center',
-              color: 'inherit',
-              textDecoration: 'none',
+              fontSize: 11,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              fontWeight: 700,
+              color: 'var(--text-muted)',
+              marginBottom: 18,
             }}
-            className="presse-2col"
           >
+            {t('featured')}
+          </div>
+          <Link href={href(featured)} className="presse-lead" style={{ color: 'inherit', textDecoration: 'none' }}>
             <Cover a={featured} ratio="3/2" sizes="(max-width: 900px) 100vw, 55vw" />
             <div>
               <Kicker slug={featured.categorie} />

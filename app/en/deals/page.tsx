@@ -1,16 +1,19 @@
 /**
- * /en/deals — Deals page (EN mirror of /deals).
- * Hero + MarqueeStrip + DealsGrid + FAQ. ISR 900s. No affiliate links (EMD = mention).
+ * /en/deals — deals page (EN mirror of /deals).
+ * DISABLED BY DEFAULT: `niche.deals.enabled === false` → immediate `notFound()`.
+ *
+ * EMD model = MENTION: outbound links are never monetised. This page renders no
+ * purchase CTA, no crossed-out price, no monetised link. Hero + MarqueeStrip + FAQ.
+ * ISR 900s. Server Component.
  */
 
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { currentYear } from '@/lib/utils/year'
 import { MarqueeStrip } from '@/components/effects/MarqueeStrip'
-import { DealsGrid } from '@/components/deals/DealsGrid'
 import { FaqAccordion } from '@/components/blog/FaqAccordion'
-import { niche } from '@/niche.config'
-import type { Deal } from '@/components/deals/DealsGrid'
+import { niche, dealsEnabled } from '@/niche.config'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
@@ -20,7 +23,7 @@ export function generateMetadata(): Metadata {
   const year = currentYear()
   return {
     title: `Deals ${year} — best current offers | ${niche.siteName}`,
-    description: `The best ${niche.entities} deals right now. Hand-picked — no spam.`,
+    description: `The best ${niche.entities} offers right now. Hand-picked — no spam.`,
     alternates: {
       canonical: `${SITE_URL}/en/deals`,
       languages: {
@@ -29,17 +32,16 @@ export function generateMetadata(): Metadata {
         'x-default': `${SITE_URL}/deals`,
       },
     },
-    openGraph: { title: `Deals ${year}`, description: `Best ${niche.entities} deals, hand-picked.`, url: `${SITE_URL}/en/deals`, siteName: niche.siteName, type: 'website', locale: 'en' },
+    openGraph: { title: `Deals ${year}`, description: `Best ${niche.entities} offers, hand-picked.`, url: `${SITE_URL}/en/deals`, siteName: niche.siteName, type: 'website', locale: 'en' },
   }
 }
 
-const DEALS: Deal[] = []
-const MARQUEE_ITEMS = ['Selection updated every week', `The best ${niche.entities} deals right now`]
+const MARQUEE_ITEMS = ['Selection updated every week', `The best ${niche.entities} offers right now`]
 
 const FAQ_ITEMS = [
-  { q: `Where can I find the best deals right now?`, a: `On ${niche.domain}/en/deals we hand-pick the best discounts every week. No fake deals, no inflated pre-promo prices.` },
+  { q: `Where can I find the best offers right now?`, a: `On ${niche.domain}/en/deals we hand-pick the best discounts every week. No fake deals, no inflated pre-promo prices.` },
   { q: `When should I buy at the best price?`, a: `The best moments: Black Friday, the sales, and right after a new model launches — the previous one drops immediately.` },
-  { q: `How do you verify deals?`, a: `We compare the displayed price with the official price and price history. If the crossed-out price is inflated, we don't publish it. Independent editorial selection, no sponsored deals.` },
+  { q: `How do you verify offers?`, a: `We compare the displayed price with the official price and price history. If the claim is misleading, we don't publish it. Independent editorial selection, no sponsored offers.` },
 ]
 
 const jsonLdBreadcrumb = {
@@ -55,6 +57,8 @@ const jsonLdFaq = {
 }
 
 export default function DealsPageEn() {
+  if (!dealsEnabled()) notFound()
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumb) }} />
@@ -77,20 +81,16 @@ export default function DealsPageEn() {
             </nav>
             <h1 style={{ fontSize: 'clamp(32px, 5vw, 60px)', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.1, marginBottom: 16 }}>Deals</h1>
             <p style={{ fontSize: 'clamp(15px, 2vw, 18px)', color: 'var(--ink-2)', maxWidth: 520, lineHeight: 1.6 }}>
-              Hand-picked. No sponsored deals, no inflated pre-promo prices. Only real, verified discounts.
+              Hand-picked. No sponsored offers, no inflated pre-promo prices. Only real, verified discounts.
             </p>
           </div>
         </section>
 
         <section className="section">
           <div className="wrap">
-            {DEALS.length === 0 ? (
-              <p style={{ textAlign: 'center', color: 'var(--ink-3)', fontSize: 16, padding: '64px 24px', lineHeight: 1.6 }}>
-                No deals available yet. Check back soon!
-              </p>
-            ) : (
-              <DealsGrid deals={DEALS} />
-            )}
+            <p style={{ textAlign: 'center', color: 'var(--ink-3)', fontSize: 16, padding: '64px 24px', lineHeight: 1.6 }}>
+              No offers available yet. Check back soon!
+            </p>
 
             <section aria-labelledby="faq-deals" style={{ marginTop: 48 }}>
               <h2 id="faq-deals" style={{ fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 800, color: 'var(--ink)', marginBottom: 24 }}>Frequently asked questions — deals</h2>
@@ -98,7 +98,7 @@ export default function DealsPageEn() {
             </section>
 
             <div style={{ marginTop: 40, padding: '20px 24px', background: 'var(--cream-2)', border: '1px solid var(--line)', borderRadius: 'var(--r)', fontSize: 13, color: 'var(--ink-3)' }}>
-              <strong style={{ color: 'var(--ink-2)' }}>Independence:</strong> editorial selection, no affiliate links or sponsored deals.{' '}
+              <strong style={{ color: 'var(--ink-2)' }}>Independence:</strong> editorial selection, no monetised links, no sponsored offers.{' '}
               <Link href="/en/legal-notice" style={{ color: 'var(--primary-d)', textDecoration: 'underline' }}>Legal notice →</Link>
             </div>
           </div>

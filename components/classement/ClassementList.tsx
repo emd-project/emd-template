@@ -2,6 +2,10 @@
  * ClassementList — listicle « Top N » riche, piloté par la DA (asset GEO).
  * Server Component — 0 JS, tout en HTML rendu serveur (citable + SSR SEO).
  * 100% token-driven (var(--…)). Libellés passés par la page (locale-aware).
+ *
+ * MODÈLE MENTION : aucun CTA d'achat. Le seul lien externe possible sur un item est
+ * NEUTRE (`item.url` = source officielle / page de marque), en
+ * `rel="noopener noreferrer nofollow"` — jamais monétisé.
  */
 
 import Link from 'next/link'
@@ -24,6 +28,8 @@ export type ClassementLabels = {
   scoreLabel: string
   priceLabel: string
   bestForCol: string
+  /** Libellé du lien NEUTRE vers la source officielle d'un item (ex. « Voir la fiche officielle »). */
+  viewOfficial: string
 }
 
 type Props = {
@@ -103,6 +109,17 @@ export function ClassementList({ classement, labels, comparerHref, quizHref }: P
                     </div>
                   )}
                 </div>
+              )}
+              {/* Lien NEUTRE vers la source officielle (jamais monétisé). */}
+              {it.url && (
+                <a
+                  href={it.url}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  style={{ display: 'inline-block', marginTop: 'var(--space-4)', fontSize: '13px', fontWeight: 600, color: 'var(--accent-2)', textDecoration: 'none', borderBottom: '1px solid var(--border)', paddingBottom: '1px' }}
+                >
+                  {labels.viewOfficial} →
+                </a>
               )}
             </div>
           </li>

@@ -2,7 +2,6 @@
  * app/en/layout.tsx — Chrome de la section anglaise (/en/...).
  *
  * BLOC 2a (i18n) : arbre EN frère, disjoint des routes FR (app/(site)/).
- * Réutilise le MÊME chrome que le FR pour rester additif et compiler sans dette.
  * La balise <html> reste détenue par app/layout.tsx (lang="fr") ; on pose ici
  * lang="en" via un conteneur `display: contents` qui n'introduit aucune boîte.
  *
@@ -15,12 +14,14 @@ import { Nav } from '@/components/layout/Nav'
 import { Footer } from '@/components/layout/Footer'
 import { PresseMasthead } from '@/components/presse/PresseMasthead'
 import { PresseFooter } from '@/components/presse/PresseFooter'
+import { PresseStyle } from '@/components/presse/PresseStyle'
 import { isPresse } from '@/lib/variants'
 
 export default function EnLayout({ children }: { children: React.ReactNode }) {
   const presse = isPresse()
   return (
     <div lang="en" style={{ display: 'contents' }}>
+      {presse && <PresseStyle />}
       {presse ? <PresseMasthead /> : <Nav />}
       {children}
       {presse ? <PresseFooter /> : <Footer locale="en" />}

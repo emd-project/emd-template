@@ -2,14 +2,17 @@
  * PresseArticle — mise en page ARTICLE de l'identité ÉDITORIALE (`presse`).
  *
  * ⚠️ Ce composant NE COMPILE PAS le MDX : `ArticleView` reste la seule et unique
- * source de compilation (mêmes composants MDX, même TOC, même JSON-LD, même
- * StickyCTA). PresseArticle est une pure ENVELOPPE DE MISE EN PAGE qui reçoit le
- * contenu déjà rendu (`mdxContent`) et les items de sommaire (`toc`).
+ * source de compilation (mêmes composants MDX, même TOC, même JSON-LD).
+ * PresseArticle est une pure ENVELOPPE DE MISE EN PAGE qui reçoit le contenu déjà
+ * rendu (`mdxContent`) et les items de sommaire (`toc`).
  *
  * Structure : hero pleine largeur teinté par l'accent de la catégorie (fil d'Ariane,
  * badge, H1 sérif, ligne auteur) → corps 1080px : sommaire sticky (H2) + colonne de
  * contenu (« En bref » si `aiSummary`, MDX, FAQ si `faq`, « Continuer la lecture »,
  * carte auteur).
+ *
+ * MODÈLE MENTION : aucun CTA d'achat, aucun bloc produit monétisé. Le seul CTA est
+ * `ToolCTA` (outils internes du site).
  *
  * ZÉRO donnée inventée : chaque bloc n'existe que si le frontmatter le fournit.
  * ZÉRO hex : accents = `--accent-1..5`, surfaces/textes/filets = tokens.
@@ -25,9 +28,7 @@ import { articleHrefL, formatDateL } from '@/lib/blog-l10n'
 import type { TocItem } from '@/lib/utils/headings'
 import { niche, localePath, categoryAccent } from '@/niche.config'
 import { tl } from '@/lib/i18n'
-import { AutoProductCTAs } from '@/components/blog/AutoProductCTAs'
 import { ToolCTA } from '@/components/blog/ToolCTA'
-import { getCTAsForCategory } from '@/lib/article-ctas'
 
 const SERIF = 'var(--next-font-display), Georgia, serif'
 const MONO = 'ui-monospace, SFMono-Regular, Menlo, monospace'
@@ -269,7 +270,6 @@ export function PresseArticle({
               {/* Contenu MDX (compilé par ArticleView — mêmes composants) */}
               <div className="prose-article">{mdxContent}</div>
 
-              <AutoProductCTAs ctas={getCTAsForCategory(categorie)} locale={locale} />
               <ToolCTA categorie={categorie} locale={locale} />
 
               {/* FAQ (uniquement si le frontmatter en porte une) */}

@@ -3,6 +3,8 @@
  * Fichiers MDX dans content/articles/[slug].mdx.
  * URLs servies à la racine : /compatibilite-apple-watch, etc.
  * Server-side uniquement (fs, path).
+ *
+ * MODÈLE MENTION : aucun champ de CTA d'achat dans le frontmatter.
  */
 
 import fs from 'fs'
@@ -10,8 +12,6 @@ import path from 'path'
 import matter from 'gray-matter'
 
 const ARTICLES_DIR = path.join(process.cwd(), 'content/articles')
-
-export type StickyCTAData = { label: string; url: string }
 
 export type StandaloneArticleMeta = {
   slug: string
@@ -25,8 +25,6 @@ export type StandaloneArticleMeta = {
   tags?: string[]
   aiSummary?: string[]
   faq?: { q: string; a: string }[]
-  stickyCta?: StickyCTAData[]
-  stickyCtaMessage?: string
   draft?: boolean
 }
 

@@ -4,6 +4,10 @@
  *
  * Tous les composants, configs et pages dépendent de ce fichier. Ne pas hardcoder
  * de couleur, de font, de nom de site, de tagline dans le JSX — passer par ici.
+ *
+ * MODÈLE ÉCONOMIQUE : vente de MENTIONS. Aucune monétisation par lien sortant.
+ * Les liens externes éventuels sont NEUTRES (source officielle / page de marque),
+ * en `rel="noopener noreferrer nofollow"`, jamais monétisés.
  */
 
 export type NicheConfig = {
@@ -60,15 +64,11 @@ export type NicheConfig = {
   /**
    * Page /deals — **DÉSACTIVÉE PAR DÉFAUT**.
    *
-   * Le composant `DealsGrid` est structurellement AFFILIÉ (`amazonUrl`, `AffiliateLink`,
-   * CTA « Profiter du deal », prix barré + « −X% »). Or le modèle EMD est **MENTION,
-   * sans aucune affiliation** : la remplir imposerait d'inventer des promos et des prix
-   * barrés. On ne livre donc PAS de coquille vide : à l'init, `enabled: false`, le lien
-   * disparaît de la nav et les routes `/deals` (FR + EN) sont SUPPRIMÉES du fork.
-   *
-   * Si un jour une niche a de vraies offres factuelles (prix courants sourcés, liens
-   * NEUTRES vers la source officielle), la boucle `emd-build-pages` peut réactiver la
-   * page — mais jamais avec un lien affilié.
+   * Le modèle EMD est la MENTION : aucune monétisation des liens sortants. Une page
+   * « bons plans » n'a de sens que si la niche a de VRAIES offres factuelles (prix
+   * courants sourcés et datés, liens NEUTRES vers la source officielle). Sans ça, on
+   * ne livre pas une coquille vide : `enabled: false`, le lien disparaît de la nav et
+   * les routes `/deals` (FR + EN) renvoient un 404.
    */
   deals?: {
     enabled: boolean
@@ -114,10 +114,6 @@ export type NicheConfig = {
   // Identité visuelle
   logo: string
   homeSections: string[]
-
-  // Affiliation
-  affiliateTag: string
-  defaultStore: string
 
   // Signature DA anti-IA
   signature: {
@@ -200,7 +196,7 @@ export const niche: NicheConfig = {
   quiz: { enabled: true, question: '', criteria: [] },
   comparator: { enabled: true, criteria: [] },
   simulator: { enabled: true, title: '', description: '' },
-  // Modèle MENTION : aucune affiliation → page /deals désactivée par défaut.
+  // Modèle MENTION : page /deals désactivée par défaut.
   deals: { enabled: false },
 
   // Défaut = skin V1 Voltéo « Électrique » (clair) · archétype magazine (hero centered).
@@ -238,9 +234,6 @@ export const niche: NicheConfig = {
     forbidden: [],
     components: [],
   },
-
-  affiliateTag: '',
-  defaultStore: 'Amazon',
 
   // Bloc 0 d'init-site — placeholders à remplacer impérativement
   market: 'BE',
@@ -287,7 +280,7 @@ export function isMultilingual(): boolean {
   return niche.locales.length >= 2
 }
 
-/** True si la page /deals est activée (défaut : NON — modèle MENTION, pas d'affiliation). */
+/** True si la page /deals est activée (défaut : NON — modèle MENTION). */
 export function dealsEnabled(): boolean {
   return niche.deals?.enabled === true
 }

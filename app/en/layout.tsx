@@ -2,23 +2,28 @@
  * app/en/layout.tsx — Chrome de la section anglaise (/en/...).
  *
  * BLOC 2a (i18n) : arbre EN frère, disjoint des routes FR (app/(site)/).
- * Réutilise le MÊME chrome que le FR (Nav + Footer) pour rester additif et
- * compiler sans dette. La balise <html> reste détenue par app/layout.tsx
- * (lang="fr") ; on pose ici lang="en" via un conteneur `display: contents`
- * qui n'introduit aucune boîte dans le flux (le chrome Voltéo reste intact).
+ * Réutilise le MÊME chrome que le FR pour rester additif et compiler sans dette.
+ * La balise <html> reste détenue par app/layout.tsx (lang="fr") ; on pose ici
+ * lang="en" via un conteneur `display: contents` qui n'introduit aucune boîte.
  *
- * Libellés EN : la Nav déduit la locale du path (usePathname → /en) ; le Footer
- * est un Server Component, on lui passe donc `locale="en"` EXPLICITEMENT.
+ * Deux identités possibles, comme côté FR :
+ *  - standard : Nav + Footer
+ *  - `presse` : masthead + footer éditoriaux (familles Beauté & Mode).
+ * Les composants presse déduisent la locale du pathname (usePathname → /en).
  */
 import { Nav } from '@/components/layout/Nav'
 import { Footer } from '@/components/layout/Footer'
+import { PresseMasthead } from '@/components/presse/PresseMasthead'
+import { PresseFooter } from '@/components/presse/PresseFooter'
+import { isPresse } from '@/lib/variants'
 
 export default function EnLayout({ children }: { children: React.ReactNode }) {
+  const presse = isPresse()
   return (
     <div lang="en" style={{ display: 'contents' }}>
-      <Nav />
+      {presse ? <PresseMasthead /> : <Nav />}
       {children}
-      <Footer locale="en" />
+      {presse ? <PresseFooter /> : <Footer locale="en" />}
     </div>
   )
 }

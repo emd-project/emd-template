@@ -1,6 +1,7 @@
 /**
  * /classement/[produit] — classement « Top N » (asset GEO, data-driven).
  * Server Component. Possède l'intent best/top/meilleur (cf. CLAUDE.md anti-cannibalisation).
+ * Modèle MENTION : aucun CTA d'achat — au plus un lien NEUTRE vers la source officielle.
  */
 
 import { notFound } from 'next/navigation'
@@ -12,6 +13,7 @@ import { ClassementList, type ClassementLabels } from '@/components/classement/C
 import { currentYear } from '@/lib/utils/year'
 import { best } from '@/lib/utils/grammar'
 import { excerpt } from '@/lib/utils/text'
+import { t } from '@/lib/i18n'
 import { niche } from '@/niche.config'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
@@ -27,6 +29,7 @@ const LABELS: ClassementLabels = {
   comparatorCta: 'Comparer en détail →', quizCta: 'Trouver mon modèle →',
   tableTitle: 'Tableau comparatif', faqTitle: 'Questions fréquentes',
   model: 'Modèle', scoreLabel: 'Note', priceLabel: 'Prix', bestForCol: 'Meilleur pour',
+  viewOfficial: t('ui.viewOfficial'),
 }
 
 export function generateStaticParams() {
@@ -103,8 +106,8 @@ export default async function ClassementPage({ params }: { params: Params }) {
             </nav>
             {tabs.length > 1 && (
               <div className="cmp-tabs">
-                {tabs.map((t) => (
-                  <Link key={t.slug} href={`/classement/${t.slug}`} className={`chip${t.slug === produit ? ' on' : ''}`}>{stripYear(t.label)}</Link>
+                {tabs.map((tab) => (
+                  <Link key={tab.slug} href={`/classement/${tab.slug}`} className={`chip${tab.slug === produit ? ' on' : ''}`}>{stripYear(tab.label)}</Link>
                 ))}
               </div>
             )}
@@ -112,7 +115,7 @@ export default async function ClassementPage({ params }: { params: Params }) {
               Top {c.items.length} {best(g, plural)} {label} {year}
             </h1>
             {c.intro && <p style={{ fontSize: 17, color: 'var(--ink-2)', maxWidth: 620, lineHeight: 1.6 }}>{c.intro}</p>}
-            {c.updated && <p style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 10 }}>{LABELS.methodology === 'Méthodologie' ? 'Mis à jour le' : 'Updated'} {new Date(c.updated).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>}
+            {c.updated && <p style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 10 }}>Mis à jour le {new Date(c.updated).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>}
           </div>
         </section>
 

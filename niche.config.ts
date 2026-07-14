@@ -57,6 +57,22 @@ export type NicheConfig = {
     title: string
     description: string
   }
+  /**
+   * Page /deals — **DÉSACTIVÉE PAR DÉFAUT**.
+   *
+   * Le composant `DealsGrid` est structurellement AFFILIÉ (`amazonUrl`, `AffiliateLink`,
+   * CTA « Profiter du deal », prix barré + « −X% »). Or le modèle EMD est **MENTION,
+   * sans aucune affiliation** : la remplir imposerait d'inventer des promos et des prix
+   * barrés. On ne livre donc PAS de coquille vide : à l'init, `enabled: false`, le lien
+   * disparaît de la nav et les routes `/deals` (FR + EN) sont SUPPRIMÉES du fork.
+   *
+   * Si un jour une niche a de vraies offres factuelles (prix courants sourcés, liens
+   * NEUTRES vers la source officielle), la boucle `emd-build-pages` peut réactiver la
+   * page — mais jamais avec un lien affilié.
+   */
+  deals?: {
+    enabled: boolean
+  }
 
   // Style & DA
   style: {
@@ -130,11 +146,10 @@ export type NicheConfig = {
    *
    * ⚠️ `presse` est une IDENTITÉ, pas une simple home : dès que `home: 'presse'`,
    * `isPresse()` bascule le layout (masthead + footer éditoriaux + PresseStyle) ET
-   * les pages blog/catégorie/article prennent leur rendu presse. Les 3 champs sont
-   * donc cohérents entre eux par défaut (cf. resolveCategoryVariant/ResolveArticleVariant).
+   * les pages blog/catégorie/article prennent leur rendu presse.
    *
-   * À l'init : suggestVariants(domaine) propose une combinaison ; Claude l'écrit ici
-   * puis dépublie (supprime) les routes preview restantes (cf. docs/AUTO-DESIGN.md).
+   * À l'init : suggestVariants(domaine, homeFamily(secteur)) propose une combinaison ;
+   * Claude l'écrit ici puis dépublie les routes preview (cf. docs/AUTO-DESIGN.md).
    */
   layouts?: {
     home?: 'magazine' | 'comparateur' | 'marche' | 'fil' | 'presse'
@@ -185,6 +200,8 @@ export const niche: NicheConfig = {
   quiz: { enabled: true, question: '', criteria: [] },
   comparator: { enabled: true, criteria: [] },
   simulator: { enabled: true, title: '', description: '' },
+  // Modèle MENTION : aucune affiliation → page /deals désactivée par défaut.
+  deals: { enabled: false },
 
   // Défaut = skin V1 Voltéo « Électrique » (clair) · archétype magazine (hero centered).
   style: {
@@ -212,7 +229,7 @@ export const niche: NicheConfig = {
   author: { name: '', slug: '', title: '', bio: '', tone: [], noGo: [], formulations: [] },
 
   logo: 'emd·template',
-  homeSections: ['ticker', 'deals', 'articles', 'categories', 'tools', 'author'],
+  homeSections: ['ticker', 'articles', 'categories', 'tools', 'author'],
 
   signature: {
     anchor: '',
@@ -233,7 +250,7 @@ export const niche: NicheConfig = {
 
   // Variantes & permutations : non définies par défaut → resolver retombe sur
   // style.hero (magazine) + shape/border/shadow 'standard'. L'init les renseigne
-  // via suggestVariants(domaine) pour faire diverger chaque fork (anti-empreinte).
+  // via suggestVariants(domaine, homeFamily(secteur)) pour faire diverger chaque fork.
 
   vercelRegion: 'fra1',
   repo: '',
@@ -268,6 +285,11 @@ export function categoryAccents(): Record<string, string> {
 /** True si le site est multi-langue (≥ 2 locales actives). */
 export function isMultilingual(): boolean {
   return niche.locales.length >= 2
+}
+
+/** True si la page /deals est activée (défaut : NON — modèle MENTION, pas d'affiliation). */
+export function dealsEnabled(): boolean {
+  return niche.deals?.enabled === true
 }
 
 /**

@@ -18,6 +18,9 @@ const CSS = `
 /* Section catégorie : lead + brèves */
 .presse-cat { display:grid; grid-template-columns:1.1fr 1fr; gap:28px; }
 
+/* Article vedette d'un listing (hub blog, catégorie) : cover + texte */
+.presse-lead { display:grid; grid-template-columns:1.1fr 1fr; gap:34px; align-items:center; }
+
 /* Grilles d'articles (hub blog, catégorie) */
 .presse-grid3 { display:grid; grid-template-columns:repeat(3, 1fr); gap:32px 28px; }
 
@@ -44,6 +47,7 @@ const CSS = `
   .presse-toc { position:static; }
   .presse-grid3 { grid-template-columns:repeat(2, 1fr); }
   .presse-themes { grid-template-columns:repeat(3, 1fr); }
+  .presse-lead { grid-template-columns:1fr; gap:22px; }
 }
 @media (max-width: 760px) {
   .presse-cat { grid-template-columns:1fr; gap:22px; }

@@ -8,9 +8,9 @@ describe('processShortcodes', () => {
     expect(out).toContain('<ProConTable pros="a|b" cons="c" />')
   })
 
-  it('expands shorthand [[product:slug]]', () => {
-    const out = processShortcodes('[[product:aspirateur-x1]]')
-    expect(out).toBe('<ProductCTA slug="aspirateur-x1" />')
+  it('laisse le raccourci produit en texte brut (raccourci supprimé)', () => {
+    const input = '[[product:aspirateur-x1]]'
+    expect(processShortcodes(input)).toBe(input)
   })
 
   it('expands inline [[stat …]]', () => {
@@ -48,8 +48,6 @@ describe('processShortcodes', () => {
 
   it('handles multiple shortcodes', () => {
     const input = [
-      '[[product:x1]]',
-      '',
       '[[tip title="Astuce"]]',
       'Texte.',
       '[[/tip]]',
@@ -57,7 +55,6 @@ describe('processShortcodes', () => {
       '[[stat value="99%" label="Score"]]',
     ].join('\n')
     const out = processShortcodes(input)
-    expect(out).toContain('<ProductCTA slug="x1" />')
     expect(out).toContain('<Tip title="Astuce">')
     expect(out).toContain('<StatCard value="99%" label="Score" />')
   })

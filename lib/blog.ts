@@ -4,6 +4,10 @@
  * EN : content/blog/en/[categorie]/*.mdx (miroir produit par la tâche quotidienne).
  * Server-side uniquement (fs, path).
  *
+ * MODÈLE MENTION : le frontmatter ne porte AUCUN champ de CTA d'achat ni de lien
+ * monétisé. Un lien externe éventuel est NEUTRE (source officielle) et vit dans le
+ * corps de l'article.
+ *
  * i18n — BLOC 1 (fondation additive) :
  *  - Filtre catégories : SEULS les dossiers de catégories FR réelles sont lus comme
  *    catégories. Un dossier de locale (`en`/`nl`/…) n'apparaît JAMAIS comme catégorie.
@@ -84,8 +88,6 @@ export type ArticleMeta = {
   /** True pour les articles dans content/articles/ (URLs racine). */
   standalone?: boolean
   draft?: boolean
-  stickyCta?: { label: string; url: string }[]
-  stickyCtaMessage?: string
   authorSlug?: string
 }
 
@@ -136,8 +138,6 @@ function parseMeta(data: Record<string, unknown>, slug: string, categorie: strin
     faq: data.faq as { q: string; a: string }[] | undefined,
     standalone,
     draft: !!data.draft,
-    stickyCta: data.stickyCta as { label: string; url: string }[] | undefined,
-    stickyCtaMessage: data.stickyCtaMessage as string | undefined,
     authorSlug: data.authorSlug as string | undefined,
   }
 }

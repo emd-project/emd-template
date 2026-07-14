@@ -1,11 +1,13 @@
 /**
  * CategoryView — listing catégorie LOCALE-AWARE + multi-variantes (Server Component).
- * Une seule implémentation pour FR et EN (prop `locale`) et pour les 2 variantes :
+ * Une seule implémentation pour FR et EN (prop `locale`) et pour les 3 variantes :
  *  - 'classic'   : hub-hero + barre de filtres + grille .posts (historique)
  *  - 'editorial' : une-à-la-une (carte vedette) + PETIT FIL des articles de la
  *                  catégorie (réutilise le bloc .fil-* de la home « fil ») + grille
+ *  - 'presse'    : identité ÉDITORIALE → délègue entièrement à `PresseCategory`
+ *                  (même props, même pagination).
  * Le SEO (metadata, JSON-LD, generateStaticParams) reste dans les routes ; ce
- * composant ne rend que le corps. Pagination identique aux deux variantes.
+ * composant ne rend que le corps. Pagination identique aux variantes.
  */
 import Link from 'next/link'
 import Image from 'next/image'
@@ -14,6 +16,7 @@ import { articleHrefL, formatDateL } from '@/lib/blog-l10n'
 import { niche, localePath } from '@/niche.config'
 import { tl } from '@/lib/i18n'
 import { Pagination } from '@/components/blog/Pagination'
+import { PresseCategory } from '@/components/presse/PresseCategory'
 import { resolveCategoryVariant, type CategoryVariant } from '@/lib/variants'
 
 const ARTICLES_PER_PAGE = 12
@@ -57,6 +60,21 @@ export function CategoryView({
   currentPage: number
 }) {
   const v = variant ?? resolveCategoryVariant()
+
+  // Identité ÉDITORIALE : la page catégorie a son propre rendu (masthead/footer presse
+  // sont déjà montés par le layout). On délègue tout, y compris la pagination.
+  if (v === 'presse') {
+    return (
+      <PresseCategory
+        locale={locale}
+        categorie={categorie}
+        articles={articles}
+        categories={categories}
+        currentPage={currentPage}
+      />
+    )
+  }
+
   const lp = (p: string) => localePath(locale, p)
   const href = (a: ArticleMeta) => articleHrefL(locale, a)
   const fmt = (iso: string) => formatDateL(locale, iso)

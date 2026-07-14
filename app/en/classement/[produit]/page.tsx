@@ -1,6 +1,7 @@
 /**
  * /en/classement/[produit] — ranking (EN mirror of /classement/[produit]).
  * Server Component. EN data via getClassement(slug, 'en') (FR fallback).
+ * MENTION model: no purchase CTA — at most a NEUTRAL link to the official page.
  */
 
 import { notFound } from 'next/navigation'
@@ -10,6 +11,7 @@ import { getClassement, getClassements, CLASSEMENT_SLUGS } from '@/lib/classemen
 import { getProduit } from '@/lib/comparateur'
 import { ClassementList, type ClassementLabels } from '@/components/classement/ClassementList'
 import { currentYear } from '@/lib/utils/year'
+import { tl } from '@/lib/i18n'
 import { niche } from '@/niche.config'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
@@ -25,6 +27,7 @@ const LABELS: ClassementLabels = {
   comparatorCta: 'Compare in detail →', quizCta: 'Find my model →',
   tableTitle: 'Comparison table', faqTitle: 'Frequently asked questions',
   model: 'Model', scoreLabel: 'Score', priceLabel: 'Price', bestForCol: 'Best for',
+  viewOfficial: tl('en', 'ui.viewOfficial'),
 }
 
 export function generateStaticParams() {
@@ -96,8 +99,8 @@ export default async function ClassementPageEn({ params }: { params: Params }) {
             </nav>
             {tabs.length > 1 && (
               <div className="cmp-tabs">
-                {tabs.map((t) => (
-                  <Link key={t.slug} href={`/en/classement/${t.slug}`} className={`chip${t.slug === produit ? ' on' : ''}`}>{stripYear(t.label)}</Link>
+                {tabs.map((tab) => (
+                  <Link key={tab.slug} href={`/en/classement/${tab.slug}`} className={`chip${tab.slug === produit ? ' on' : ''}`}>{stripYear(tab.label)}</Link>
                 ))}
               </div>
             )}

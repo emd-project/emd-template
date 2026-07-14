@@ -6,13 +6,14 @@
  * à l'INIT (suggestVariants écrit le choix dans niche.config), pas au runtime.
  * Ici on LIT le choix figé + on EXPOSE le helper de suggestion déterministe.
  *
- * DESIGNS RÉELLEMENT RENDUS (cf. components/home/HomeRouter) :
+ * 4 DESIGNS RÉELLEMENT DISTINCTS (cf. components/home/HomeRouter) — la variété
+ * inter-sites prime (anti-empreinte) : on ne sert PAS le même design partout,
+ * même si l'un est plus joli.
  *  - `magazine`    → MagazineHome
- *  - `comparateur` → **MarcheHome** (design « Marché », porté de home-comparateur-marche) ⭐
- *  - `marche`      → MarcheHome (alias du même rendu — route preview /home-v3)
+ *  - `marche`      → MarcheHome  ⭐ (design « Marché » : orbites/chips, ticker,
+ *                    tableau du marché, spotlight du n°1 — data-driven `lib/classement`)
+ *  - `comparateur` → ComparateurHome (hero split + carte + steps + stats)
  *  - `fil`         → FilHome
- * L'ancien `ComparateurHome` (hero split + carte facture) n'est PLUS routé.
- * → Le pool auto (magazine | comparateur | fil) donne donc **3 designs distincts**.
  */
 import { niche } from '@/niche.config'
 
@@ -95,10 +96,20 @@ function at<T>(arr: readonly T[], n: number): T {
 }
 
 /**
+ * POOL HOME PONDÉRÉ — `marche` (le design le plus abouti) est tiré **2× plus souvent**
+ * que `comparateur` : entre ces deux-là, ~2/3 marché / ~1/3 comparateur. `magazine` et
+ * `fil` gardent leur part. Répartition visée sur un grand nombre de domaines :
+ *   magazine 20 % · marche 40 % · comparateur 20 % · fil 20 %
+ * On NE sert pas le même design partout, même le plus joli : la variété inter-sites
+ * est un objectif (anti-empreinte). Pour changer la pondération, joue sur les
+ * répétitions dans ce tableau.
+ */
+const HOME_POOL = ['magazine', 'marche', 'marche', 'comparateur', 'fil'] as const
+
+/**
  * Suggestion déterministe d'une combinaison complète à partir d'un seed (domaine).
- * Pool home = `magazine | comparateur | fil` → 3 designs RÉELLEMENT distincts
- * (`comparateur` rend le design Marché). `marche` n'est pas tiré : c'est un alias
- * du même rendu que `comparateur`, réservé à la route preview /home-v3.
+ * `marche` est éligible d'office : depuis l'init, un classement seed est toujours
+ * écrit (`content/data/classements.json`), donc son tableau du marché a des données.
  */
 export function suggestVariants(seed: string = niche.domain || niche.siteName): {
   home: HomeVariant
@@ -109,7 +120,7 @@ export function suggestVariants(seed: string = niche.domain || niche.siteName): 
 } {
   const h = seedHash(seed)
   return {
-    home: at(['magazine', 'comparateur', 'fil'] as const, h),
+    home: at(HOME_POOL, h),
     category: at(CATEGORY_VARIANTS, h >>> 2),
     shape: at(['rounded', 'soft', 'sharp'] as const, h >>> 4),
     border: at(['hairline', 'standard', 'bold'] as const, h >>> 6),

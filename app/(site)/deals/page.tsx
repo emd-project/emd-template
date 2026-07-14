@@ -1,18 +1,22 @@
 /**
- * /deals — Page Deals (style Voltéo).
- * Hero + watermark % · MarqueeStrip · DealsGrid · FAQ. ISR 900s. Server Component.
- * Modèle EMD = MENTION, pas d'affiliation : promos/prix factuels, aucun lien affilié.
+ * /deals — page « bons plans » (style Voltéo).
+ * DÉSACTIVÉE PAR DÉFAUT : `niche.deals.enabled === false` → `notFound()` immédiat.
+ *
+ * Modèle EMD = MENTION : aucune monétisation des liens sortants. Cette page ne rend
+ * donc AUCUN CTA d'achat, aucun prix barré, aucun lien monétisé. Si une niche a de
+ * vraies offres factuelles (prix sourcés et datés, liens NEUTRES vers la source
+ * officielle), on active `deals.enabled` et on rend le contenu ici.
+ * Hero + MarqueeStrip + FAQ. ISR 900s. Server Component.
  */
 
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { currentYear } from '@/lib/utils/year'
 import { MarqueeStrip } from '@/components/effects/MarqueeStrip'
-import { DealsGrid } from '@/components/deals/DealsGrid'
 import { FaqAccordion } from '@/components/blog/FaqAccordion'
-import { niche } from '@/niche.config'
+import { niche, dealsEnabled } from '@/niche.config'
 import { best } from '@/lib/utils/grammar'
-import type { Deal } from '@/components/deals/DealsGrid'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
@@ -24,12 +28,12 @@ export function generateMetadata(): Metadata {
   const year = currentYear()
   const dealWord = niche.dealWord.charAt(0).toUpperCase() + niche.dealWord.slice(1)
   return {
-    title: `${dealWord} ${year} — meilleures promos du moment | ${niche.siteName}`,
-    description: `Les meilleures promos ${niche.entities} du moment. Sélection manuelle — pas de spam.`,
+    title: `${dealWord} ${year} — meilleures offres du moment | ${niche.siteName}`,
+    description: `Les meilleures offres ${niche.entities} du moment. Sélection éditoriale — pas de spam.`,
     alternates: { canonical: `${SITE_URL}/deals` },
     openGraph: {
       title: `${dealWord} ${year}`,
-      description: `Meilleures promos ${niche.entities} sélectionnées manuellement.`,
+      description: `Meilleures offres ${niche.entities} sélectionnées manuellement.`,
       url: `${SITE_URL}/deals`,
       siteName: niche.siteName,
       type: 'website',
@@ -37,14 +41,12 @@ export function generateMetadata(): Metadata {
   }
 }
 
-const DEALS: Deal[] = []
 const MARQUEE_ITEMS = ['Sélection mise à jour chaque semaine', `Les ${best(gd, true)} ${niche.dealWord} du moment`]
 
 const FAQ_ITEMS = [
-  { q: `Où trouver les ${best(gd, true)} ${niche.dealWord} en ce moment ?`, a: `Sur ${niche.domain}/deals, on sélectionne manuellement les meilleures réductions chaque semaine. Pas de faux deals ni de prix gonflés avant promo.` },
+  { q: `Où trouver les ${best(gd, true)} ${niche.dealWord} en ce moment ?`, a: `Sur ${niche.domain}/deals, on sélectionne manuellement les meilleures offres chaque semaine. Pas de fausses promos ni de prix gonflés avant réduction.` },
   { q: `Quand acheter au meilleur prix ?`, a: `Les meilleurs moments : le Black Friday, les soldes, et juste après la sortie d'un nouveau modèle — l'ancien baisse immédiatement.` },
-  { q: `Comment vérifiez-vous les deals ?`, a: `On compare le prix affiché au prix officiel et à l'historique. Si le prix barré est gonflé, on ne publie pas. Sélection éditoriale indépendante, sans deal sponsorisé.` },
-  { q: 'Comment savoir si une réduction est une vraie promo ?', a: `On compare le prix affiché avec le prix officiel et l'historique. Si le prix barré est gonflé, on ne publie pas.` },
+  { q: `Comment vérifiez-vous les offres ?`, a: `On compare le prix affiché au prix officiel et à l'historique. Si l'annonce est trompeuse, on ne publie pas. Sélection éditoriale indépendante, sans offre sponsorisée.` },
 ]
 
 const jsonLdBreadcrumb = {
@@ -60,6 +62,8 @@ const jsonLdFaq = {
 }
 
 export default function DealsPage() {
+  if (!dealsEnabled()) notFound()
+
   const dealWord = niche.dealWord.charAt(0).toUpperCase() + niche.dealWord.slice(1)
   return (
     <>
@@ -83,20 +87,16 @@ export default function DealsPage() {
             </nav>
             <h1 style={{ fontSize: 'clamp(32px, 5vw, 60px)', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.1, marginBottom: 16 }}>{dealWord}</h1>
             <p style={{ fontSize: 'clamp(15px, 2vw, 18px)', color: 'var(--ink-2)', maxWidth: 520, lineHeight: 1.6 }}>
-              Sélection manuelle. Pas de deals sponsorisés, pas de prix gonflés avant promo. Que des vraies réductions vérifiées.
+              Sélection éditoriale. Pas d'offre sponsorisée, pas de prix gonflé avant réduction. Que des offres vérifiées.
             </p>
           </div>
         </section>
 
         <section className="section">
           <div className="wrap">
-            {DEALS.length === 0 ? (
-              <p style={{ textAlign: 'center', color: 'var(--ink-3)', fontSize: 16, padding: '64px 24px', lineHeight: 1.6 }}>
-                Aucune promotion disponible pour le moment. Revenez bientôt !
-              </p>
-            ) : (
-              <DealsGrid deals={DEALS} />
-            )}
+            <p style={{ textAlign: 'center', color: 'var(--ink-3)', fontSize: 16, padding: '64px 24px', lineHeight: 1.6 }}>
+              Aucune offre disponible pour le moment. Revenez bientôt !
+            </p>
 
             <section aria-labelledby="faq-deals" style={{ marginTop: 48 }}>
               <h2 id="faq-deals" style={{ fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 800, color: 'var(--ink)', marginBottom: 24 }}>Questions fréquentes — {niche.dealWord}</h2>
@@ -104,7 +104,7 @@ export default function DealsPage() {
             </section>
 
             <div style={{ marginTop: 40, padding: '20px 24px', background: 'var(--cream-2)', border: '1px solid var(--line)', borderRadius: 'var(--r)', fontSize: 13, color: 'var(--ink-3)' }}>
-              <strong style={{ color: 'var(--ink-2)' }}>Indépendance :</strong> sélection éditoriale, sans lien affilié ni deal sponsorisé.{' '}
+              <strong style={{ color: 'var(--ink-2)' }}>Indépendance :</strong> sélection éditoriale, sans lien monétisé ni offre sponsorisée.{' '}
               <Link href="/mentions-legales" style={{ color: 'var(--primary-d)', textDecoration: 'underline' }}>Mentions légales →</Link>
             </div>
           </div>

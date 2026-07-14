@@ -7,8 +7,10 @@
 # moins une valeur reste à `TODO`, init-site considère cette page comme non
 # définie et redéclenchera la question correspondante.
 #
-# La page est rendue côté Next.js par app/(legal)/mentions-legales/page.tsx
-# (à créer côté template si elle n'existe pas encore — voir DUPLICATION-GUIDE).
+# La page est rendue côté Next.js par app/(site)/mentions-legales/page.tsx.
+#
+# MODÈLE MENTION : le site n'a aucune monétisation par lien sortant — aucune
+# clause de ce type ne doit apparaître ici.
 
 slug: mentions-legales
 title: "Mentions légales"
@@ -45,7 +47,7 @@ donnees_personnelles:
     - Quelles données on collecte (formulaire contact, newsletter, analytics).
     - Pourquoi on les collecte.
     - Combien de temps on les garde.
-    - Avec qui on les partage (le cas échéant — affiliés, hébergeur, etc.).
+    - Avec qui on les partage (le cas échéant — hébergeur, outil d'analytics, etc.).
   base_legale: "TODO (intérêt légitime / consentement / contrat — citer la base RGPD)"
   droits_utilisateur: |
     Conformément au RGPD et à la loi Informatique et Libertés, vous disposez d'un droit
@@ -61,8 +63,8 @@ propriete_intellectuelle:
 cookies:
   presence: true  # mettre false si site 100% sans cookies (rare)
   description: |
-    TODO — lister les cookies utilisés (analytics, affiliation, préférences) et renvoyer
-    vers la page de gestion des cookies (`/cookies` si elle existe).
+    TODO — lister les cookies utilisés (analytics, préférences) et renvoyer vers la page
+    de gestion des cookies (`/cookies` si elle existe).
   url_gestion: "/cookies"
 
 derniere_mise_a_jour: "TODO (date au format YYYY-MM-DD — à mettre à jour à chaque modif substantielle)"

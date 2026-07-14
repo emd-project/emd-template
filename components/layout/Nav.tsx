@@ -7,11 +7,15 @@
  *
  * i18n : Nav partagée FR/EN ; la locale est déduite du path (usePathname) et les
  * libellés passent par `tl(locale, …)`. Hrefs préfixés par `localePath` (no-op FR).
+ *
+ * NOTE : le lien `/deals` n'apparaît QUE si `niche.deals.enabled` — la page est
+ * désactivée par défaut (modèle MENTION, aucune affiliation). Un lien vers une page
+ * supprimée/vide serait un 404 ou une coquille.
  */
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { niche, isMultilingual, localePath } from '@/niche.config'
+import { niche, isMultilingual, localePath, dealsEnabled } from '@/niche.config'
 import { tl } from '@/lib/i18n'
 import { CLASSEMENT_SLUGS } from '@/lib/classement'
 import { LangSwitch } from '@/components/layout/LangSwitch'
@@ -40,7 +44,7 @@ export function Nav() {
     { href: '/comparer', label: tl(locale, 'nav.compare') },
     ...(CLASSEMENT_SLUGS.length > 0 ? [{ href: '/classement', label: tl(locale, 'nav.rankings') }] : []),
     { href: '/blog', label: tl(locale, 'nav.blog') },
-    { href: '/deals', label: dealLabel },
+    ...(dealsEnabled() ? [{ href: '/deals', label: dealLabel }] : []),
     ...(niche.simulator.enabled ? [{ href: '/simulateur', label: tl(locale, 'nav.simulator') }] : []),
   ]
 

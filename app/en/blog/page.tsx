@@ -1,6 +1,11 @@
 /**
  * /en/blog — English mirror of the editorial hub (/blog, Voltéo structure).
  * hub-hero + filter bar + featured article + article grid + theme guides.
+ *
+ * EDITORIAL identity (`presse`): the BODY is replaced by `PresseBlogHub` with
+ * locale="en" (all copy flows through tl(locale, …) — no FR leaks). Metadata,
+ * JSON-LD and ISR are left untouched: SEO does not depend on the variant.
+ *
  * Server Component · ISR 3600s · searchParams: page
  *
  * i18n (block 2b) : reads the EN mirror via getAllArticlesEn()/getCategoriesEn().
@@ -13,6 +18,8 @@ import type { Metadata } from 'next'
 import { getAllArticlesEn, getCategoriesEn, type ArticleMeta } from '@/lib/blog'
 import { currentYear } from '@/lib/utils/year'
 import { Pagination } from '@/components/blog/Pagination'
+import { PresseBlogHub } from '@/components/presse/PresseBlogHub'
+import { isPresse } from '@/lib/variants'
 import { niche } from '@/niche.config'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
@@ -89,9 +96,23 @@ export default async function BlogPageEn({ searchParams }: { searchParams: Searc
     ],
   }
 
+  const schema = (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+  )
+
+  // ── EDITORIAL identity: presse hub (same data, same SEO) ──────────────────
+  if (isPresse()) {
+    return (
+      <>
+        {schema}
+        <PresseBlogHub locale="en" articles={allArticles} categories={categories} currentPage={currentPage} />
+      </>
+    )
+  }
+
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {schema}
 
       <main id="main-content">
 

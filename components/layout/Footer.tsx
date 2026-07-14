@@ -9,12 +9,12 @@
  * inchangé : `<Footer />` sans prop retombe sur defaultLocale.
  * Les hrefs internes sont préfixés par la locale active via `localePath` (no-op FR).
  *
- * Dé-affiliation : EMD n'a aucune affiliation — la ligne disclaimer affilié a été
- * retirée. La mention d'éditeur a aussi été retirée du footer (empreinte SEO
- * cross-sites) ; l'identité de l'éditeur reste sur les pages légales (noindex).
+ * MODÈLE MENTION : aucun disclaimer de monétisation (il n'y en a aucune). Le lien
+ * /deals n'apparaît QUE si `niche.deals.enabled` (la page renvoie 404 sinon). La
+ * mention d'éditeur reste sur les pages légales (noindex), pas ici (empreinte SEO).
  */
 import Link from 'next/link'
-import { niche, localePath } from '@/niche.config'
+import { niche, localePath, dealsEnabled } from '@/niche.config'
 import { tl } from '@/lib/i18n'
 
 function currentYear() {
@@ -42,7 +42,7 @@ export function Footer({ locale = niche.defaultLocale }: { locale?: string }) {
     { href: lp('/comparer'), label: tl(locale, 'nav.compare') },
     ...(niche.quiz.enabled ? [{ href: lp('/quiz'), label: tl(locale, 'tools.quiz.eyebrow') }] : []),
     ...(niche.simulator.enabled ? [{ href: lp('/simulateur'), label: tl(locale, 'nav.simulator') }] : []),
-    { href: lp('/deals'), label: niche.dealWord.charAt(0).toUpperCase() + niche.dealWord.slice(1) },
+    ...(dealsEnabled() ? [{ href: lp('/deals'), label: niche.dealWord.charAt(0).toUpperCase() + niche.dealWord.slice(1) }] : []),
   ]
 
   const colBlog = niche.categories.slice(0, 5).map((cat) => ({

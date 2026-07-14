@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { niche, isMultilingual, localePath } from '@/niche.config'
+import { niche, isMultilingual, localePath, dealsEnabled } from '@/niche.config'
 import {
   getAllArticles,
   getCategories,
@@ -17,8 +17,9 @@ const SITE_URL =
  *
  * Principes :
  *  - On n'émet QUE des URLs indexables (pas les pages légales noindex, pas les
- *    routes désactivées par niche.config). Émettre du noindex déclenche des
- *    avertissements « Submitted URL marked noindex » en Search Console.
+ *    routes désactivées par niche.config — /deals renvoie 404 tant que
+ *    `niche.deals.enabled` est faux). Émettre du noindex ou du 404 déclenche des
+ *    avertissements en Search Console.
  *  - Contenu FR ET EN énuméré dynamiquement (articles + catégories réellement
  *    présents). Rien n'est codé en dur côté contenu → un nouveau site se
  *    sitemap tout seul au fil des publications.
@@ -74,7 +75,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
   if (niche.simulator.enabled) {
     entries.push({ url: `${SITE_URL}/simulateur`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 })
   }
-  entries.push({ url: `${SITE_URL}/deals`, lastModified: now, changeFrequency: 'daily', priority: 0.7 })
+  if (dealsEnabled()) {
+    entries.push({ url: `${SITE_URL}/deals`, lastModified: now, changeFrequency: 'daily', priority: 0.7 })
+  }
 
   // Auteur (modèle mono-auteur par défaut ; étendre si une liste d'auteurs arrive).
   if (niche.author.slug) {

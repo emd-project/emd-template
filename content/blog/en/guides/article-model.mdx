@@ -4,6 +4,7 @@
 # Images (see docs/IMAGES-WORKFLOW.md): 1 GENERATED cover (featureImage) +
 # 2 <ArticleImage> REUSED from the category visuals (no extra generation).
 # Delete on init of a new site (same as the FR seed).
+# MENTION model: NO affiliation — no merchant/product component.
 title: "Model article: structure, sidebar and table of contents"
 description: "A sample blog article showing the expected layout: automatic table of contents, sticky sidebar, editorial callouts and FAQ."
 # featureImage = generated cover ([slug]-cover.webp). Empty here as it's the model article.
@@ -25,10 +26,6 @@ faq:
     a: "From the aiSummary frontmatter field: each bullet becomes a takeaway shown at the top of the article."
   - q: "How do I add a FAQ?"
     a: "Through the faq frontmatter field. It also emits FAQPage structured data, useful for SEO."
-stickyCta:
-  - label: "Open the comparator"
-    url: "/comparer"
-stickyCtaMessage: "Compare your options side by side"
 draft: false
 ---
 
@@ -83,9 +80,15 @@ At the top of the article, the “Key takeaways” box reuses the `aiSummary` fr
 <StatCard value="2 min" label="To decide" accent="3" />
 </StatRow>
 
-## Recommending a product
+## Pointing to a source or a tool
 
-<ProductCTA name="Sample product" price="€299" url="/comparer" badge="Recommended" hook="A hook sentence: why this product, and for which profile." />
+The EMD model is **MENTION, with no affiliation**: we never place a merchant link or a
+purchase CTA. To guide the reader, only two options:
+
+- a **neutral link** to the official source or the brand's page (the ranking and the
+  comparator render it automatically from the `url`/`sourceUrl` field);
+- a **link to an internal tool** — the [comparator](/comparer), the [quiz](/quiz) or the
+  [ranking](/classement).
 
 ## Comparison table (standard Markdown)
 
@@ -109,11 +112,7 @@ reused images** from the category visuals already generated (no extra generation
 ```
 
 Never reuse the current article's own cover; for variety, use a sibling article's cover from the
-same category. The product carousel uses real slugs:
-
-```mdx
-<ProductCarousel products="product-slug-1,product-slug-2,product-slug-3" />
-```
+same category.
 
 ## Conclusion
 

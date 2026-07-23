@@ -1,6 +1,7 @@
 ---
-# _example.mdx — Article template avec tous les champs et composants MDX.
+# _example.mdx — Article template avec les champs et composants MDX disponibles.
 # Supprimer ce fichier lors de l'init d'un nouveau site.
+# Modèle MENTION : AUCUNE affiliation — pas de composant produit marchand.
 
 title: "Titre de l'article exemple"
 description: "Description SEO de l'article exemple — 155 caractères max."
@@ -28,10 +29,6 @@ faq:
     a: "Réponse à la question exemple 5."
   - q: "Question exemple 6 ?"
     a: "Réponse à la question exemple 6."
-stickyCta:
-  - label: "Voir le comparateur"
-    url: "/comparer"
-stickyCtaMessage: "Comparez les modèles côte à côte"
 draft: true
 ---
 
@@ -85,13 +82,11 @@ Une citation mise en avant pour renforcer la crédibilité de l'article.
 <StatCard value="2M+" label="Utilisateurs" />
 </StatRow>
 
-## Produit recommandé
+## Orienter le lecteur (modèle MENTION, sans affiliation)
 
-<ProductCTA name="Produit Exemple" price="299 €" url="/comparer" image="/images/produits/exemple.webp" badge="Recommandé" hook="Description courte du produit et pourquoi on le recommande." />
-
-## Sélection de produits
-
-<ProductCarousel products="slug-produit-1,slug-produit-2,slug-produit-3" />
+Pas de lien marchand ni de CTA d'achat. Pour aller plus loin, on renvoie vers un
+**outil interne** ou une **source neutre** : le [comparateur](/comparer), le
+[classement](/classement) ou le [quiz](/quiz).
 
 ## Tableau comparatif
 

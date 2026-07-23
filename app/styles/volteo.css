@@ -3,13 +3,12 @@
    Skin par défaut : V1 « Électrique ». Un skin (theme-vN) ou l'init
    surcharge ces tokens. Fonts via next/font (--next-font-*).
 
-   ── Incrément 1 (consolidation DA) ─────────────────────────
+   ── Incrément 1 (consolidation DA) ──────────────────────
    Les tokens legacy ci-dessous sont désormais des ALIAS des tokens
    canoniques de globals.css (var(--…)). Les noms legacy sont conservés
    pour que tout le CSS qui les consomme suive automatiquement la DA
    pilotée par niche.config.palette → globals.css.
    Seules les VALEURS changent ici ; aucun composant n'est modifié.
-   Tokens sans équivalent globals clair : conservés tels quels (cf. notes).
    ============================================================ */
 
 :root {
@@ -33,16 +32,18 @@
   --primary-soft: color-mix(in srgb, var(--accent-1) 14%, #fff);   /* nuance claire */
   --spark:        var(--accent-2);  /* highlight secondaire */
 
-  /* --- Une couleur par catégorie (verticale énergie par défaut) ---
-     Pas d'équivalent globals sémantique pour ces teintes nommées + leurs
-     variantes -soft (consommées en dur par .tag.elec/.gaz/… et les blobs).
-     → conservées telles quelles (incrément 1). Les slots génériques
-     --cat-1..5 ci-dessous, eux, sont aliasés sur --accent-1..5. */
-  --elec: #FFB400;       --elec-soft: #FFF1CE;
-  --gaz: #FF6B35;        --gaz-soft: #FFE2D6;
-  --green: #1AA35F;      --green-soft: #D6F2E1;
-  --water: #2D8FE0;      --water-soft: #D7ECFB;
-  --mobi: #7C5CFF;       --mobi-soft: #E6DEFF;
+  /* --- Teintes nommées legacy : désormais des ALIAS de --accent-1..5 ---
+     C'était une palette « verticale énergie » codée en dur, qui fuyait dans
+     TOUS les sites quelle que soit leur DA : bloc newsletter toujours vert
+     (#1AA35F), hero « marché » toujours violet/bleu (volteo-marche consomme
+     --mobi et --water), pastilles « live », save-chip du comparateur.
+     Aliasées sur les accents, elles suivent maintenant la palette du site.
+     → identiques aux slots génériques --cat-1..5 ci-dessous. */
+  --elec:  var(--accent-1);   --elec-soft:  color-mix(in srgb, var(--accent-1) 15%, #fff);
+  --gaz:   var(--accent-2);   --gaz-soft:   color-mix(in srgb, var(--accent-2) 15%, #fff);
+  --green: var(--accent-3);   --green-soft: color-mix(in srgb, var(--accent-3) 15%, #fff);
+  --water: var(--accent-4);   --water-soft: color-mix(in srgb, var(--accent-4) 15%, #fff);
+  --mobi:  var(--accent-5);   --mobi-soft:  color-mix(in srgb, var(--accent-5) 15%, #fff);
 
   /* --- Slots d'accent catégorie : alias accent-1..5 globals --- */
   --cat-1: var(--accent-1);   --cat-1-soft: color-mix(in srgb, var(--accent-1) 15%, #fff);
@@ -52,23 +53,30 @@
   --cat-5: var(--accent-5);   --cat-5-soft: color-mix(in srgb, var(--accent-5) 15%, #fff);
 
   /* --- Forme : alias des radius globals --- */
-  --r-sm: var(--radius-sm);
-  --r:    var(--radius-md);
-  --r-lg: var(--radius-lg);
-  --r-xl: var(--radius-xl);
+  --r-sm:   var(--radius-sm);
+  --r:      var(--radius-md);
+  --r-lg:   var(--radius-lg);
+  --r-xl:   var(--radius-xl);
+  --r-full: var(--radius-full);
 
-  /* --- Ombres : alias des shadow globals --- */
-  --shadow-sm: var(--shadow-sm);
-  --shadow:    var(--shadow-md);
-  --shadow-lg: var(--shadow-lg);
+  /* --- Ombres : alias des shadow globals ---
+     ⚠️ NE JAMAIS ré-aliaser --shadow-sm / --shadow-lg sur eux-mêmes.
+     globals.css les définit déjà ; volteo.css étant chargé APRÈS et ciblant
+     le même :root, `--shadow-sm: var(--shadow-sm)` gagnait la cascade puis se
+     référençait lui-même → cycle → propriété invalide at computed-value time
+     → tous les `box-shadow: var(--shadow-sm|lg)` résolvaient à rien.
+     Seul --shadow (sans suffixe) est un vrai alias, vers --shadow-md. */
+  --shadow: var(--shadow-md);
 
   /* --- Layout : pas d'équivalent globals → conservés --- */
   --maxw: 1200px;
   --nav-h: 76px;
 
-  /* Fonts — branchées sur next/font (cf. app/layout.tsx) */
-  --font-display: var(--next-font-display), 'Bricolage Grotesque', system-ui, sans-serif;
-  --font-body: var(--next-font-primary), 'Hanken Grotesk', system-ui, sans-serif;
+  /* Fonts — branchées sur next/font (cf. app/layout.tsx).
+     PAS de nom de police en dur ici : le fallback doit rester générique, sinon
+     il ré-ancre la typo par défaut du template sur tous les sites. */
+  --font-display: var(--next-font-display), system-ui, sans-serif;
+  --font-body: var(--next-font-primary), system-ui, sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -107,7 +115,7 @@ button { font-family: inherit; cursor: pointer; }
 .skip-to-content {
   position: absolute; top: -100%; left: 16px; z-index: 200;
   padding: 10px 16px; background: var(--primary); color: var(--bg-primary); font-weight: 700;
-  border-radius: 8px; text-decoration: none; transition: top .2s;
+  border-radius: var(--r); text-decoration: none; transition: top .2s;
 }
 .skip-to-content:focus { top: 16px; }
 
@@ -127,7 +135,7 @@ button { font-family: inherit; cursor: pointer; }
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 10px;
   font-family: var(--font-body); font-weight: 700; font-size: 16px;
-  padding: 15px 26px; border-radius: 100px; border: 2px solid transparent;
+  padding: 15px 26px; border-radius: var(--r-full); border: 2px solid transparent;
   cursor: pointer; transition: transform .18s cubic-bezier(.34,1.56,.64,1), background .2s, box-shadow .2s, color .2s;
   white-space: nowrap;
 }
@@ -160,13 +168,13 @@ button { font-family: inherit; cursor: pointer; }
 
 .logo { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 800; font-size: 22px; letter-spacing: -.03em; }
 .logo .word { letter-spacing: -.03em; }
-.logo .mark { width: 32px; height: 32px; border-radius: 9px; background: var(--ink); display: grid; place-items: center; flex: none; position: relative; overflow: hidden; }
+.logo .mark { width: 32px; height: 32px; border-radius: var(--r); background: var(--ink); display: grid; place-items: center; flex: none; position: relative; overflow: hidden; }
 .logo .mark svg { width: 18px; height: 18px; }
 .logo .dot { color: var(--primary); }
 .nav .logo .mark svg path { fill: var(--primary); }
 
 .nav-links { display: flex; align-items: center; gap: 4px; margin-left: 8px; }
-.nav-links a { font-weight: 600; font-size: 15.5px; color: var(--ink-2); padding: 9px 14px; border-radius: 100px; transition: background .15s, color .15s; }
+.nav-links a { font-weight: 600; font-size: 15.5px; color: var(--ink-2); padding: 9px 14px; border-radius: var(--r-full); transition: background .15s, color .15s; }
 .nav-links a:hover { background: var(--cream-2); color: var(--ink); }
 .nav-links a.active { color: var(--ink); }
 .nav-cta { margin-left: auto; display: flex; align-items: center; gap: 12px; }
@@ -183,8 +191,8 @@ button { font-family: inherit; cursor: pointer; }
   border: 1px solid var(--line); display: grid; place-items: center; color: var(--ink-3);
 }
 .ph span {
-  font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 12px; letter-spacing: .05em;
-  background: color-mix(in srgb, var(--bg-primary) 70%, transparent); padding: 5px 10px; border-radius: 6px; border: 1px solid var(--line);
+  font-family: var(--next-font-mono), ui-monospace, monospace; font-size: 12px; letter-spacing: .05em;
+  background: color-mix(in srgb, var(--bg-primary) 70%, transparent); padding: 5px 10px; border-radius: var(--r-sm); border: 1px solid var(--line);
 }
 
 /* ============================================================
@@ -218,17 +226,19 @@ button { font-family: inherit; cursor: pointer; }
 
 /* ============================================================
    Badges catégorie
+   Les variantes nommées (.elec/.gaz/…) sont désormais strictement
+   équivalentes aux slots génériques (.c1..c5) : même formule, zéro hex en dur.
    ============================================================ */
 .tag {
   display: inline-flex; align-items: center; gap: 7px; white-space: nowrap;
-  font-size: 13px; font-weight: 700; padding: 6px 13px; border-radius: 100px; letter-spacing: .01em;
+  font-size: 13px; font-weight: 700; padding: 6px 13px; border-radius: var(--r-full); letter-spacing: .01em;
 }
 .tag .pip { width: 8px; height: 8px; border-radius: 50%; }
-.tag.elec { background: var(--elec-soft); color: #966400; } .tag.elec .pip { background: var(--elec); }
-.tag.gaz { background: var(--gaz-soft); color: var(--primary-d); } .tag.gaz .pip { background: var(--gaz); }
-.tag.green { background: var(--green-soft); color: #0c6e3f; } .tag.green .pip { background: var(--green); }
-.tag.water { background: var(--water-soft); color: #1a6bb0; } .tag.water .pip { background: var(--water); }
-.tag.mobi { background: var(--mobi-soft); color: #5a3ed6; } .tag.mobi .pip { background: var(--mobi); }
+.tag.elec { background: var(--elec-soft); color: color-mix(in srgb, var(--elec) 72%, #000); } .tag.elec .pip { background: var(--elec); }
+.tag.gaz { background: var(--gaz-soft); color: color-mix(in srgb, var(--gaz) 72%, #000); } .tag.gaz .pip { background: var(--gaz); }
+.tag.green { background: var(--green-soft); color: color-mix(in srgb, var(--green) 72%, #000); } .tag.green .pip { background: var(--green); }
+.tag.water { background: var(--water-soft); color: color-mix(in srgb, var(--water) 72%, #000); } .tag.water .pip { background: var(--water); }
+.tag.mobi { background: var(--mobi-soft); color: color-mix(in srgb, var(--mobi) 72%, #000); } .tag.mobi .pip { background: var(--mobi); }
 .tag.actus { background: var(--cream-2); color: var(--ink-2); } .tag.actus .pip { background: var(--ink-3); }
 
 /* Badges génériques par slot catégorie (texte lisible dérivé automatiquement) */
@@ -261,12 +271,13 @@ button { font-family: inherit; cursor: pointer; }
 
 /* ============================================================
    Newsletter (partagé)
+   — suit désormais --accent-3 (via --green aliasé) au lieu d'un vert fixe.
    ============================================================ */
 .news { background: var(--green); color: var(--bg-primary); border-radius: var(--r-xl); padding: 52px; text-align: center; position: relative; overflow: hidden; }
 .news h2 { color: var(--bg-primary); font-size: clamp(28px, 3.6vw, 40px); font-weight: 800; margin-bottom: 12px; }
 .news p { color: color-mix(in srgb, var(--bg-primary) 90%, transparent); font-size: 17px; margin-bottom: 28px; max-width: 460px; margin-left: auto; margin-right: auto; }
 .news-form { display: flex; gap: 12px; max-width: 460px; margin: 0 auto; }
-.news-form input { flex: 1; padding: 15px 18px; border-radius: 100px; border: none; font-family: inherit; font-size: 16px; font-weight: 600; outline: none; }
+.news-form input { flex: 1; padding: 15px 18px; border-radius: var(--r-full); border: none; font-family: inherit; font-size: 16px; font-weight: 600; outline: none; }
 .news-form input:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--bg-primary) 50%, transparent); }
 
 /* ============================================================

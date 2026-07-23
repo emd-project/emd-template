@@ -1,12 +1,12 @@
 ---
 # article-modele.mdx — ARTICLE MODÈLE (démo de mise en page).
 # ⚠️ À SUPPRIMER à l'init d'un nouveau site (comme content/articles/_example.mdx).
-# `draft: true` → il n'est PAS publié tant qu'il traîne, mais le garde-fou
-# `npm run check:placeholders` (enchaîné au build) ÉCHOUE tant que ce fichier existe.
+# `draft: true` → il n'est PAS publié tant qu'il traîne.
 # Montre la structure blog : sidebar sticky + sommaire auto (H2/H3) +
 # encadré « En bref » (aiSummary) + FAQ + composants éditoriaux MDX.
 # Images (cf. docs/IMAGES-WORKFLOW.md) : 1 cover GÉNÉRÉ (featureImage) +
 # 2 <ArticleImage> RÉUTILISÉES des visuels de catégorie (aucune génération en plus).
+# Modèle MENTION : AUCUNE affiliation — pas de composant produit marchand.
 title: "Article modèle : structure, sidebar et sommaire"
 description: "Exemple d'article de blog montrant la mise en page attendue : sommaire automatique, sidebar collante, encadrés éditoriaux et FAQ."
 # featureImage = cover généré ([slug]-cover.webp). Vide ici car article modèle.
@@ -28,10 +28,6 @@ faq:
     a: "Du champ aiSummary du frontmatter : chaque puce devient un point clé affiché en haut de l'article."
   - q: "Comment ajouter une FAQ ?"
     a: "Via le champ faq du frontmatter. Elle génère aussi le balisage structuré FAQPage utile au SEO."
-stickyCta:
-  - label: "Voir le comparateur"
-    url: "/comparer"
-stickyCtaMessage: "Comparez les options côte à côte"
 draft: true
 ---
 
@@ -87,9 +83,15 @@ frontmatter (3 à 5 puces). C'est ce que le lecteur — et les moteurs — lisen
 <StatCard value="2 min" label="Pour décider" accent="3" />
 </StatRow>
 
-## Recommander un produit
+## Renvoyer vers une source ou un outil
 
-<ProductCTA name="Nom réel du produit" price="0 €" url="/comparer" badge="Recommandé" hook="Une phrase d'accroche : pourquoi ce produit, pour quel profil." />
+Le modèle EMD est **MENTION, sans aucune affiliation** : on ne place jamais de lien
+marchand ni de CTA d'achat. Pour orienter le lecteur, deux options seulement :
+
+- un **lien neutre** vers la source officielle ou la page de la marque (le classement
+  et le comparateur le rendent automatiquement à partir du champ `url`/`sourceUrl`) ;
+- un **renvoi vers un outil interne** — le [comparateur](/comparer), le [quiz](/quiz)
+  ou le [classement](/classement).
 
 ## Tableau comparatif (Markdown standard)
 
@@ -113,11 +115,7 @@ plus), placées à ~1/3 et ~2/3 via `<ArticleImage>`. La syntaxe (remplacer par 
 ```
 
 Ne jamais réutiliser le cover de l'article courant ; pour varier, employer le cover d'un article
-voisin de la même catégorie. Le carrousel produit, lui, utilise des slugs réels :
-
-```mdx
-<ProductCarousel products="slug-produit-1,slug-produit-2,slug-produit-3" />
-```
+voisin de la même catégorie.
 
 ## Conclusion
 

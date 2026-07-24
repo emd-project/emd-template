@@ -18,24 +18,24 @@ npm run dev
 
 ### Le design à l'init — deux voies
 
-1. **Choix d'un skin Voltéo** (par défaut, zéro compétence design) : type de site (comparateur /
-   magazine / hybride), **skin V1–V4** (4 identités prêtes), et **verticale** (énergie / assurance /
-   auto / tech). Claude **applique le skin** (bloc prêt à coller) puis le **mute** pour rester unique —
-   cf. `docs/AUTO-DESIGN.md` + `docs/design-reference/volteo/`.
+1. **Sélection automatique** (par défaut, zéro décision humaine) : famille via `classifyNiche` (secteur),
+   variante via `suggestVariants(domaine, famille)` + permutations, palette (direction mutée) via
+   `niche.config.palette` → `globals.css`, typo via `suggestFonts` → `layout.tsx`. Déterministe
+   (seed = domaine), anti-empreinte — cf. `docs/AUTO-DESIGN.md` (LE doc DA).
 2. **Import Claude Design** : déposer un zip dans `design-incoming/` → le skill `integrate-claude-design`
    l'intègre.
 
-Dans les deux cas, le site sort **animé par de vraies images** (générées à l'init), jamais en
-placeholders — cf. `docs/IMAGES-WORKFLOW.md`. Plus de palette/fonts par défaut, jamais de clone brut d'un skin.
+Dans les deux cas, le site sort **animé par de vraies images** (générées à la fin de l'init, checklist
+`getAllImageSlots()`), jamais en placeholders — cf. `docs/IMAGES-WORKFLOW.md`. Plus de palette/fonts
+par défaut, jamais de clone brut.
 
-## Placeholders : le build échoue si vous en laissez
+## Placeholders : le garde-fou est MANUEL
 
-**Le template ne livre plus de faux contenu.** Il livre des trous, et il fait du bruit tant qu'ils
-ne sont pas bouchés. C'est un changement de contrat : historiquement, `QuizEngine` affichait un quiz
-« Catégorie A / B / C » avec un « Modèle placeholder » à « À définir », `comparateurs.json` contenait
-des « Modèle A/B/C » à 299 €, et tout ça est parti en prod sur une vingtaine de sites sans que
-personne ne le voie. Un placeholder silencieux qui *ressemble* à du contenu est pire qu'une section
-absente.
+**Le template ne livre plus de faux contenu.** Il livre des trous, et il sait les détecter. C'est un
+changement de contrat : historiquement, `QuizEngine` affichait un quiz « Catégorie A / B / C » avec un
+« Modèle placeholder » à « À définir », `comparateurs.json` contenait des « Modèle A/B/C » à 299 €, et
+tout ça est parti en prod sur une vingtaine de sites sans que personne ne le voie. Un placeholder
+silencieux qui *ressemble* à du contenu est pire qu'une section absente.
 
 ### Le garde-fou
 
@@ -44,13 +44,13 @@ npm run check:placeholders          # liste fichier:ligne — motif détecté
 npm run check:placeholders -- --warn-only   # affiche sans faire échouer
 ```
 
-`scripts/check-placeholders.mjs` (Node pur, zéro dépendance) est **enchaîné dans `npm run build`** :
-un déploiement Vercel **échoue** s'il reste un placeholder. Il tourne aussi en CI sur chaque push et
-chaque PR (`.github/workflows/check-placeholders.yml`).
+`scripts/check-placeholders.mjs` (Node pur, zéro dépendance) est un **check MANUEL** : il n'est
+**plus enchaîné dans `npm run build`** et le workflow CI (`.github/workflows/check-placeholders.yml`)
+est **désactivé**. Le lancer soi-même à l'init et avant un déploiement — rien ne le fait à votre place.
 
-Le gate **s'arme tout seul** : tant que `niche.config.ts` n'est pas configuré (`siteName: 'emd-template'`,
+Le gate s'arme tout seul : tant que `niche.config.ts` n'est pas configuré (`siteName: 'emd-template'`,
 `domain: 'example.com'`), il reste en warn-only — le template nu contient des gabarits par construction.
-Dès que la niche est renseignée, il bloque. Aucune case à cocher, rien à ne pas oublier.
+Dès que la niche est renseignée, il signale.
 
 ### Ce qu'il détecte
 
@@ -69,7 +69,7 @@ Dès que la niche est renseignée, il bloque. Aucune case à cocher, rien à ne 
   `content/pages/quiz.yaml` (CMS `/admin`) ; la recommandation finale vient de la prop `recommend`
   (à défaut : uniquement des faits — le choix du visiteur et des liens vers `/comparer` et `/choisir`).
 - **Data vide = section absente**, jamais une section « Modèle A ». Les hubs `/comparer`, `/classement`,
-  `/deals`, `/simulateur` affichent un état vide explicite ; `/quiz` renvoie 404 s'il n'a pas de questions.
+  `/simulateur` affichent un état vide explicite ; `/quiz` renvoie 404 s'il n'a pas de questions.
 - Les gabarits `_*.mdx` ne sont plus lus par `lib/blog.ts` (fini l'article publié à l'URL `/_example`),
   et `article-modele.mdx` est en `draft: true`. **Ils doivent quand même être supprimés à l'init.**
 
@@ -78,8 +78,8 @@ Dès que la niche est renseignée, il bloque. Aucune case à cocher, rien à ne 
 1. Remplir `content/data/comparateurs.json`, `classements.json`, `choisir.json` avec les **vrais**
    modèles de la niche (structure de référence : `docs/examples/*.example.json`).
 2. Remplir `content/pages/quiz.yaml` (ou passer `niche.quiz.enabled` à `false`).
-3. Remplir `DEALS` (`app/(site)/deals/page.tsx`) et `CYCLES` (`app/(site)/simulateur/page.tsx`),
-   ou supprimer ces pages.
+3. Remplir `CYCLES` (`app/(site)/simulateur/page.tsx`) ou supprimer la page. `/deals` reste
+   désactivée par défaut (`niche.config.deals.enabled: false`, modèle MENTION) — ne pas la remplir.
 4. **Supprimer** `content/produits/_example.yaml`, `content/articles/_example.mdx`,
    `content/blog/guides/article-modele.mdx`.
 5. `npm run check:placeholders` → doit sortir « aucun placeholder détecté ».
@@ -109,19 +109,22 @@ Sur une demande de rédaction, `ton-of-voice` + `seo-geo-redaction` + `humaniser
 
 ## Direction artistique
 
-- **Source unique : Voltéo** (`docs/design-reference/volteo/`) — 4 skins (V1 Électrique, V2 Éditorial,
-  V3 Suisse-Minimal, V4 Premium-sombre) + 4 verticales (énergie/assurance/auto/tech). Doctrine :
-  **choisir un skin → l'appliquer → le muter** (anti-footprint). Mode d'emploi + blocs prêts à coller :
-  `docs/design-reference/volteo/DESIGN-NOTES.md`.
-- **Archétypes** : `comparateur` / `magazine` / `hybride` — pilotent la home (`niche.style.homeSections`) et le hero.
-- **Mode** clair/sombre via `niche.style.mode` + `ThemeToggle`.
-- **Fallback** : `lib/da-presets/` (161 palettes) — uniquement si aucun skin ne convient (`docs/DA-PRESETS.md`).
-- **Images V2** : registre `lib/image-slots.ts`, génération Gemini→Flux (CMS) ou nano-mentionbox (init + tâches).
+- **Doctrine unique : `docs/AUTO-DESIGN.md`** — sélection déterministe : famille (`classifyNiche`) →
+  variante + permutations (`suggestVariants`) → palette (direction de `docs/DA-DIRECTIONS.md` mutée)
+  → typo (`suggestFonts`, pool `lib/typography.ts`).
+- **Variantes** : home `magazine`/`comparateur`/`marche`/`fil`/`presse` · catégorie `classic`/`editorial`/`presse`
+  · article `classic`/`presse` (cf. `lib/variants.ts`). Les previews sont dépubliées à l'init.
+- **Mode** clair OU sombre **fixe** via `niche.style.mode` — pas de toggle.
+- **Fallback** : `lib/da-presets/` (161 palettes) — uniquement pour une niche hors-cadre (cf. AUTO-DESIGN).
+- **Images V2** : registre `lib/image-slots.ts` (`getAllImageSlots()`), génération Gemini→Flux (CMS)
+  ou nano-mentionbox (init + tâches).
 
 ## Composants MDX (articles)
 
-`<ArticleImage>` · `<ProductCTA>` · `<ProductCarousel>` · `<CompareBar>` / `<CompareBarGroup>` ·
-`<Tip>` · `<Warning>` · `<Verdict>` · `<ProConTable>` · `<PullQuote>` · `<StatCard>` / `<StatRow>`.
+`<ArticleImage>` · `<CompareBar>` / `<CompareBarGroup>` · `<Tip>` · `<Warning>` · `<Verdict>` ·
+`<ProConTable>` · `<PullQuote>` · `<StatCard>` / `<StatRow>` · `<ToolCTA>`.
+**Aucun composant produit marchand** (`ProductCTA`, `ProductCarousel`… supprimés — modèle MENTION,
+sans affiliation ; les utiliser dans un MDX casse le build).
 
 ## CMS (`/admin`)
 
@@ -132,11 +135,12 @@ d'images (Gemini/Flux) · gestion auteurs · 2FA TOTP.
 
 | Route | Type |
 |---|---|
-| `/` | Home dynamique (sections pilotées par l'archétype) |
+| `/` | Home dynamique (variante pilotée par `niche.config.layouts`) |
 | `/blog` · `/blog/[categorie]` · `/blog/[categorie]/[slug]` | Hub + catégorie + article MDX |
 | `/comparer` · `/comparer/[produit]` | Comparateur |
+| `/classement/[produit]` | Classement Top N (asset GEO #1) |
 | `/choisir/[produit]` | Guide d'achat |
-| `/quiz` · `/simulateur` · `/deals` | Outils |
+| `/quiz` · `/simulateur` | Outils (`/deals` désactivée par défaut — modèle MENTION) |
 | `/auteurs/[slug]` | Page auteur (JSON-LD Person) |
 | `/mentions-legales` · `/confidentialite` | Légal |
 | `/admin/*` | CMS complet |
@@ -155,20 +159,17 @@ d'images (Gemini/Flux) · gestion auteurs · 2FA TOTP.
 | Commande | Description |
 |---|---|
 | `npm run dev` | Développement |
-| `npm run build` | Build production (**précédé du check anti-placeholder**) |
-| `npm run check:placeholders` | Garde-fou anti-placeholder (`--warn-only` pour ne pas échouer) |
+| `npm run build` | Build production |
+| `npm run check:placeholders` | Garde-fou anti-placeholder — **manuel** (`--warn-only` pour ne pas échouer) |
 | `npm run lint` | ESLint |
 | `npm run type-check` | Vérification TypeScript |
 | `npm run test` | Tests (Vitest) |
 
 ## Documentation
 
-- [`docs/TEMPLATE-SPEC.md`](docs/TEMPLATE-SPEC.md) — Architecture du moteur
-- [`docs/AUTO-DESIGN.md`](docs/AUTO-DESIGN.md) — Doctrine DA à l'init (skin Voltéo → appliquer → muter)
-- [`docs/design-reference/volteo/`](docs/design-reference/volteo/README.md) — **Source design : skins + verticales + DESIGN-NOTES**
-- [`docs/WIZARD-DESIGN-STEP.md`](docs/WIZARD-DESIGN-STEP.md) — Étape design du wizard (skin / zip)
+- [`docs/AUTO-DESIGN.md`](docs/AUTO-DESIGN.md) — **LE doc DA** (famille → variantes → palette → typo → images)
+- [`docs/DA-DIRECTIONS.md`](docs/DA-DIRECTIONS.md) — 5 directions de design + spec logo/favicon
 - [`docs/DA-ANTI-IA.md`](docs/DA-ANTI-IA.md) — Garde-fous anti-IA + signature
-- [`docs/DA-PRESETS.md`](docs/DA-PRESETS.md) — Bibliothèque de fallback (optionnelle)
 - [`docs/IMAGES-WORKFLOW.md`](docs/IMAGES-WORKFLOW.md) — Stratégie images V2
 - [`docs/examples/`](docs/examples/) — Gabarits de STRUCTURE des data (comparateurs, classements) — documentation, pas du contenu
 - [`docs/SCHEDULED-TASK-REDACTION.md`](docs/SCHEDULED-TASK-REDACTION.md) — Gabarit de la tâche quotidienne

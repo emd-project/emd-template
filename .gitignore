@@ -36,3 +36,6 @@ coverage/
 /test-results/
 /playwright-report/
 /playwright/.cache/
+
+# Captures DA (scripts/da-shots.mjs) — jamais commitées
+/.da-shots/

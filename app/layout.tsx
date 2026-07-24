@@ -6,6 +6,9 @@ import { t } from '@/lib/i18n'
 import { PermutationStyle } from '@/components/layout/PermutationStyle'
 import './globals.css'
 import './styles/volteo.css'
+// Tokens de chrome (invariants light/dark) — après volteo.css (qui définit
+// --spark), avant les layouts qui les consomment (marche, fil).
+import './styles/volteo-chrome.css'
 import './styles/volteo-magazine.css'
 import './styles/volteo-marche.css'
 import './styles/volteo-fil.css'

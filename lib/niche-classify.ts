@@ -25,12 +25,19 @@
  * ── Pourquoi on TOKENISE (et pas `String.includes`) ─────────────────────────
  * L'ancien matching par sous-chaîne produisait de vrais faux positifs :
  *   « meilleur-hotel-paris »  → contient `paris` (paris sportifs) → comparateur ✗
- *   « soins-palliatifs »      → contient `soin`                   → beaute      ✗
  * Ici : on découpe en tokens, on retire les modificateurs SEO, on retire les
  * accents, et on PONDÈRE le premier token de contenu ×2 — en français la tête
  * du groupe nominal vient en premier :
  *   « assurance auto »     → tête = assurance (service)  → comparateur ✓
  *   « meilleure citadine » → tête = citadine  (objet)    → editorial   ✓
+ *
+ * ── Et pourquoi les lexiques évitent les mots AMBIGUS ───────────────────────
+ * La tokenisation ne protège pas d'un mot ambigu PRÉSENT dans un lexique :
+ * « soins-palliatifs » tokenise proprement, mais si `soins` est listé côté
+ * beauté, il matche quand même (bug attrapé par niche-classify.test.ts).
+ * Règle : un lexique ne contient que des tokens DISCRIMINANTS à eux seuls
+ * (`maquillage`, `shampoing`, `visage`) — jamais des génériques (`soin`,
+ * `machine`, `guide`) qui appartiennent à dix univers.
  *
  * Fonction PURE : n'importe pas `niche.config`, donc testable unitairement et
  * utilisable par un script d'init avant même que la config existe.
@@ -114,6 +121,8 @@ export function entityHead(domain: string, siteName?: string): string {
 
 // ─── Lexiques ───────────────────────────────────────────────────────────────
 // Tous les mots sont SANS ACCENT (la normalisation les retire avant comparaison).
+// RÈGLE : uniquement des tokens DISCRIMINANTS seuls. Jamais de génériques
+// multi-univers (`soin`, `machine`, `appareil` isolé…) — cf. en-tête.
 
 /** Services SOUSCRIPTIBLES en ligne : on vient changer de fournisseur. */
 const SOUSCRIPTIBLE = new Set([
@@ -135,11 +144,17 @@ const SOUSCRIPTIBLE = new Set([
   'casino', 'casinos', 'paris', 'bookmaker', 'bookmakers', 'poker', 'betting',
 ])
 
-/** Beauté & mode → identité presse. */
+/**
+ * Beauté & mode → identité presse.
+ * ⚠️ `soin`/`soins` N'Y EST PAS : trop ambigu (soins palliatifs, dentaires,
+ * des plantes…). Les sites beauté sont attrapés par leurs tokens spécifiques
+ * (« soin-visage » → `visage`, « soin-cheveux » → `cheveux`).
+ */
 const BEAUTE = new Set([
   'beaute', 'beauty', 'cosmetique', 'cosmetiques', 'maquillage', 'parfum',
-  'parfums', 'soin', 'soins', 'creme', 'cremes', 'serum', 'cheveux', 'coiffure',
-  'coiffeur', 'ongle', 'ongles', 'manucure', 'peau', 'skincare',
+  'parfums', 'creme', 'cremes', 'serum', 'serums', 'cheveux', 'coiffure',
+  'coiffeur', 'ongle', 'ongles', 'manucure', 'peau', 'skincare', 'visage',
+  'shampoing', 'shampoings', 'shampooing', 'teint', 'demaquillant',
   'mode', 'fashion', 'vetement', 'vetements', 'lingerie', 'chaussure',
   'chaussures', 'bijou', 'bijoux', 'dressing', 'tendance', 'tendances', 'style',
 ])
@@ -159,7 +174,7 @@ const EDITORIAL = new Set([
   'aspirateur', 'aspirateurs', 'tondeuse', 'tondeuses', 'robot', 'robots',
   'lave', 'linge', 'vaisselle', 'frigo', 'refrigerateur', 'congelateur', 'four',
   'micro', 'ondes', 'cafetiere', 'bouilloire', 'friteuse', 'airfryer',
-  'barbecue', 'plancha', 'aspirateurs', 'machine', 'machines',
+  'barbecue', 'plancha', 'machine', 'machines',
   // tech & image
   'tv', 'televiseur', 'televiseurs', 'ordinateur', 'ordinateurs', 'laptop',
   'smartphone', 'smartphones', 'telephone', 'tablette', 'tablettes', 'casque',

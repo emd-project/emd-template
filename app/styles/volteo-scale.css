@@ -1,0 +1,85 @@
+/* ============================================================
+   VOLTÉO — ÉCHELLE TYPOGRAPHIQUE & RYTHME VERTICAL
+   ------------------------------------------------------------
+   ⚠️ INERTE À CE STADE : ce fichier DÉCLARE des tokens que personne ne
+   consomme encore. Le câblage des ~171 `font-size` en dur se fait fichier par
+   fichier, avec capture d'écran entre chaque (cf. docs/DA-PASSE-1.md).
+
+   ┌─ POURQUOI ──────────────────────────────────────────────────────────┐
+   │ Le pipeline CSS porte ~171 déclarations `font-size` écrites en dur, sur 9  │
+   │ fichiers, et ZÉRO token de taille. C'est pour ça que l'échelle typo et la  │
+   │ densité ne peuvent PAS varier d'un site à l'autre — et c'est une grande   │
+   │ part du « tous les sites se ressemblent », indépendamment de la palette.   │
+   │ On ne rend pas un axe variable quand ses valeurs sont des littéraux.      │
+   └─────────────────────────────────────────────────────────────┘
+
+   ── PRINCIPE : un seul bouton par axe ──────────────────────────────────
+   L'échelle est DÉRIVÉE d'un ratio, pas une liste figée. Une future grammaire
+   n'a qu'à surcharger `--fs-ratio` (1.20 · 1.33 · 1.50 · 1.78) et TOUTES les
+   tailles suivent. Idem `--space-unit` (densité) et `--section-y` (rythme).
+   Figer des valeurs ici aurait re-gelé exactement ce qu'on vient dégeler.
+
+   Les défauts reproduisent le rendu ACTUEL d'aussi près qu'une échelle
+   régulière le permet : ratio 1.25 depuis une base 17px (la taille de corps
+   déjà en place dans volteo.css).
+   ============================================================ */
+
+:root {
+  /* ── Axe TYPOGRAPHIE ───────────────────────────────────────────
+     `--fs-ratio` est LE bouton. 1.20 = serré/dense · 1.78 = très contrasté. */
+  --fs-base: 17px;
+  --fs-ratio: 1.25;
+
+  /* Descendants (labels, méta, légendes) */
+  --fs-3xs: calc(var(--fs-base) / var(--fs-ratio) / var(--fs-ratio) / var(--fs-ratio));
+  --fs-2xs: calc(var(--fs-base) / var(--fs-ratio) / var(--fs-ratio));
+  --fs-xs:  calc(var(--fs-base) / var(--fs-ratio) / 1.12);
+  --fs-sm:  calc(var(--fs-base) / var(--fs-ratio));
+
+  /* Corps */
+  --fs-md:  var(--fs-base);
+
+  /* Ascendants (titres de bloc, cartes) */
+  --fs-lg:  calc(var(--fs-base) * var(--fs-ratio));
+  --fs-xl:  calc(var(--fs-base) * var(--fs-ratio) * var(--fs-ratio));
+  --fs-2xl: calc(var(--fs-base) * var(--fs-ratio) * var(--fs-ratio) * var(--fs-ratio));
+  --fs-3xl: calc(var(--fs-base) * var(--fs-ratio) * var(--fs-ratio) * var(--fs-ratio) * var(--fs-ratio));
+
+  /* ── Titres fluides ────────────────────────────────────────────
+     Les hero dépassent l'échelle : ils restent en clamp(), mais bornés PAR
+     l'échelle, donc ils suivent aussi le ratio. */
+  --fs-h1: clamp(var(--fs-2xl), 6vw, calc(var(--fs-3xl) * 1.6));
+  --fs-h2: clamp(var(--fs-xl), 4vw, calc(var(--fs-3xl) * 1.1));
+  --fs-h3: clamp(var(--fs-lg), 2.6vw, var(--fs-xl));
+
+  /* ── Interlignage ─────────────────────────────────────────────
+     Un titre serré + un corps aéré = contraste éditorial. Deux valeurs
+     identiques = l'aspect « monotone » du symptôme IA n° 7. */
+  --lh-tight: 1.04;   /* titres */
+  --lh-snug:  1.22;   /* titres de carte, sur 2-3 lignes */
+  --lh-body:  1.6;    /* corps */
+  --lh-loose: 1.75;   /* lecture longue (prose article) */
+
+  /* ── Axe DENSITÉ ─────────────────────────────────────────────
+     `--space-unit` est le second bouton : 4px = compact · 8px = très aéré.
+     (globals.css définit déjà --space-1..24 en dur ; ces tokens-ci les
+     remplaceront au câblage — cf. DA-PASSE-1.md § « hors périmètre ».) */
+  --space-unit: 6px;
+  --gap-xs: calc(var(--space-unit) * 1);
+  --gap-sm: calc(var(--space-unit) * 2);
+  --gap-md: calc(var(--space-unit) * 3);
+  --gap-lg: calc(var(--space-unit) * 5);
+  --gap-xl: calc(var(--space-unit) * 8);
+
+  /* ── Rythme vertical ──────────────────────────────────────────
+     ~15 paddings de section écrits en dur (96px, 90px, 80px, 64px…) : c'est
+     ce qui fige le « souffle » d'un site à l'autre. Un seul token. */
+  --section-y: calc(var(--space-unit) * 16);
+  --section-y-sm: calc(var(--space-unit) * 11);
+}
+
+@media (max-width: 940px) {
+  :root {
+    --section-y: var(--section-y-sm);
+  }
+}

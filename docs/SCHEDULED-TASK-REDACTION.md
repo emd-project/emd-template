@@ -17,12 +17,16 @@ Tu rédiges et publies UN seul nouvel article de blog par run sur [siteName]
 (repo `[repoOwner]/[repoName]`, branche `main`). Aucun brouillon : l'article complet en une passe, ou rien.
 
 # 0 — Lecture obligatoire (avant la moindre ligne)
-PROGRESS.md · niche.config.ts · DECISIONS.md · CLAUDE.md ·
-skills/seo-geo-redaction · docs/IMAGES-WORKFLOW.md · docs/AUTHOR-[authorSlug].md ·
-content/ton-of-voice.md · content/mots-cles.md · content/concurrents.md · content/faq-base.md ·
-content/calendrier-edito.md · content/priorites-geo.md (briefs MentionLab, s'il existe) ·
-skills/humaniser-fr (mode production).
-Si locales.length >= 2 : skills/seo-geo-redaction/references/mirror-i18n.md.
+DOCTRINE (canonique — lis via github_read_file sur le repo `emd-project/emd-methodo`, branche main) :
+skills/seo-geo-redaction/SKILL.md · skills/humaniser-fr/SKILL.md · skills/ton-of-voice/SKILL.md ·
+references/garde-fous.md.
+Si locales.length >= 2 : references/i18n-multilingue.md (emd-methodo aussi).
+SITE (propres au site — lus LOCALEMENT dans [repoOwner]/[repoName]) :
+PROGRESS.md · niche.config.ts · DECISIONS.md · CLAUDE.md · docs/IMAGES-WORKFLOW.md ·
+docs/AUTHOR-[authorSlug].md · content/ton-of-voice.md · content/mots-cles.md · content/concurrents.md ·
+content/faq-base.md · content/calendrier-edito.md · content/priorites-geo.md (briefs MentionLab, s'il existe).
+NB : content/ton-of-voice.md et docs/AUTHOR-[authorSlug].md restent lus localement (ils sont propres au site) —
+seule la DOCTRINE générique vient d'emd-methodo. Ne PAS lire le dossier skills/ du repo du site (copies dépréciées).
 Toute règle modifiée depuis le dernier run l'emporte.
 
 # 1 — Choisir UN sujet — MODÈLE MENTION (⅔ marques-modèles / ⅓ info)
@@ -81,6 +85,7 @@ retry une fois en `[slug]-cover-v2`, échec → skip + log « Bloqué ». Push s
 
 ## Pourquoi ce gabarit
 
+- **Doctrine centralisée** : les skills (seo-geo-redaction, humaniser-fr, ton-of-voice) et les garde-fous sont lus depuis `emd-project/emd-methodo` (source canonique, toujours à jour). Les copies `skills/` embarquées dans le repo du site sont **dépréciées** et ne doivent plus être lues ni mises à jour. Seuls les fichiers propres au site (voix, auteur, config, contenus) restent locaux.
 - **Modèle mention** : ⅔ sujets à marques/modèles (dont « meilleurs X pour [persona] ») = inventaire de mentions vendable ; ⅓ info. Pas d'affiliation.
 - **Anti-cannibalisation par spécificité** : le classement possède le head nu ; le blog les variantes persona/long-tail + face-à-face. Un seul propriétaire par requête exacte.
 - **SERP-first** · **GEO 2026** (Answer-Explanation-Example + Expérience) · **images économes** (1 cover + 2 réemplois) · **miroir conditionnel** · **année dynamique**.

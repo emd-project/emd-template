@@ -1,6 +1,16 @@
 /* ============================================================
    VOLTÉO — Layout home magazine (chargé globalement)
    Classes scopées .mag-* / .cat-* / .sidebar / .promo / .pop / .side-news / .edito
+
+   ⚠️ TEXTE SUR SURFACE SOMBRE / ACCENT
+   Ce fichier écrivait `color: var(--bg-primary)` pour du texte posé sur un
+   voile photo ou un dégradé d'accent. Ça ne tient que si le FOND s'inverse
+   aussi : c'est vrai pour `background: var(--ink)` (les deux basculent
+   ensemble — cf. `.magnav a.home`, `.side-head`), c'est FAUX pour un scrim ou
+   un accent, qui restent sombres dans les deux modes. En mode sombre,
+   `--bg-primary` devient quasi-noir → titres de la mosaïque et bloc promo en
+   texte sombre sur fond sombre.
+   → utiliser `--chrome-text` / `--on-accent` (invariants, cf. volteo-chrome.css).
    ============================================================ */
 
 /* Pleine largeur : la home magazine prend tout l'écran */
@@ -10,10 +20,11 @@
 .magnav { background: var(--paper); border-bottom: 1px solid var(--line); position: sticky; top: var(--nav-h); z-index: 50; }
 .magnav .wrap { display: flex; align-items: center; gap: 4px; height: 56px; overflow-x: auto; scrollbar-width: none; }
 .magnav .wrap::-webkit-scrollbar { display: none; }
-.magnav a { font-family: var(--font-display); font-weight: 700; font-size: 15px; letter-spacing: -.01em; color: var(--ink-2); padding: 8px 15px; border-radius: 9px; white-space: nowrap; transition: background .15s, color .15s; display: inline-flex; align-items: center; gap: 8px; }
+.magnav a { font-family: var(--font-display); font-weight: 700; font-size: 15px; letter-spacing: -.01em; color: var(--ink-2); padding: 8px 15px; border-radius: var(--r); white-space: nowrap; transition: background .15s, color .15s; display: inline-flex; align-items: center; gap: 8px; }
 .magnav a:hover { background: var(--cream-2); color: var(--ink); }
+/* `--ink` + `--bg-primary` s'inversent ENSEMBLE → paire cohérente, on garde. */
 .magnav a.home { background: var(--ink); color: var(--bg-primary); }
-.magnav a.home:hover { background: var(--primary); }
+.magnav a.home:hover { background: var(--primary); color: var(--on-accent); }
 .magnav .mn-pip { width: 8px; height: 8px; border-radius: 50%; }
 
 /* ============================================================
@@ -24,27 +35,28 @@
 .mosaic-right { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
 .mcard { position: relative; overflow: hidden; border-radius: var(--r); display: block; isolation: isolate; min-height: 230px; }
-.mcard .ph { position: absolute; inset: 0; border: none; border-radius: 0; background: repeating-linear-gradient(135deg, #aab6c9 0 17px, #b8c3d4 17px 34px); }
+.mcard .ph { position: absolute; inset: 0; border: none; border-radius: 0; background: repeating-linear-gradient(135deg, var(--bg-surface-2) 0 17px, var(--bg-surface) 17px 34px); }
 .mcard img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-/* Scrim fonctionnel de lisibilité du texte sur photo — voile noir conservé (cf. note tokens). */
-.mcard::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(8,12,22,.86) 0%, rgba(8,12,22,.45) 38%, rgba(8,12,22,0) 66%); z-index: 1; transition: opacity .3s; }
+/* Scrim fonctionnel de lisibilité du texte sur photo — neutre, indépendant de
+   la palette (il doit marcher sur n'importe quelle image). */
+.mcard::after { content: ""; position: absolute; inset: 0; background: var(--scrim-soft); z-index: 1; transition: opacity .3s; }
 .mcard:hover::after { opacity: .9; }
-.mcard .ph span { position: absolute; top: 12px; right: 12px; background: color-mix(in srgb, var(--bg-primary) 82%, transparent); font-size: 10px; z-index: 2; }
+.mcard .ph span { position: absolute; top: 12px; right: 12px; background: var(--chrome-bg); color: var(--chrome-text); font-size: 10px; z-index: 2; }
 .mcard .mc-body { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; padding: 22px; }
 .mcard .mc-flag { margin-bottom: 11px; display: inline-block; }
-.mcard h3, .mcard h2 { color: var(--bg-primary); letter-spacing: -.02em; transition: color .15s; }
-.mcard .mc-meta { color: color-mix(in srgb, var(--bg-primary) 74%, transparent); font-size: 12.5px; font-weight: 600; margin-top: 9px; display: flex; align-items: center; gap: 8px; }
+.mcard h3, .mcard h2 { color: var(--chrome-text); letter-spacing: -.02em; transition: color .15s; }
+.mcard .mc-meta { color: var(--chrome-text-2); font-size: 12.5px; font-weight: 600; margin-top: 9px; display: flex; align-items: center; gap: 8px; }
 .mcard:hover h2, .mcard:hover h3 { color: var(--spark); }
 
 .mcard.feat-big { grid-row: span 2; min-height: 494px; }
 .mcard.feat-big .mc-body { padding: 34px; }
 .mcard.feat-big h2 { font-size: clamp(26px, 2.7vw, 38px); font-weight: 800; }
-.mcard.feat-big .mc-body > p { color: color-mix(in srgb, var(--bg-primary) 82%, transparent); font-size: 15.5px; margin-top: 12px; max-width: 460px; }
+.mcard.feat-big .mc-body > p { color: var(--chrome-text-2); font-size: 15.5px; margin-top: 12px; max-width: 460px; }
 .mosaic-right .mcard h3 { font-size: 18px; font-weight: 700; }
 
 /* pastille catégorie sur fond sombre */
-.mc-flag .tag { background: color-mix(in srgb, var(--bg-primary) 16%, transparent); color: var(--bg-primary); backdrop-filter: blur(4px); }
-.mc-flag .tag .pip { box-shadow: 0 0 0 3px color-mix(in srgb, var(--bg-primary) 18%, transparent); }
+.mc-flag .tag { background: var(--chrome-fill); color: var(--chrome-text); backdrop-filter: blur(4px); }
+.mc-flag .tag .pip { box-shadow: 0 0 0 3px var(--chrome-fill); }
 
 /* ============================================================
    Corps : contenu principal + colonne latérale
@@ -55,7 +67,7 @@
 
 /* en-tête de catégorie avec onglet coloré */
 .cat-head { display: flex; align-items: center; gap: 0; margin-bottom: 24px; }
-.cat-label { font-family: var(--font-display); font-weight: 800; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; color: var(--bg-primary); padding: 9px 16px; border-radius: 8px 8px 0 0; position: relative; bottom: -1px; }
+.cat-label { font-family: var(--font-display); font-weight: 800; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; color: var(--on-accent); padding: 9px 16px; border-radius: var(--r-sm) var(--r-sm) 0 0; position: relative; bottom: -1px; }
 .cat-head .rule { flex: 1; height: 3px; border-radius: 2px; }
 .cat-head .seeall { font-size: 13px; font-weight: 700; color: var(--ink-3); padding-left: 16px; white-space: nowrap; transition: color .15s; display: inline-flex; align-items: center; gap: 5px; }
 .cat-head .seeall:hover { color: var(--ink); }
@@ -72,7 +84,7 @@
 /* liste compacte (vignette + titre) */
 .cat-list { display: flex; flex-direction: column; gap: 18px; }
 .mini-art { display: grid; grid-template-columns: 104px 1fr; gap: 15px; align-items: start; }
-.mini-art .ph, .mini-art img { aspect-ratio: 1/1; border-radius: 11px; width: 100%; object-fit: cover; }
+.mini-art .ph, .mini-art img { aspect-ratio: 1/1; border-radius: var(--r); width: 100%; object-fit: cover; }
 .mini-art h4 { font-size: 15.5px; font-weight: 700; font-family: var(--font-display); letter-spacing: -.01em; line-height: 1.22; margin-bottom: 7px; transition: color .15s; }
 .mini-art:hover h4 { color: var(--primary-d); }
 
@@ -80,33 +92,35 @@
    Colonne latérale
    ============================================================ */
 .sidebar { display: flex; flex-direction: column; gap: 32px; position: sticky; top: calc(var(--nav-h) + 72px); }
-.side-head { background: var(--ink); color: var(--bg-primary); font-family: var(--font-display); font-weight: 800; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; padding: 12px 16px; border-radius: 9px 9px 0 0; display: flex; align-items: center; gap: 9px; }
+/* `--ink` + `--bg-primary` s'inversent ENSEMBLE → paire cohérente, on garde. */
+.side-head { background: var(--ink); color: var(--bg-primary); font-family: var(--font-display); font-weight: 800; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; padding: 12px 16px; border-radius: var(--r) var(--r) 0 0; display: flex; align-items: center; gap: 9px; }
 
 /* articles populaires */
-.pop-list { border: 1px solid var(--line); border-top: none; border-radius: 0 0 9px 9px; background: var(--paper); overflow: hidden; }
+.pop-list { border: 1px solid var(--line); border-top: none; border-radius: 0 0 var(--r) var(--r); background: var(--paper); overflow: hidden; }
 .pop { display: grid; grid-template-columns: 38px 64px 1fr; gap: 13px; align-items: center; padding: 14px 16px; border-top: 1px solid var(--line-2); transition: background .15s; }
 .pop:first-child { border-top: none; }
 .pop:hover { background: var(--cream-2); }
 .pop .rank { font-family: var(--font-display); font-weight: 800; font-size: 26px; color: var(--line); line-height: 1; }
 .pop:hover .rank { color: var(--primary); }
-.pop .ph, .pop img { aspect-ratio: 1/1; border-radius: 9px; width: 100%; object-fit: cover; }
+.pop .ph, .pop img { aspect-ratio: 1/1; border-radius: var(--r); width: 100%; object-fit: cover; }
 .pop h4 { font-size: 14px; font-weight: 700; font-family: var(--font-display); line-height: 1.22; letter-spacing: -.01em; transition: color .15s; }
 .pop:hover h4 { color: var(--primary-d); }
 .pop .pmeta { font-size: 11.5px; color: var(--ink-3); font-weight: 600; margin-top: 4px; }
 
-/* bloc promo (vers le comparateur) */
-.promo { position: relative; overflow: hidden; border-radius: var(--r-lg); padding: 30px 26px; background: linear-gradient(150deg, var(--primary), var(--primary-d)); color: var(--bg-primary); }
-.promo .pblob { position: absolute; width: 200px; height: 200px; border-radius: 50%; background: color-mix(in srgb, var(--bg-primary) 14%, transparent); filter: blur(8px); top: -70px; right: -50px; }
-.promo .peyebrow { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: color-mix(in srgb, var(--bg-primary) 82%, transparent); position: relative; }
+/* bloc promo (vers le comparateur) — fond ACCENT : le texte ne doit PAS
+   s'inverser avec le thème, sinon il disparaît en mode sombre. */
+.promo { position: relative; overflow: hidden; border-radius: var(--r-lg); padding: 30px 26px; background: linear-gradient(150deg, var(--primary), var(--primary-d)); color: var(--on-accent); }
+.promo .pblob { position: absolute; width: 200px; height: 200px; border-radius: 50%; background: var(--chrome-fill); filter: blur(8px); top: -70px; right: -50px; }
+.promo .peyebrow { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: color-mix(in srgb, var(--on-accent) 82%, transparent); position: relative; }
 .promo h4 { font-size: 25px; font-weight: 800; letter-spacing: -.02em; line-height: 1.08; margin: 12px 0 10px; position: relative; }
-.promo p { font-size: 14px; color: color-mix(in srgb, var(--bg-primary) 86%, transparent); margin-bottom: 20px; position: relative; }
+.promo p { font-size: 14px; color: color-mix(in srgb, var(--on-accent) 86%, transparent); margin-bottom: 20px; position: relative; }
 .promo .btn { position: relative; }
 
 /* newsletter latérale */
 .side-news { background: var(--cream-2); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 26px; }
 .side-news h4 { font-size: 19px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 8px; }
 .side-news p { font-size: 13.5px; color: var(--ink-2); margin-bottom: 16px; }
-.side-news input { width: 100%; padding: 13px 16px; border-radius: 100px; border: 1.5px solid var(--line); font-family: inherit; font-size: 14.5px; font-weight: 600; outline: none; margin-bottom: 10px; background: var(--paper); }
+.side-news input { width: 100%; padding: 13px 16px; border-radius: var(--r-full); border: 1.5px solid var(--line); font-family: inherit; font-size: 14.5px; font-weight: 600; outline: none; margin-bottom: 10px; background: var(--paper); }
 .side-news input:focus { border-color: var(--primary); }
 .side-news .btn { width: 100%; }
 

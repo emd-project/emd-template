@@ -26,8 +26,8 @@ const isConfigured = niche.domain !== 'example.com' && niche.domain !== ''
 /**
  * LA RÈGLE : un couple de tokens n'est sûr que si les DEUX s'inversent ensemble.
  *
- *   var(--ink) + var(--bg-primary)   ✅ ils basculent de concert
- *   var(--ink) + #fff                ❌ --ink bascule, #fff non
+ *   var(--ink) + var(--bg-primary)      ✅ ils basculent de concert
+ *   var(--ink) + #fff                   ❌ --ink bascule, #fff non
  *   var(--accent-1) + var(--bg-primary) ❌ l'accent ne bascule pas
  *
  * Le second cas se détecte mécaniquement : plus aucun blanc littéral n'a de
@@ -47,13 +47,23 @@ const LAYOUT_CSS = [
 /** Blancs littéraux. `#000` est toléré : il ne sert qu'aux masques (mask-image). */
 const WHITE_LITERAL = /(#fff\b|#ffffff\b|rgba\(\s*255\s*,\s*255\s*,\s*255)/i
 
+/**
+ * `color-mix()` est le cas LÉGITIME : `color-mix(in srgb, var(--cat-1) 15%, #fff)`
+ * dérive une nuance claire, ce n'est pas du texte posé sur un fond figé.
+ * volteo.css en compte une douzaine. On saute donc ces lignes — quitte à rater
+ * un vrai littéral qui cohabiterait avec un color-mix sur la même ligne :
+ * mieux vaut un faux négatif qu'un build bloqué sur du code correct.
+ */
+const isDerivation = (line: string) => line.includes('color-mix')
+const isComment = (line: string) => line.startsWith('*') || line.startsWith('/*') || line.startsWith('//')
+
 describe('DA — aucun blanc littéral dans les CSS de layout', () => {
   for (const file of LAYOUT_CSS) {
     it(`${file} n'utilise que les tokens --chrome-*`, () => {
       const offenders = read(file)
         .split('\n')
-        .map((line, i) => ({ line: line.trim(), n: i + 1 }))
-        .filter(({ line }) => WHITE_LITERAL.test(line) && !line.startsWith('*') && !line.startsWith('//'))
+        .map((raw, i) => ({ line: raw.trim(), n: i + 1 }))
+        .filter(({ line }) => WHITE_LITERAL.test(line) && !isDerivation(line) && !isComment(line))
 
       expect(
         offenders.map((o) => `${file}:${o.n}  ${o.line}`),
@@ -87,11 +97,12 @@ describe('DA — volteo-chrome.css est bien la seule source des invariants', () 
   })
 })
 
-describe('DA — volteo.css reste une couche d\'ALIAS', () => {
+describe("DA — volteo.css reste une couche d'ALIAS", () => {
   it('aucune couleur littérale dans son :root', () => {
     const root = read('app/styles/volteo.css').split(/^\}/m)[0] ?? ''
     const hexes = root.match(/#[0-9a-f]{3,8}\b/gi) ?? []
-    // `#000` / `#fff` restent admis DANS un color-mix (dérivation de nuance).
+    // `#000` / `#fff` restent admis : ils ne servent qu'à dériver des nuances
+    // via color-mix (--primary-d, --primary-soft, --cat-N-soft…).
     const bare = hexes.filter((h) => !/^#(000|fff)$/i.test(h))
     expect(
       bare,
@@ -113,7 +124,7 @@ describe('DA — volteo.css reste une couche d\'ALIAS', () => {
 // 2. COMPLÉTUDE D'INIT — ne s'active que sur un fork configuré
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe.runIf(isConfigured)('DA — l\'init a bien tourné', () => {
+describe.runIf(isConfigured)("DA — l'init a bien tourné", () => {
   it('les fonts par défaut ont été remplacées dans layout.tsx', () => {
     // Piège n°1 : écrire niche.config.fonts sans toucher layout.tsx ne change
     // RIEN au rendu — rien ne lit niche.config.fonts.
@@ -128,9 +139,10 @@ describe.runIf(isConfigured)('DA — l\'init a bien tourné', () => {
   })
 
   it('la palette du template a disparu de globals.css', () => {
-    const css = read('app/globals.css')
-    const leftovers = ['#FF3D57', '#C8001F', '#3DFFC0', '#7B61FF']
-      .filter((hex) => css.toUpperCase().includes(hex))
+    const css = read('app/globals.css').toUpperCase()
+    const leftovers = ['#FF3D57', '#C8001F', '#3DFFC0', '#7B61FF'].filter((hex) =>
+      css.includes(hex)
+    )
     expect(
       leftovers,
       'Accents du template encore présents. globals.css contient PLUSIEURS ' +
@@ -143,7 +155,7 @@ describe.runIf(isConfigured)('DA — l\'init a bien tourné', () => {
   it('une variante a été choisie', () => {
     expect(
       niche.layouts?.home,
-      'niche.config.layouts.home absent → la sélection auto n\'a pas tourné ' +
+      "niche.config.layouts.home absent → la sélection auto n'a pas tourné " +
         '(le resolver retombe silencieusement sur magazine).'
     ).toBeTruthy()
   })

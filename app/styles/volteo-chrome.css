@@ -1,0 +1,73 @@
+/* ============================================================
+   VOLTÉO — TOKENS DE « CHROME » (invariants light/dark)
+   ------------------------------------------------------------
+   Certaines surfaces sont volontairement SOMBRES quel que soit le mode du
+   site : ticker du marché, tableau du marché, une du fil, encart final,
+   voiles de lisibilité sur photo. C'est du CHROME, pas du contenu.
+
+   ⚠️ LE BUG QU'ILS CORRIGENT
+   Ces surfaces étaient écrites :
+       background: var(--ink);   color: #fff;
+   Or `--ink` est un alias de `--text-primary`, qui S'INVERSE entre clair et
+   sombre — alors que `#fff` ne s'inverse pas. Sur un site en mode sombre,
+   `--ink` devient quasi-blanc → texte blanc sur fond blanc. Le ticker, le
+   tableau du marché, la une du fil et l'encart final devenaient illisibles.
+   La palette par défaut de `niche.config.ts` étant sombre, c'était le chemin
+   par DÉFAUT, pas un cas limite.
+
+   ⚠️ RÈGLE
+   Ces tokens NE DOIVENT JAMAIS être redéfinis dans un bloc de thème
+   (`html[data-theme=…]`, `@media (prefers-color-scheme: …)`). C'est
+   précisément leur invariance qui les rend sûrs. Ils sont légèrement teintés
+   par `--accent-1` (6-9 %) pour que le chrome suive quand même la DA du site
+   au lieu d'être un gris étranger.
+
+   Ce ne sont PAS des couleurs de DA : la palette du site reste pilotée par
+   `niche.config.palette` → `globals.css`. Ne rien ajouter ici qui doive
+   changer d'un site à l'autre.
+   ============================================================ */
+
+:root {
+  /* ── Fonds sombres ── */
+  --chrome-bg:    color-mix(in srgb, var(--accent-1) 7%, #10141C);
+  --chrome-bg-2:  color-mix(in srgb, var(--accent-1) 9%, #0B1322);
+
+  /* ── Texte sur chrome (contraste garanti : fond toujours sombre) ── */
+  --chrome-text:   #FFFFFF;
+  --chrome-text-2: rgba(255, 255, 255, 0.72);
+  --chrome-text-3: rgba(255, 255, 255, 0.50);
+
+  /* ── Filets & surfaces sur chrome ── */
+  --chrome-line:    rgba(255, 255, 255, 0.10);
+  --chrome-line-2:  rgba(255, 255, 255, 0.06);
+  --chrome-surface: rgba(255, 255, 255, 0.05);
+  --chrome-fill:    rgba(255, 255, 255, 0.18);
+
+  /* ── Sémantique marché (hausse / baisse), lisible sur chrome ── */
+  --chrome-up: #4FD08A;
+  --chrome-dn: #FF7A6E;
+
+  /* ── Texte posé SUR un accent plein ──
+     Les accents sont choisis AA sur fond clair ; du blanc par-dessus n'est donc
+     pas garanti. `--on-accent` reste blanc (les accents pleins servent de fond
+     saturé), `--on-spark` est dérivé pour rester lisible sur un accent VIF
+     (jaune/lime), où le blanc échouerait. */
+  --on-accent: #FFFFFF;
+  --on-spark:  color-mix(in srgb, var(--spark) 22%, #000);
+
+  /* ── Voile de lisibilité sur photo (scrim) ──
+     Volontairement neutre et opaque : il doit fonctionner sur n'importe quelle
+     image, donc il ne suit PAS la palette. */
+  --scrim-strong: linear-gradient(
+    to top,
+    rgba(8, 12, 22, 0.90) 0%,
+    rgba(8, 12, 22, 0.45) 40%,
+    rgba(8, 12, 22, 0) 70%
+  );
+  --scrim-soft: linear-gradient(
+    to top,
+    rgba(8, 12, 22, 0.86) 0%,
+    rgba(8, 12, 22, 0.45) 38%,
+    rgba(8, 12, 22, 0) 66%
+  );
+}

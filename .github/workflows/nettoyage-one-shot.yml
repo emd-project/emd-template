@@ -1,0 +1,136 @@
+name: nettoyage-one-shot
+
+# ============================================================================
+# NETTOYAGE ONE-SHOT — audit du 24/07/2026.
+# Supprime le code/docs morts en 3 lots, VÉRIFIE (tsc + build + tests), puis
+# pousse UNIQUEMENT si tout est vert, et S'AUTO-SUPPRIME dans le dernier commit.
+#
+# ▶ Lancement : onglet Actions → « nettoyage-one-shot » → Run workflow.
+#   Option « supprimer_signature » : coche pour supprimer aussi
+#   components/signature (Lettrine/TabularStat… jamais câblés dans le MDX).
+#
+# Ce workflow ne se déclenche JAMAIS automatiquement (workflow_dispatch only).
+# En cas d'échec de la vérification, RIEN n'est poussé sur main.
+# ============================================================================
+
+on:
+  workflow_dispatch:
+    inputs:
+      supprimer_signature:
+        description: "Supprimer aussi components/signature (non câblés dans le MDX)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  nettoyage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Config git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: "Lot A — vestiges d'affiliation (stubs vides)"
+        run: |
+          git rm -f --ignore-unmatch \
+            components/ui/AffiliateButton.tsx \
+            components/ui/AffiliateLink.tsx \
+            components/home/ProductAffiliate.tsx \
+            components/blog/ProductCTA.tsx \
+            components/blog/AutoProductCTAs.tsx \
+            components/blog/StickyCTA.tsx \
+            components/blog/ProductCarousel.tsx \
+            components/ui/PriceTag.tsx \
+            lib/utils/affiliate.ts \
+            lib/article-ctas.ts \
+            lib/products.ts \
+            tests/unit/affiliate.test.ts \
+            tests/unit/AffiliateButton.test.tsx \
+            tests/unit/AffiliateLink.test.tsx \
+            tests/unit/PriceTag.test.tsx
+          git rm -rf --ignore-unmatch components/deals lib/plugins content/produits
+          git diff --cached --quiet || git commit -m "chore: remove affiliation leftovers (MENTION model)"
+
+      - name: "Lot B — cluster home V1 + composants morts (MarqueeStrip conservé)"
+        run: |
+          git rm -f --ignore-unmatch \
+            components/home/HeroSection.tsx \
+            components/home/HeroVisual.tsx \
+            components/home/FeaturedTools.tsx \
+            components/home/RecentArticles.tsx \
+            components/home/CategorySection.tsx \
+            components/home/ArticleCarousel.tsx \
+            components/home/ArticleMasonry.tsx \
+            components/home/ArticleTicker.tsx \
+            components/home/AuthorTeaser.tsx \
+            components/home/DealsStrip.tsx \
+            components/home/DualHome.tsx \
+            components/blog/ArticleCard.tsx \
+            components/effects/AnimatedHeading.tsx \
+            components/effects/AnnouncementBar.tsx \
+            components/effects/AuroraBackground.tsx \
+            components/effects/CountUp.tsx \
+            components/effects/NoiseOverlay.tsx \
+            components/effects/RotatingWords.tsx \
+            components/effects/SectionDivider.tsx \
+            components/effects/TextScramble.tsx \
+            components/effects/.gitkeep \
+            components/layout/LangSwitcher.tsx \
+            components/layout/ThemeToggle.tsx \
+            components/layout/ShapeStyle.tsx \
+            components/ui/DragScroll.tsx \
+            components/ui/.gitkeep \
+            app/styles/volteo-dual.css \
+            middleware.ts
+          git rm -rf --ignore-unmatch components/motion lib/config lib/hooks
+          git rm -f --ignore-unmatch 'public/images/blog-image-1_*'
+          git diff --cached --quiet || git commit -m "chore: remove dead home-V1 cluster, unused effects/motion, duplicate layout components"
+
+      - name: "Lot S (optionnel) — composants signature non câblés"
+        if: ${{ inputs.supprimer_signature }}
+        run: |
+          git rm -rf --ignore-unmatch components/signature
+          git diff --cached --quiet || git commit -m "chore: remove un-wired signature components (idea moves to composable sections)"
+
+      - name: "VÉRIFICATION — tsc + build + tests (rien n'est poussé si rouge)"
+        run: |
+          npm ci
+          npx tsc --noEmit
+          npm run build
+          npx vitest run
+
+      - name: "Lot C — docs tombstonés (doctrine consolidée dans AUTO-DESIGN.md)"
+        run: |
+          git rm -f --ignore-unmatch \
+            docs/CDC.md \
+            docs/SEO-GEO-REDACTION.md \
+            docs/DUPLICATION-GUIDE.md \
+            docs/TEMPLATE-SPEC.md \
+            docs/WIZARD-DESIGN-STEP.md \
+            docs/DA-PRESETS.md \
+            docs/DA-TYPOGRAPHY.md
+          git rm -rf --ignore-unmatch docs/design-reference/comparateur-energie
+          git diff --cached --quiet || git commit -m "chore: remove tombstoned docs"
+
+      - name: "Auto-suppression du workflow + push"
+        run: |
+          git rm -f .github/workflows/nettoyage-one-shot.yml
+          git commit -m "chore: cleanup workflow self-removal (one-shot done)"
+          git push origin main
+
+      - name: "Rappel dépendances (manuel)"
+        run: |
+          echo "Dépendances probablement désinstallables (à tester en local, une par une) :"
+          echo "  npm uninstall framer-motion gsap embla-carousel-react react-intersection-observer @lottiefiles/react-lottie-player"
+          echo "Puis relancer tsc/build/tests et committer package.json + package-lock.json."
+          echo "Penser aussi au scan des clés i18n mortes (le lot B en crée)."

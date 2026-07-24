@@ -1,13 +1,14 @@
-# AUTO-DESIGN — DA à l'init (doctrine v4 : système de variantes, full-auto)
+# AUTO-DESIGN — DA à l'init (doctrine v5 : document UNIQUE, full-auto)
 
 > **Voltéo est le moteur** : les composants RSC produisent déjà toutes les structures. L'unicité d'un
 > site vient de la **sélection** dans le **système de variantes** : (squelette choisi) × (permutations
-> de tokens) × (palette/typo). La sélection est **déterministe et automatique** — zéro validation.
+> de tokens) × (palette/typo). La sélection est **déterministe et automatique** — zéro validation humaine.
 
-> **v4** — trois corrections par rapport à v3 :
-> 1. l'« override thématique » en langue naturelle est **SUPPRIMÉ** (il écrasait le résolveur) ;
-> 2. `presse` est ajouté partout (il manquait dans les 3 listes de variantes) ;
-> 3. la **typo** a enfin une étape à elle (`suggestFonts` était cité mais jamais exécuté).
+> **v5 — document DA UNIQUE.** Ce doc absorbe DA-TYPOGRAPHY, DA-PRESETS et la doctrine tokens de
+> l'ancien DESIGN-NOTES — tous **sortis du chemin de lecture**, ne pas les rouvrir. Il tranche la
+> contradiction images : **la checklist d'images = `getAllImageSlots()`** ; l'ancien plafond
+> « ≤ ~5 images / jamais par catégorie » est **abrogé**. L'init est **full-auto** : aucune phase de
+> preview/validation humaine n'existe.
 
 ## Quand exécuter
 
@@ -74,6 +75,16 @@ du seed. Passer `family` explicitement reste préférable dès que le **secteur*
 
 ### 3. Palette — `niche.config.palette` → `app/globals.css`
 
+**Doctrine tokens (source unique).** `niche.config.palette` (`accent1..5`, `bgPrimary`, `bgSurface`,
+`bgSurface2`, `textPrimary`, `textSecondary`, `textMuted`) alimente les tokens de **`app/globals.css`**
+(`--accent-1..5`, `--bg-*`, `--text-*`, `--border*`) ; `niche.style.mode` fixe **light OU dark, FIXE —
+jamais de toggle** ; les rayons (`--radius-*`) sont fixés dans `globals.css`.
+
+> ⚠️ **`app/styles/volteo.css :root` est une couche d'ALIAS — NE JAMAIS y écrire de valeurs.**
+> `--cream`, `--ink`, `--primary`, `--spark`, `--r`… et les alias de catégorie (`--elec`/`--gaz`/…)
+> ne font que **pointer sur les accents et tokens de `globals.css`**. Y poser une valeur re-casse la
+> source unique et désynchronise la DA.
+
 - Spec fournit `brandColor`/`skin` → les utiliser.
 - Sinon **partir d'une des 5 directions de [`DA-DIRECTIONS.md`](DA-DIRECTIONS.md)** (choisie selon la
   niche + l'intent), **PUIS LA MUTER** : teinte de marque ±12–45°, accent secondaire ré-accordé.
@@ -86,26 +97,36 @@ du seed. Passer `family` explicitement reste préférable dès que le **secteur*
 > sites **identiques en mode clair**. Les traiter TOUS.
 
 > `lib/da-presets/` (161 palettes) reste un **fallback profond** pour une niche vraiment hors-cadre
-> (SaaS, portfolio). Ne pas y aller par défaut : muter une des 5 directions donne un meilleur résultat.
+> (SaaS, portfolio) — il sera branché via le futur script d'init `apply-da`. Ne pas y aller par
+> défaut : muter une des 5 directions donne un meilleur résultat.
 
 ### 4. Typographie — `suggestFonts` → `app/layout.tsx`
 
 ```ts
 import { suggestFonts } from '@/lib/typography'
-const pair = suggestFonts(niche.domain, v.home)   // 16 paires curées, biaisées par l'archetype
+const pair = suggestFonts(niche.domain, v.home)
 ```
 
-**Écrire la paire dans `app/layout.tsx`** via `next/font/google` (imports **statiques** : nom Google →
-espaces remplacés par `_`, ex. `Space Grotesk` → `Space_Grotesk`), alimentant `--next-font-display`
-(titres) et `--next-font-primary` (corps).
+- **Pool = `FONT_PAIRINGS` dans `lib/typography.ts`** (source de vérité — ne pas dupliquer la liste) :
+  16 paires display×body, **toutes Google Fonts**, 5 familles (grotesque / serif-éditorial /
+  géométrique / humaniste / expressif), lisibles (AA), sérieuses (pas de pixel/cyberpunk/kids).
+- **Comment `suggestFonts` choisit** : tirage **déterministe** (seed = domaine) **biaisé par
+  l'archetype de home** (`FAMILY_BY_HOME`) — comparateur/marche → grotesque/géométrique ;
+  magazine/fil → serif-éditorial/expressif. Deux sites divergent en typo (anti-empreinte) tout en
+  restant cohérents avec leur home. Si la spec impose une paire (`skin`/fonts), **elle gagne** sur le tirage.
+- **Écrire la paire dans `app/layout.tsx`** via `next/font/google` (imports **statiques** : nom Google →
+  espaces remplacés par `_`, ex. `Space Grotesk` → `Space_Grotesk`), alimentant `--next-font-display`
+  (titres) et `--next-font-primary` (corps). next/font ne charge rien dynamiquement :
+  `lib/typography.ts` sert à **choisir**, l'init **réécrit** `layout.tsx`.
 
 > ⚠️ **`niche.config.fonts` n'est lu par AUCUN code.** L'y écrire sans toucher `layout.tsx` ne change
 > **rien** au rendu — c'est le piège n°1 : le site sort en Bricolage/Hanken par défaut alors que la
 > config annonce autre chose. La source réelle de la typo, c'est `layout.tsx`, point.
 > Renseigner `niche.config.fonts` **en plus**, pour la traçabilité.
 
-> ⚠️ **`app/styles/volteo.css :root` est une couche d'ALIAS — NE JAMAIS y écrire de valeurs.**
-
+- Règles : **2 familles max** (les mono-familles Manrope / Plus Jakarta sont OK) · weights raisonnables
+  (display 600–800, body 400–700) · `display: 'swap'`, `preload: true` · ne pas marier deux serifs à
+  fort contraste.
 - Mode **light OU dark** selon la DA, contraste **AA**.
 - Si le site est **sombre** : vérifier les surfaces de chrome (cf. `app/styles/volteo-chrome.css`).
   Ne jamais poser un token qui s'inverse (`--ink`, `--bg-primary`, `--cream`) sur un fond qui ne
@@ -139,8 +160,11 @@ espaces remplacés par `_`, ex. `Space Grotesk` → `Space_Grotesk`), alimentant
 
 - **Arborescence + seed réel sourcé** ; **seed BILINGUE si `locales` ≥ 2** (FR + miroir + paire
   `lib/i18n/article-slugs.ts`) — un `/en` vide = échec.
-- **Images — plafond strict ≤ ~5** (hero home + couverture hub). **JAMAIS** par catégorie/article.
-  Cf. `IMAGES-WORKFLOW.md`.
+- **Images — la checklist est le registre `lib/image-slots.ts` → `getAllImageSlots()`** :
+  hero ×2 (fond + visuel split), **LES DEUX slots PAR catégorie** (illustration + fond cinématique),
+  avatar auteur — **plus 1 cover par article seed**. Générées **À LA FIN de l'init, une par une,
+  séquentiellement** (fire-and-poll). Aucun plafond arbitraire : un slot du registre sans image =
+  placeholder en prod = bug d'init. Détail : [`IMAGES-WORKFLOW.md`](IMAGES-WORKFLOW.md).
 - **Logo & favicon** = mark SVG sur mesure + wordmark (inline `Nav.tsx` + `app/icon.svg`).
 - **Tâche de rédaction** quotidienne (cf. `SCHEDULED-TASK-REDACTION.md`).
 
@@ -156,23 +180,12 @@ espaces remplacés par `_`, ex. `Space Grotesk` → `Space_Grotesk`), alimentant
 - **Famille décidée à la main** au lieu de `classifyNiche` (c'est ce qui envoyait les sites produit
   sur une home comparateur).
 - **Previews non dépubliées** : `/home-vN`, `/cat-vN`, `/art-vN` ne doivent plus exister en prod.
-- Images > 5 au build, ou une image par catégorie/article.
-
----
-
-## ⚠️ Contradiction connue — à trancher
-
-**[`design-reference/volteo/DESIGN-NOTES.md`](design-reference/volteo/DESIGN-NOTES.md) §3** décrit
-encore un init **en deux phases avec validation utilisateur** (« STOP. Montre le preview et attend sa
-validation »), et qualifie de « bug d'init » ce que la présente procédure demande de faire.
-
-**C'est CE fichier qui fait foi : l'init est full-auto, sans phase de preview.** `DESIGN-NOTES.md` §0,
-§1 et §3 sont périmés (ils décrivent aussi l'unicité « par assemblage / recombinaison des variantes
-V1-V4 », remplacée par la sélection) et doivent être réécrits. En attendant, ne pas les suivre.
+- **Slot de `getAllImageSlots()` sans image générée**, ou **article seed sans cover**. L'ancien
+  plafond « ≤ 5 images / jamais par catégorie » est **abrogé** — ne pas le réappliquer.
 
 ---
 
 Garde-fous anti-IA : [`DA-ANTI-IA.md`](DA-ANTI-IA.md) · directions : [`DA-DIRECTIONS.md`](DA-DIRECTIONS.md)
-· typo : [`DA-TYPOGRAPHY.md`](DA-TYPOGRAPHY.md) · fallback profond : [`DA-PRESETS.md`](DA-PRESETS.md).
-Référence code : `lib/niche-classify.ts` · `lib/variants.ts` · `lib/typography.ts` ·
-`components/layout/PermutationStyle.tsx` · `app/styles/volteo-chrome.css`.
+· images : [`IMAGES-WORKFLOW.md`](IMAGES-WORKFLOW.md).
+Référence code : `lib/niche-classify.ts` · `lib/variants.ts` · `lib/typography.ts` · `lib/image-slots.ts`
+· `components/layout/PermutationStyle.tsx` · `app/styles/volteo-chrome.css`.

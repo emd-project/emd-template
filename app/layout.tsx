@@ -9,6 +9,9 @@ import './styles/volteo.css'
 // Tokens de chrome (invariants light/dark) — après volteo.css (qui définit
 // --spark), avant les layouts qui les consomment (marche, fil).
 import './styles/volteo-chrome.css'
+// Échelle typo & rythme vertical — INERTE tant que la passe 1 n'a pas câblé
+// les font-size (cf. docs/DA-PASSE-1.md). Ne déclare que des custom properties.
+import './styles/volteo-scale.css'
 import './styles/volteo-magazine.css'
 import './styles/volteo-marche.css'
 import './styles/volteo-fil.css'

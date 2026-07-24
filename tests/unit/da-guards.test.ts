@@ -10,11 +10,23 @@ import { niche } from '@/niche.config'
  * pouvait sortir avec le thème par défaut sans que rien ne le signale, et le bug
  * d'inversion de tokens a survécu des mois dans quatre fichiers de layout.
  * `vitest run` étant dans le filtre qualité, ces règles cassent maintenant le build.
+ *
+ * ⚠️ Les COMMENTAIRES sont exclus de l'analyse : documenter un anti-pattern
+ * (« ne jamais écrire --shadow-sm: var(--shadow-sm) ») est légitime et ne doit
+ * pas déclencher le lint. Régression vécue : le garde-fou matchait ses propres
+ * exemples cités en commentaire dans volteo.css.
  */
 
 const ROOT = process.cwd()
 const read = (p: string) => readFileSync(join(ROOT, p), 'utf8')
 const exists = (p: string) => existsSync(join(ROOT, p))
+
+/**
+ * Vide le CONTENU des commentaires CSS en préservant les sauts de ligne
+ * (les numéros de ligne rapportés restent exacts).
+ */
+const stripComments = (css: string) =>
+  css.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ''))
 
 /** Un fork configuré (≠ template vierge) ? Les garde-fous d'init ne valent que là. */
 const isConfigured = niche.domain !== 'example.com' && niche.domain !== ''
@@ -27,7 +39,7 @@ const isConfigured = niche.domain !== 'example.com' && niche.domain !== ''
  * LA RÈGLE : un couple de tokens n'est sûr que si les DEUX s'inversent ensemble.
  *
  *   var(--ink) + var(--bg-primary)      ✅ ils basculent de concert
- *   var(--ink) + #fff                   ❌ --ink bascule, #fff non
+ *   var(--ink) + un blanc littéral      ❌ --ink bascule, le littéral non
  *   var(--accent-1) + var(--bg-primary) ❌ l'accent ne bascule pas
  *
  * Le second cas se détecte mécaniquement : plus aucun blanc littéral n'a de
@@ -55,15 +67,14 @@ const WHITE_LITERAL = /(#fff\b|#ffffff\b|rgba\(\s*255\s*,\s*255\s*,\s*255)/i
  * mieux vaut un faux négatif qu'un build bloqué sur du code correct.
  */
 const isDerivation = (line: string) => line.includes('color-mix')
-const isComment = (line: string) => line.startsWith('*') || line.startsWith('/*') || line.startsWith('//')
 
 describe('DA — aucun blanc littéral dans les CSS de layout', () => {
   for (const file of LAYOUT_CSS) {
     it(`${file} n'utilise que les tokens --chrome-*`, () => {
-      const offenders = read(file)
+      const offenders = stripComments(read(file))
         .split('\n')
         .map((raw, i) => ({ line: raw.trim(), n: i + 1 }))
-        .filter(({ line }) => WHITE_LITERAL.test(line) && !isDerivation(line) && !isComment(line))
+        .filter(({ line }) => WHITE_LITERAL.test(line) && !isDerivation(line))
 
       expect(
         offenders.map((o) => `${file}:${o.n}  ${o.line}`),
@@ -77,7 +88,9 @@ describe('DA — aucun blanc littéral dans les CSS de layout', () => {
 
 describe('DA — les voiles photo passent par les tokens de scrim', () => {
   it('aucun littéral rgba(8,12,22,…) hors volteo-chrome.css', () => {
-    const offenders = LAYOUT_CSS.filter((f) => /rgba\(\s*8\s*,\s*12\s*,\s*22/.test(read(f)))
+    const offenders = LAYOUT_CSS.filter((f) =>
+      /rgba\(\s*8\s*,\s*12\s*,\s*22/.test(stripComments(read(f)))
+    )
     expect(offenders, 'Utiliser --scrim-soft / --scrim-strong.').toEqual([])
   })
 })
@@ -92,14 +105,14 @@ describe('DA — volteo-chrome.css est bien la seule source des invariants', () 
     // Leur invariance est tout l'intérêt : les redéfinir par thème réintroduit
     // exactement le bug qu'ils corrigent.
     const themed = LAYOUT_CSS.concat(['app/globals.css'])
-      .filter((f) => /--chrome-[a-z0-9-]+\s*:/.test(read(f)))
+      .filter((f) => /--chrome-[a-z0-9-]+\s*:/.test(stripComments(read(f))))
     expect(themed, 'Les --chrome-* ne se déclarent que dans volteo-chrome.css.').toEqual([])
   })
 })
 
 describe("DA — volteo.css reste une couche d'ALIAS", () => {
   it('aucune couleur littérale dans son :root', () => {
-    const root = read('app/styles/volteo.css').split(/^\}/m)[0] ?? ''
+    const root = stripComments(read('app/styles/volteo.css')).split(/^\}/m)[0] ?? ''
     const hexes = root.match(/#[0-9a-f]{3,8}\b/gi) ?? []
     // `#000` / `#fff` restent admis : ils ne servent qu'à dériver des nuances
     // via color-mix (--primary-d, --primary-soft, --cat-N-soft…).
@@ -114,7 +127,9 @@ describe("DA — volteo.css reste une couche d'ALIAS", () => {
   it('ne ré-aliase pas --shadow-sm / --shadow-lg sur eux-mêmes', () => {
     // Régression 3acabdb : l'auto-référence gagnait la cascade sur globals.css
     // → cycle → propriété invalide → toutes les box-shadow tombaient à rien.
-    const css = read('app/styles/volteo.css')
+    // (Commentaires exclus : volteo.css DOCUMENTE cet anti-pattern en toutes
+    // lettres — c'est le code qui est interdit, pas sa description.)
+    const css = stripComments(read('app/styles/volteo.css'))
     expect(css).not.toMatch(/--shadow-sm:\s*var\(--shadow-sm\)/)
     expect(css).not.toMatch(/--shadow-lg:\s*var\(--shadow-lg\)/)
   })
@@ -139,7 +154,7 @@ describe.runIf(isConfigured)("DA — l'init a bien tourné", () => {
   })
 
   it('la palette du template a disparu de globals.css', () => {
-    const css = read('app/globals.css').toUpperCase()
+    const css = stripComments(read('app/globals.css')).toUpperCase()
     const leftovers = ['#FF3D57', '#C8001F', '#3DFFC0', '#7B61FF'].filter((hex) =>
       css.includes(hex)
     )

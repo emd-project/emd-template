@@ -15,6 +15,11 @@
  *                    lus », et des vues blog/catégorie/article dédiées). Réservée BEAUTÉ & MODE.
  *
  * ┌─ CHOIX DU DESIGN : le SECTEUR d'abord, le seed ensuite ────────────────────┐
+ * │  La FAMILLE vient de `classifyNiche` (lib/niche-classify.ts), qui tranche  │
+ * │  sur le seul axe qui discrimine vraiment :                                │
+ * │                                                                            │
+ * │    l'entité est-elle un SERVICE SOUSCRIPTIBLE ou un OBJET acheté ailleurs ?│
+ * │                                                                            │
  * │  • Assurance / Banque / Énergie / Télécom / Crédit / Casino → on vient     │
  * │    COMPARER une offre à souscrire → famille `comparateur`                  │
  * │    (⅔ `marche`, ⅓ `comparateur`).                                          │
@@ -23,6 +28,10 @@
  * │    pas du layout : deux sites beauté partagent la structure mais pas la DA. │
  * │  • Voiture / Retail & Tech / Hospitality / autres → thématique éditoriale   │
  * │    → famille `editorial` (⅔ `magazine`, ⅓ `fil`).                           │
+ * │                                                                            │
+ * │  ⚠️ On ne classe PAS sur « la requête est-elle comparative ? » : presque    │
+ * │  tous les domaines du réseau le sont (« meilleure-citadine »), ce critère   │
+ * │  envoyait donc tout le monde sur la home comparateur. Cf. niche-classify.  │
  * └───────────────────────────────────────────────────────────────────────────┘
  *
  * La variante `presse` est une IDENTITÉ, pas seulement une home : quand elle est
@@ -30,6 +39,10 @@
  * pages catégorie/article prennent leur rendu presse.
  */
 import { niche } from '@/niche.config'
+import { classifyNiche, type HomeFamily } from '@/lib/niche-classify'
+
+export type { HomeFamily }
+export { classifyNiche, entityHead } from '@/lib/niche-classify'
 
 // ─── Home ────────────────────────────────────────────────────────────────
 export type HomeVariant = 'magazine' | 'comparateur' | 'marche' | 'fil' | 'presse'
@@ -104,36 +117,17 @@ export function resolveShadow(): Shadow {
   return niche.permutations?.shadow ?? 'standard'
 }
 
-// ─── Famille de home, déduite du SECTEUR ────────────────────────────────────
-export type HomeFamily = 'comparateur' | 'editorial' | 'beaute'
-
-/** Secteurs « offre à souscrire » : on vient comparer des prix/conditions. */
-const COMPARATEUR_KEYWORDS = [
-  'assurance', 'banque', 'energie', 'énergie', 'telecom', 'télécom',
-  'fournisseur', 'credit', 'crédit', 'pret', 'prêt', 'casino', 'paris',
-  'mutuelle', 'abonnement',
-]
-
-/** Secteurs beauté / mode → identité magazine éditorial (`presse`). */
-const BEAUTE_KEYWORDS = [
-  'beauty', 'beaute', 'beauté', 'mode', 'cosmetique', 'cosmétique', 'maquillage',
-  'parfum', 'soin', 'cheveux', 'coiffure', 'fashion',
-]
+// ─── Famille de home ────────────────────────────────────────────────────────
 
 /**
  * Famille de design à partir du secteur/catégorie de la niche
  * (colonne CATÉGORIE de `pipeline/sites.csv`, ou secteur de la spec).
- *  - « Beauty », « Mode » → 'beaute'   (→ `presse`)
- *  - « Assurance », « Banque », « Énergie », « Télécom », « Casino & Paris » → 'comparateur'
- *  - « Voiture », « Retailer & Tech », « Hospitality », … → 'editorial'
- * Défaut prudent : 'editorial' (une home magazine ne choque jamais ; un comparateur
- * plaqué sur une thématique éditoriale, si).
+ *
+ * Délègue à `classifyNiche` : il n'existe qu'UNE logique de décision, testable
+ * unitairement (cf. tests/unit/niche-classify.test.ts).
  */
 export function homeFamily(sector: string | undefined | null): HomeFamily {
-  const s = (sector ?? '').toLowerCase()
-  if (BEAUTE_KEYWORDS.some((k) => s.includes(k))) return 'beaute'
-  if (COMPARATEUR_KEYWORDS.some((k) => s.includes(k))) return 'comparateur'
-  return 'editorial'
+  return classifyNiche({ sector }).family
 }
 
 /**
@@ -163,22 +157,34 @@ function at<T>(arr: readonly T[], n: number): T {
  * Suggestion déterministe d'une combinaison complète.
  *
  * @param seed    domaine du site (fait diverger deux forks automatiquement)
- * @param family  `homeFamily(secteur)` — le SECTEUR décide de la famille, le SEED
- *                décide du design DANS la famille.
+ * @param family  famille de design. **OPTIONNEL** : omise, elle est DÉDUITE du
+ *                seed via `classifyNiche`.
+ *
+ * ⚠️ Historique : ce paramètre valait `'editorial'` par défaut. Les deux skills
+ * appelant `suggestVariants(niche.domain)` (un seul argument), la famille était
+ * toujours `editorial` → `comparateur`, `marche` et `presse` étaient
+ * INATTEIGNABLES par le chemin d'init nominal, quel que soit le secteur.
+ * Le défaut est désormais dérivé du seed : le même appel devient correct.
+ *
+ * Quand le SECTEUR est connu (colonne CATÉGORIE de `sites.csv`), le passer
+ * explicitement reste préférable — c'est la vérité terrain :
+ *   suggestVariants(niche.domain, classifyNiche({ domain, sector }).family)
  */
 export function suggestVariants(
   seed: string = niche.domain || niche.siteName,
-  family: HomeFamily = 'editorial'
+  family?: HomeFamily
 ): {
   home: HomeVariant
   category: CategoryVariant
   shape: Shape
   border: Border
   shadow: Shadow
+  family: HomeFamily
 } {
+  const fam = family ?? classifyNiche({ domain: seed, siteName: niche.siteName }).family
   const h = seedHash(seed)
   const pool =
-    family === 'comparateur' ? POOL_COMPARATEUR : family === 'beaute' ? POOL_BEAUTE : POOL_EDITORIAL
+    fam === 'comparateur' ? POOL_COMPARATEUR : fam === 'beaute' ? POOL_BEAUTE : POOL_EDITORIAL
   const home = at(pool, h) as HomeVariant
   return {
     home,
@@ -187,5 +193,6 @@ export function suggestVariants(
     shape: at(['rounded', 'soft', 'sharp'] as const, h >>> 4),
     border: at(['hairline', 'standard', 'bold'] as const, h >>> 6),
     shadow: at(['flat', 'standard', 'deep'] as const, h >>> 8),
+    family: fam,
   }
 }

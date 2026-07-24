@@ -11,7 +11,6 @@
     "check:placeholders": "node scripts/check-placeholders.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
     "audit": "npm audit --audit-level=high --omit=dev",
     "upload-image": "tsx scripts/upload-blob.ts"
   },

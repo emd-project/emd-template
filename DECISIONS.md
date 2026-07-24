@@ -1,5 +1,17 @@
 # Décisions — emd-template (moteur de sites éditoriaux multi-niches)
 
+## ⚠️ Décisions remplacées (2026-07)
+
+L'historique ci-dessous est conservé tel quel, mais ces décisions ne font PLUS foi :
+
+- **`ThemeToggle` abandonné** — un site est light OU dark **fixe**, jamais de toggle. Fait foi : `docs/AUTO-DESIGN.md` + `docs/DA-DIRECTIONS.md` (§ mode).
+- **« Articles : `cover` + `mid` générés »** remplacé par **« 1 cover généré + 2 images in-content réutilisées »** (aucune génération pour le corps). Fait foi : `docs/IMAGES-WORKFLOW.md`.
+- **Plafond « ≤ 5 images à l'init »** remplacé par le **registre `getAllImageSlots()`** (`lib/image-slots.ts`) : tous les slots + 1 cover par article seed, générés en fin d'init. Fait foi : `docs/AUTO-DESIGN.md` + `docs/IMAGES-WORKFLOW.md`.
+- **Affiliation supprimée** (modèle MENTION) — plus de `AffiliateLink`/`ProductCTA`/`ProductCarousel`/`affiliateTag`, `/deals` désactivée. Fait foi : `CLAUDE.md` § Monétisation.
+- **Doctrine « skin Voltéo V1–V4 à appliquer/coller »** remplacée par la **sélection déterministe de variantes** (`classifyNiche` → `suggestVariants` → direction mutée → `suggestFonts`). Fait foi : `docs/AUTO-DESIGN.md` + `lib/variants.ts`.
+
+---
+
 ## Architecture
 - [x] Next.js ~16.2.1 patch auto · Vercel fra1 · GitHub Actions CI
 - [x] Tailwind v4.2.2 + variables CSS

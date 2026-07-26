@@ -5,6 +5,7 @@ import {
   getCategories,
   getAllArticlesEn,
   getCategoriesEn,
+  articleExistsEn,
   articleHref,
 } from '@/lib/blog'
 import { articleSlugFrToEn } from '@/lib/i18n/article-slugs'
@@ -25,7 +26,10 @@ const SITE_URL =
  *    condition que la page :
  *      · /simulateur → `simulatorEnabled()` (désactivé par défaut) ;
  *      · /quiz et /en/quiz → `hasQuizSteps(locale)` (pas de questions = 404) ;
- *      · /choisir/[produit] → entrée dans content/data/choisir.json ;
+ *      · /choisir/[produit] → entrée dans content/data/choisir.json OU questions de
+ *        quiz FR (la page ne 404 que si les DEUX manquent) ;
+ *      · /en/choisir/[produit] → questions de quiz EN (la page EN n'a pas
+ *        d'éditorial localisé : sans steps EN elle 404) ;
  *      · /deals n'est plus émis du tout (modèle MENTION, page hors doctrine).
  *    Émettre du noindex ou du 404 déclenche des avertissements en Search Console.
  *  - Les CLASSEMENTS sont l'asset GEO n°1 : le hub /classement et chaque
@@ -36,11 +40,16 @@ const SITE_URL =
  *    sitemap tout seul au fil des publications.
  *  - hreflang réciproque (`alternates.languages` : fr + en + x-default) ajouté
  *    aux paires FR↔EN qui existent vraiment (home, blog, catégories mirrorées,
- *    articles dont la traduction est connue via articleSlugFrToEn, classements et
- *    comparateurs — dont les routes EN retombent sur les données FR).
- *    /choisir reste FR-only : les pages EN n'ont pas d'éditorial localisé.
+ *    articles dont la traduction est connue via articleSlugFrToEn ET présente sur
+ *    le disque, classements et comparateurs — dont les routes EN retombent sur les
+ *    données FR). `articleSlugFrToEn` est une table tenue à la main : une entrée
+ *    obsolète pointerait vers un 404, d'où le contrôle `articleExistsEn`.
+ *    /choisir n'a pas de hreflang ici : la page FR et la page EN n'ont pas les
+ *    mêmes conditions d'existence (éditorial FR vs steps EN).
  *  - Catégories bornées à la liste blanche niche.categories (slugs routables) ;
  *    les catégories « fantômes » d'articles standalone ne sont pas émises.
+ *  - Toutes les URLs EN passent par `enHref` (→ `localePath`) : aucun `/en/...`
+ *    codé en dur, le préfixe reste piloté par niche.config.
  */
 
 /** Date valide garantie (frontmatter parfois vide → évite un Invalid Date). */
@@ -66,9 +75,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     alternates: { languages: { fr: frUrl, en: enUrl, 'x-default': frUrl } },
   })
 
+  // Présence RÉELLE de questions par locale — sert deux gardes différentes :
+  // /quiz (qui exige en plus niche.quiz.enabled) et /choisir (qui ne l'exige pas).
+  const quizStepsFr = hasQuizSteps(niche.defaultLocale)
+  const quizStepsEn = hasQuizSteps('en')
+
   // Le quiz ne rend une page que s'il a de vraies questions (sinon 404).
-  const quizFr = niche.quiz.enabled && hasQuizSteps(niche.defaultLocale)
-  const quizEn = en && niche.quiz.enabled && hasQuizSteps('en')
+  const quizFr = niche.quiz.enabled && quizStepsFr
+  const quizEn = en && niche.quiz.enabled && quizStepsEn
 
   // ── FR : pages clés ──────────────────────────────────────────────────────
   entries.push({
@@ -76,7 +90,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: now,
     changeFrequency: 'weekly',
     priority: 1,
-    ...(en ? pair(SITE_URL, `${SITE_URL}/en`) : {}),
+    ...(en ? pair(SITE_URL, enHref('/')) : {}),
   })
   entries.push({
     url: `${SITE_URL}/blog`,
@@ -130,12 +144,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
   }
 
-  // ── FR : /choisir/[produit] — SEULEMENT si choisir.json a une entrée ──────
-  // Sans entrée éditoriale, la page se réduit au quiz (contenu mince) et peut
-  // même renvoyer 404 : on ne la propose pas à l'indexation. FR-only : les pages
-  // /en/choisir n'ont pas d'éditorial localisé.
+  // ── FR : /choisir/[produit] — garde IDENTIQUE au notFound() de la page ────
+  // La page ne 404 que si elle n'a NI entrée dans choisir.json NI question de
+  // quiz FR. Se limiter à `hasChoisirContent` omettait des pages valides du
+  // sitemap (page vivante, jamais soumise à l'indexation).
   for (const slug of PRODUIT_SLUGS) {
-    if (!hasChoisirContent(slug)) continue
+    if (!hasChoisirContent(slug) && !quizStepsFr) continue
     entries.push({
       url: `${SITE_URL}/choisir/${slug}`,
       lastModified: now,
@@ -188,14 +202,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
   for (const a of getAllArticles()) {
     const frUrl = `${SITE_URL}${articleHref(a)}`
     const enSlug = a.standalone ? undefined : articleSlugFrToEn[a.slug]
+    // hreflang seulement si le fichier EN existe VRAIMENT (table non fiable).
+    const enUrl =
+      en && enSlug && articleExistsEn(a.categorie, enSlug)
+        ? enHref(`/blog/${a.categorie}/${enSlug}`)
+        : undefined
     entries.push({
       url: frUrl,
       lastModified: safeDate(a.updatedAt ?? a.publishedAt),
       changeFrequency: 'monthly',
       priority: a.standalone ? 0.6 : 0.7,
-      ...(en && enSlug
-        ? pair(frUrl, `${SITE_URL}/en/blog/${a.categorie}/${enSlug}`)
-        : {}),
+      ...(enUrl ? pair(frUrl, enUrl) : {}),
     })
   }
 
@@ -203,7 +220,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // ── EN : pages clés (uniquement les routes EN qui existent et sont indexables) ──
   entries.push(
-    { url: `${SITE_URL}/en`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: enHref('/'), lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
     { url: enHref('/blog'), lastModified: now, changeFrequency: 'daily', priority: 0.8 },
   )
 
@@ -223,11 +240,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
   }
 
+  // EN : /choisir/[produit] — la page EN 404 si les steps EN sont vides
+  // (pas d'éditorial localisé : le quiz est son seul contenu).
+  if (quizStepsEn) {
+    for (const slug of PRODUIT_SLUGS) {
+      entries.push({ url: enHref(`/choisir/${slug}`), lastModified: now, changeFrequency: 'monthly', priority: 0.65 })
+    }
+  }
+
   if (quizEn) {
     entries.push({ url: enHref('/quiz'), lastModified: now, changeFrequency: 'monthly', priority: 0.65 })
   }
   if (simulatorEnabled()) {
     entries.push({ url: enHref('/simulateur'), lastModified: now, changeFrequency: 'monthly', priority: 0.65 })
+  }
+
+  // EN : auteur (la route /en/auteurs/[slug] existe et miroir le FR).
+  if (niche.author.slug) {
+    entries.push({ url: enHref(`/auteurs/${niche.author.slug}`), lastModified: now, changeFrequency: 'monthly', priority: 0.35 })
   }
 
   // EN : catégories (≥ 1 article EN).

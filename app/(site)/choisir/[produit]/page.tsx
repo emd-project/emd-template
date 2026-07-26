@@ -8,6 +8,9 @@
  *
  * ANTI-PAGE-VIDE : si `choisir.json` n'a pas d'entrée pour ce produit ET que le quiz
  * n'a aucune question, il ne resterait que le hero → `notFound()`.
+ *
+ * HREFLANG : le bloc `languages` est le MÊME que celui de /en/choisir/[produit], et
+ * n'est émis que si la page EN existe vraiment (elle 404 sans questions de quiz EN).
  */
 
 import { notFound } from 'next/navigation'
@@ -17,7 +20,7 @@ import { ChoisirEditorial } from '@/components/choisir/ChoisirEditorial'
 import { currentYear } from '@/lib/utils/year'
 import { COMPARATEURS, PRODUIT_SLUGS } from '@/lib/comparateur'
 import { getChoisirContent } from '@/lib/choisir-content'
-import { getPageContent } from '@/lib/cms-pages'
+import { getPageContent, hasQuizSteps } from '@/lib/cms-pages'
 import { niche } from '@/niche.config'
 import { quel, son } from '@/lib/utils/grammar'
 
@@ -42,11 +45,21 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   if (!data) return {}
   const g = niche.entityGender
   const year = currentYear()
+  const canonical = `${SITE_URL}/choisir/${produit}`
+  // Garde EXACTE du notFound() de /en/choisir/[produit] : sans questions EN, la page
+  // EN n'existe pas → pas de hreflang vers un 404 (et donc pas de bloc `languages`).
+  const enExists = hasQuizSteps('en')
+  const enUrl = `${SITE_URL}/en/choisir/${produit}`
   return {
     title: `${quel(g)} ${data.label} choisir en ${year} ? Guide complet + quiz | ${niche.siteName}`,
     description: `${quel(g)} ${data.label} ${niche.entityVerb} en ${year} ? Quiz, comparatif par profil, prix et verdict honnête. Guide mis à jour.`,
-    alternates: { canonical: `${SITE_URL}/choisir/${produit}` },
-    openGraph: { title: `${quel(g)} ${data.label} choisir en ${year} ?`, description: `Comparatif par profil et verdict honnête pour choisir ${son(g, false, data.label)} ${data.label} en ${year}.`, url: `${SITE_URL}/choisir/${produit}`, siteName: niche.siteName, type: 'article' },
+    alternates: {
+      canonical,
+      ...(enExists
+        ? { languages: { fr: canonical, en: enUrl, 'x-default': canonical } }
+        : {}),
+    },
+    openGraph: { title: `${quel(g)} ${data.label} choisir en ${year} ?`, description: `Comparatif par profil et verdict honnête pour choisir ${son(g, false, data.label)} ${data.label} en ${year}.`, url: canonical, siteName: niche.siteName, type: 'article' },
   }
 }
 

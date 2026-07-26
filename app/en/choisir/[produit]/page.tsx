@@ -8,6 +8,10 @@
  *
  * ANTI-EMPTY-PAGE : with no EN steps AND no EN editorial, only the hero would be
  * left → `notFound()`.
+ *
+ * HREFLANG : the `languages` block is the SAME as the one on /choisir/[produit] and
+ * is only emitted when the FR page really exists (FR editorial OR FR quiz steps) —
+ * otherwise we would advertise an alternate that 404s.
  */
 
 import { notFound } from 'next/navigation'
@@ -15,7 +19,8 @@ import type { Metadata } from 'next'
 import { QuizEngine, type Step } from '@/components/quiz/QuizEngine'
 import { currentYear } from '@/lib/utils/year'
 import { getProduit, PRODUIT_SLUGS } from '@/lib/comparateur'
-import { getPageContent } from '@/lib/cms-pages'
+import { hasChoisirContent } from '@/lib/choisir-content'
+import { getPageContent, hasQuizSteps } from '@/lib/cms-pages'
 import { niche } from '@/niche.config'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
@@ -41,18 +46,20 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   if (!data) return {}
   const year = currentYear()
   const label = stripYear(data.label)
+  const canonical = `${SITE_URL}/en/choisir/${produit}`
+  const frUrl = `${SITE_URL}/choisir/${produit}`
+  // Exact guard of the FR page's notFound(): editorial entry OR FR quiz steps.
+  const frExists = hasChoisirContent(produit) || hasQuizSteps(niche.defaultLocale)
   return {
     title: `Which ${label} to choose in ${year}? Guide + quiz | ${niche.siteName}`,
     description: `Which ${label} should you ${niche.entityVerb} in ${year}? Find the right model for your profile.`,
     alternates: {
-      canonical: `${SITE_URL}/en/choisir/${produit}`,
-      languages: {
-        fr: `${SITE_URL}/choisir/${produit}`,
-        en: `${SITE_URL}/en/choisir/${produit}`,
-        'x-default': `${SITE_URL}/choisir/${produit}`,
-      },
+      canonical,
+      ...(frExists
+        ? { languages: { fr: frUrl, en: canonical, 'x-default': frUrl } }
+        : {}),
     },
-    openGraph: { title: `Which ${label} to choose in ${year}?`, description: data.description, url: `${SITE_URL}/en/choisir/${produit}`, siteName: niche.siteName, type: 'article', locale: 'en' },
+    openGraph: { title: `Which ${label} to choose in ${year}?`, description: data.description, url: canonical, siteName: niche.siteName, type: 'article', locale: 'en' },
   }
 }
 

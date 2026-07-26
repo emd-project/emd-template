@@ -314,3 +314,26 @@ export function localePath(lang: string, path: string): string {
   if (lang === niche.defaultLocale) return path
   return `/${lang}${path === '/' ? '' : path}`
 }
+
+/**
+ * Slugs des pages légales PAR LOCALE.
+ *
+ * Les routes EN ne sont PAS la traduction littérale des FR : le repo expose
+ * `app/en/legal-notice/` et `app/en/privacy/`, pas `/en/mentions-legales` ni
+ * `/en/confidentialite`. Passer ces chemins par `localePath` produisait donc deux
+ * 404 dans le footer de TOUTES les pages EN. Toute nouvelle locale doit ajouter
+ * son entrée ici ET les routes correspondantes.
+ */
+const LEGAL_SLUGS: Record<string, { legalNotice: string; privacy: string }> = {
+  fr: { legalNotice: 'mentions-legales', privacy: 'confidentialite' },
+  en: { legalNotice: 'legal-notice', privacy: 'privacy' },
+}
+
+/**
+ * Chemin localisé d'une page légale. Repli : locale demandée → locale par défaut → FR.
+ * Ex. legalPath('en', 'privacy') → '/en/privacy' ; legalPath('fr', 'privacy') → '/confidentialite'.
+ */
+export function legalPath(lang: string, page: 'legalNotice' | 'privacy'): string {
+  const slugs = LEGAL_SLUGS[lang] ?? LEGAL_SLUGS[niche.defaultLocale] ?? LEGAL_SLUGS.fr
+  return localePath(lang, `/${slugs[page]}`)
+}

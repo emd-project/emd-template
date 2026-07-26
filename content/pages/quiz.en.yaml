@@ -1,0 +1,26 @@
+# Niche quiz (EN) — TO FILL AT INIT. Strict mirror of content/pages/quiz.yaml.
+#
+# The engine (components/quiz/QuizEngine.tsx) ships NO default question:
+# no more « Category A / B / C », no more « Placeholder model » priced « TBD ».
+#
+# Two valid outcomes, no third one:
+#  1. write real questions below (3 to 5 steps, options of the niche);
+#  2. disable the quiz: niche.config.ts → quiz.enabled: false.
+#
+# As long as `steps` is empty, /en/quiz and /en/choisir/[produit] return a 404
+# instead of rendering an empty shell. That is intended.
+#
+# Keys MUST mirror content/pages/quiz.yaml (title, subtitle, steps) — only the
+# values are translated. `value` keeps the FR canonical slug: it must exist in
+# content/data/comparateurs.json.
+#
+# Expected shape:
+# steps:
+#   - id: "categorie"
+#     question: "..."
+#     options:
+#       - label: "..."
+#         value: "slug-de-la-famille"   # must exist in content/data/comparateurs.json
+title: "Quiz"
+subtitle: ""
+steps: []

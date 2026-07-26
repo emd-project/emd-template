@@ -3,10 +3,14 @@
 /**
  * PresseFooter — pied de page de l'identité ÉDITORIALE (variante `presse`).
  * Wordmark sérif, liens de service, mention de copyright. Token-driven.
+ *
+ * ⚠️ Pages légales : PAS de `localePath` — les routes EN sont `/en/legal-notice` et
+ * `/en/privacy`. On passe par `legalPath` (table par locale dans niche.config.ts),
+ * sinon deux 404 sur toutes les pages EN.
  */
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { niche, localePath } from '@/niche.config'
+import { niche, localePath, legalPath } from '@/niche.config'
 import { tl } from '@/lib/i18n'
 import { currentYear } from '@/lib/utils/year'
 
@@ -67,10 +71,10 @@ export function PresseFooter() {
               {tl(locale, 'presse.about')}
             </Link>
           )}
-          <Link href={lp('/mentions-legales')} style={link}>
+          <Link href={legalPath(locale, 'legalNotice')} style={link}>
             {tl(locale, 'footer.legal')}
           </Link>
-          <Link href={lp('/confidentialite')} style={link}>
+          <Link href={legalPath(locale, 'privacy')} style={link}>
             {tl(locale, 'footer.privacy')}
           </Link>
         </span>

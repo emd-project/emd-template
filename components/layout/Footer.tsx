@@ -9,12 +9,17 @@
  * inchangé : `<Footer />` sans prop retombe sur defaultLocale.
  * Les hrefs internes sont préfixés par la locale active via `localePath` (no-op FR).
  *
+ * ⚠️ Pages légales : PAS de `localePath` — les routes EN sont `/en/legal-notice` et
+ * `/en/privacy`, pas la traduction littérale des slugs FR. On passe par `legalPath`
+ * (table de correspondance par locale dans niche.config.ts).
+ *
  * MODÈLE MENTION : aucun disclaimer de monétisation (il n'y en a aucune). Le lien
- * /deals n'apparaît QUE si `niche.deals.enabled` (la page renvoie 404 sinon). La
- * mention d'éditeur reste sur les pages légales (noindex), pas ici (empreinte SEO).
+ * /deals n'apparaît QUE si `niche.deals.enabled`, et /simulateur QUE si
+ * `niche.simulator.enabled` (les pages renvoient 404 sinon). La mention d'éditeur
+ * reste sur les pages légales (noindex), pas ici (empreinte SEO).
  */
 import Link from 'next/link'
-import { niche, localePath, dealsEnabled } from '@/niche.config'
+import { niche, localePath, legalPath, dealsEnabled, simulatorEnabled } from '@/niche.config'
 import { tl } from '@/lib/i18n'
 
 function currentYear() {
@@ -41,7 +46,7 @@ export function Footer({ locale = niche.defaultLocale }: { locale?: string }) {
   const colOutils = [
     { href: lp('/comparer'), label: tl(locale, 'nav.compare') },
     ...(niche.quiz.enabled ? [{ href: lp('/quiz'), label: tl(locale, 'tools.quiz.eyebrow') }] : []),
-    ...(niche.simulator.enabled ? [{ href: lp('/simulateur'), label: tl(locale, 'nav.simulator') }] : []),
+    ...(simulatorEnabled() ? [{ href: lp('/simulateur'), label: tl(locale, 'nav.simulator') }] : []),
     ...(dealsEnabled() ? [{ href: lp('/deals'), label: niche.dealWord.charAt(0).toUpperCase() + niche.dealWord.slice(1) }] : []),
   ]
 
@@ -52,8 +57,8 @@ export function Footer({ locale = niche.defaultLocale }: { locale?: string }) {
 
   const colApropos = [
     ...(niche.author.slug ? [{ href: lp(`/auteurs/${niche.author.slug}`), label: tl(locale, 'footer.author') }] : []),
-    { href: lp('/mentions-legales'), label: tl(locale, 'footer.legalNotice') },
-    { href: lp('/confidentialite'), label: tl(locale, 'footer.privacy') },
+    { href: legalPath(locale, 'legalNotice'), label: tl(locale, 'footer.legalNotice') },
+    { href: legalPath(locale, 'privacy'), label: tl(locale, 'footer.privacy') },
   ]
 
   return (

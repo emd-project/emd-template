@@ -3,8 +3,10 @@
  * Server Component. Possède l'intent best/top/meilleur (cf. CLAUDE.md anti-cannibalisation).
  * Modèle MENTION : aucun CTA d'achat — au plus un lien NEUTRE vers la source officielle.
  *
- * Le CTA « Trouver mon modèle → » n'est émis QUE si /choisir/[produit] existe
- * vraiment (entrée dans content/data/choisir.json) — sinon lien mort.
+ * Le CTA « Trouver mon modèle → » n'est émis QUE si /choisir/[produit] rend vraiment
+ * quelque chose. La page cible ne 404 que si elle n'a NI éditorial (choisir.json)
+ * NI questions de quiz : la condition ici doit être la MÊME, sinon on a soit un lien
+ * mort, soit (pire) une page /choisir vivante mais orpheline.
  */
 
 import { notFound } from 'next/navigation'
@@ -13,6 +15,7 @@ import type { Metadata } from 'next'
 import { getClassement, getClassements, CLASSEMENT_SLUGS } from '@/lib/classement'
 import { getProduit } from '@/lib/comparateur'
 import { hasChoisirContent } from '@/lib/choisir-content'
+import { hasQuizSteps } from '@/lib/cms-pages'
 import { ClassementList, type ClassementLabels } from '@/components/classement/ClassementList'
 import { currentYear } from '@/lib/utils/year'
 import { best } from '@/lib/utils/grammar'
@@ -75,7 +78,8 @@ export default async function ClassementPage({ params }: { params: Params }) {
   const plural = c.items.length > 1
   const tabs = Object.values(getClassements('fr'))
   const hasComparateur = Boolean(getProduit(produit))
-  const hasChoisir = hasChoisirContent(produit)
+  // MÊME condition que le notFound() de /choisir/[produit] : éditorial OU questions.
+  const hasChoisir = hasChoisirContent(produit) || hasQuizSteps(niche.defaultLocale)
 
   const jsonLd = [
     {

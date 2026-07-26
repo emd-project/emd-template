@@ -3,8 +3,10 @@
  * Server Component — ComparateurSelector isolé en 'use client'.
  * Modèle MENTION : comparatif neutre, aucun lien monétisé.
  *
- * Le bloc « Faire le quiz → » n'est rendu QUE si /choisir/[produit] existe vraiment
- * (entrée dans content/data/choisir.json) — sinon lien mort vers un 404.
+ * Le bloc « Faire le quiz → » n'est rendu QUE si /choisir/[produit] rend vraiment
+ * quelque chose. La page cible ne 404 que si elle n'a NI éditorial (choisir.json)
+ * NI questions de quiz : la condition ici doit être la MÊME, sinon on a soit un
+ * lien mort, soit (pire) une page /choisir vivante mais orpheline.
  */
 
 import { notFound } from 'next/navigation'
@@ -12,6 +14,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { getProduit, PRODUIT_SLUGS } from '@/lib/comparateur'
 import { hasChoisirContent } from '@/lib/choisir-content'
+import { hasQuizSteps } from '@/lib/cms-pages'
 import { ComparateurSelector } from '@/components/comparer/ComparateurSelector'
 import { currentYear } from '@/lib/utils/year'
 import { niche } from '@/niche.config'
@@ -55,7 +58,8 @@ export default async function ComparateurProduitPage({ params }: { params: Param
 
   const year = currentYear()
   const label = stripYear(data.label)
-  const hasChoisir = hasChoisirContent(produit)
+  // MÊME condition que le notFound() de /choisir/[produit] : éditorial OU questions.
+  const hasChoisir = hasChoisirContent(produit) || hasQuizSteps(niche.defaultLocale)
 
   const jsonLd = {
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',

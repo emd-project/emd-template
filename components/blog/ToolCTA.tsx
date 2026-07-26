@@ -3,13 +3,18 @@
  * Injecté automatiquement selon la catégorie de l'article.
  * Server Component.
  *
- * ANTI-LIEN-MORT : le CTA « simulateur » n'est proposé QUE si
- * `niche.simulator.enabled` est vrai — la route /simulateur renvoie 404 sinon
- * (désactivée par défaut). Dans ce cas, la catégorie retombe sur le comparateur.
+ * ANTI-LIEN-MORT (deux garde-fous) :
+ * 1. Le CTA « comparateur » n'est proposé pour une catégorie QUE si un produit
+ *    du MÊME slug existe dans `content/data/comparateurs.json` — `/comparer/[produit]`
+ *    n'est généré que pour `PRODUIT_SLUGS`, et les catégories (niche.categories)
+ *    ne coïncident pas forcément avec les produits comparés. Sinon → repli `/comparer`.
+ * 2. Le CTA « simulateur » n'est proposé QUE si `niche.simulator.enabled` est vrai —
+ *    la route /simulateur renvoie 404 sinon (désactivée par défaut).
  * Les hrefs sont préfixés par la locale active (`localePath`, no-op en FR).
  */
 import Link from 'next/link'
 import { niche, categoryAccent, localePath, simulatorEnabled } from '@/niche.config'
+import { PRODUIT_SLUGS } from '@/lib/comparateur'
 import { tl } from '@/lib/i18n'
 
 type Tool = {
@@ -24,6 +29,8 @@ function buildTools(locale: string): Record<string, Tool> {
   const lp = (href: string) => localePath(locale, href)
   const tools: Record<string, Tool> = {}
   niche.categories.forEach((cat, i) => {
+    // Pas d'entrée comparateur pour cette catégorie → pas de CTA (le repli /comparer s'applique).
+    if (!PRODUIT_SLUGS.includes(cat.slug)) return
     tools[cat.slug] = {
       href: lp(`/comparer/${cat.slug}`),
       label: tl(locale, 'toolCTA.comparator', { label: cat.label }),

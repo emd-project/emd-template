@@ -8,14 +8,16 @@
  * i18n : Nav partagée FR/EN ; la locale est déduite du path (usePathname) et les
  * libellés passent par `tl(locale, …)`. Hrefs préfixés par `localePath` (no-op FR).
  *
- * NOTE : le lien `/deals` n'apparaît QUE si `niche.deals.enabled` — la page est
- * désactivée par défaut (modèle MENTION, aucune affiliation). Un lien vers une page
- * supprimée/vide serait un 404 ou une coquille.
+ * NOTE : le lien `/deals` n'apparaît QUE si `dealsEnabled()`, et `/simulateur` QUE si
+ * `simulatorEnabled()` — ces deux pages sont désactivées par défaut (modèle MENTION,
+ * aucune affiliation ; aucune donnée de cycle de prix). Un lien vers une page
+ * supprimée/vide serait un 404 ou une coquille. Les blocs `deals` et `simulator` de
+ * niche.config sont OPTIONNELS : on ne lit jamais `niche.<bloc>.enabled` directement.
  */
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { niche, isMultilingual, localePath, dealsEnabled } from '@/niche.config'
+import { niche, isMultilingual, localePath, dealsEnabled, simulatorEnabled } from '@/niche.config'
 import { tl } from '@/lib/i18n'
 import { CLASSEMENT_SLUGS } from '@/lib/classement'
 import { LangSwitch } from '@/components/layout/LangSwitch'
@@ -45,7 +47,7 @@ export function Nav() {
     ...(CLASSEMENT_SLUGS.length > 0 ? [{ href: '/classement', label: tl(locale, 'nav.rankings') }] : []),
     { href: '/blog', label: tl(locale, 'nav.blog') },
     ...(dealsEnabled() ? [{ href: '/deals', label: dealLabel }] : []),
-    ...(niche.simulator.enabled ? [{ href: '/simulateur', label: tl(locale, 'nav.simulator') }] : []),
+    ...(simulatorEnabled() ? [{ href: '/simulateur', label: tl(locale, 'nav.simulator') }] : []),
   ]
 
   useEffect(() => {

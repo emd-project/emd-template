@@ -1,6 +1,9 @@
 /**
  * /en/simulateur — price-cycle simulator (EN mirror of /simulateur).
- * DISABLED BY DEFAULT: `niche.simulator.enabled === false` → immediate `notFound()`.
+ * DISABLED BY DEFAULT: `simulatorEnabled()` false → immediate `notFound()`.
+ * The `simulator` block of niche.config is OPTIONAL (a regenerated config may omit
+ * it entirely): never read `niche.simulator.X` directly — go through
+ * `simulatorEnabled()` and optional chaining with a fallback.
  * The template ships no price-cycle data (`CYCLES = []`), so the route would only
  * render an empty state. Enable `simulator.enabled` once the niche has real,
  * sourced and dated prices.
@@ -20,9 +23,12 @@ export const revalidate = 86400
 
 export function generateMetadata(): Metadata {
   const year = currentYear()
+  // `simulator` is optional: optional chaining + generic fallback, never a direct access.
+  const simTitle = niche.simulator?.title
+  const simDescription = niche.simulator?.description
   return {
-    title: niche.simulator.title ? `${niche.simulator.title} ${year} | ${niche.siteName}` : `Price simulator ${year} | ${niche.siteName}`,
-    description: niche.simulator.description || `Price-cycle analysis. Buy at the right time and save.`,
+    title: simTitle ? `${simTitle} ${year} | ${niche.siteName}` : `Price simulator ${year} | ${niche.siteName}`,
+    description: simDescription || `Price-cycle analysis. Buy at the right time and save.`,
     alternates: {
       canonical: `${SITE_URL}/en/simulateur`,
       languages: {
@@ -31,7 +37,7 @@ export function generateMetadata(): Metadata {
         'x-default': `${SITE_URL}/simulateur`,
       },
     },
-    openGraph: { title: niche.simulator.title || `Price simulator ${year}`, description: niche.simulator.description || `${niche.entities} price cycles.`, url: `${SITE_URL}/en/simulateur`, siteName: niche.siteName, type: 'website', locale: 'en' },
+    openGraph: { title: simTitle || `Price simulator ${year}`, description: simDescription || `${niche.entities} price cycles.`, url: `${SITE_URL}/en/simulateur`, siteName: niche.siteName, type: 'website', locale: 'en' },
   }
 }
 

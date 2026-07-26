@@ -57,18 +57,23 @@ export type NicheConfig = {
     criteria: string[]
   }
   /**
-   * Page /simulateur — **DÉSACTIVÉE PAR DÉFAUT**.
+   * Page /simulateur — **OPTIONNELLE, et DÉSACTIVÉE PAR DÉFAUT**.
+   *
+   * Le bloc entier peut être ABSENT : un `niche.config.ts` régénéré par l'init n'est
+   * pas obligé de l'écrire, et le site doit compiler et fonctionner sans. Aucun accès
+   * direct `niche.simulator.X` dans le repo : on passe par `simulatorEnabled()` pour
+   * les conditions et par de l'optional chaining + repli pour les métadonnées.
    *
    * Le simulateur de cycles de prix ne tient que s'il existe de VRAIES données de
    * prix (sourcées et datées). Sans elles, la page n'affiche qu'un « Aucune donnée
    * de cycle de prix pour le moment » : une coquille vide annoncée dans la nav, le
-   * footer et le sitemap. Tant que `enabled` est faux, les routes `/simulateur`
-   * (FR + EN) renvoient un 404 et le lien disparaît partout.
+   * footer et le sitemap. Tant que `enabled` est faux (ou le bloc absent), les routes
+   * `/simulateur` (FR + EN) renvoient un 404 et le lien disparaît partout.
    *
    * `title` / `description` restent renseignables : ils pilotent les métadonnées le
    * jour où la niche active réellement le simulateur.
    */
-  simulator: {
+  simulator?: {
     enabled: boolean
     title: string
     description: string
@@ -300,11 +305,11 @@ export function dealsEnabled(): boolean {
 
 /**
  * True si la page /simulateur est activée (défaut : NON — aucune donnée de cycle
- * de prix dans le template). Les routes FR + EN renvoient 404 quand c'est faux ;
- * nav, footer et sitemap sont conditionnés au même flag.
+ * de prix dans le template, et le bloc `simulator` est OPTIONNEL). Les routes FR + EN
+ * renvoient 404 quand c'est faux ; nav, footer et sitemap sont conditionnés au même flag.
  */
 export function simulatorEnabled(): boolean {
-  return niche.simulator.enabled === true
+  return niche.simulator?.enabled === true
 }
 
 /**

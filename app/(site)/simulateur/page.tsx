@@ -1,6 +1,10 @@
 /**
  * /simulateur — Simulateur de cycles de prix (style Voltéo).
- * DÉSACTIVÉ PAR DÉFAUT : `niche.simulator.enabled === false` → `notFound()` immédiat.
+ * DÉSACTIVÉ PAR DÉFAUT : `simulatorEnabled()` faux → `notFound()` immédiat.
+ *
+ * Le bloc `simulator` de niche.config est OPTIONNEL (il peut être absent d'un config
+ * régénéré) : on ne lit JAMAIS `niche.simulator.X` en direct, seulement via
+ * `simulatorEnabled()` et de l'optional chaining avec repli.
  *
  * Le template ne fournit AUCUNE donnée de cycle de prix (`CYCLES = []`). Livrer la
  * route telle quelle, c'est annoncer dans la nav et le sitemap une page qui n'affiche
@@ -23,11 +27,14 @@ export const revalidate = 86400
 
 export function generateMetadata(): Metadata {
   const year = currentYear()
+  // `simulator` est optionnel : optional chaining + repli générique, jamais d'accès direct.
+  const simTitle = niche.simulator?.title
+  const simDescription = niche.simulator?.description
   return {
-    title: niche.simulator.title ? `${niche.simulator.title} ${year} | ${niche.siteName}` : `Simulateur de prix ${year} | ${niche.siteName}`,
-    description: niche.simulator.description || `Analyse des cycles de prix. ${niche.entityVerb.charAt(0).toUpperCase() + niche.entityVerb.slice(1)} au bon moment et économisez.`,
+    title: simTitle ? `${simTitle} ${year} | ${niche.siteName}` : `Simulateur de prix ${year} | ${niche.siteName}`,
+    description: simDescription || `Analyse des cycles de prix. ${niche.entityVerb.charAt(0).toUpperCase() + niche.entityVerb.slice(1)} au bon moment et économisez.`,
     alternates: { canonical: `${SITE_URL}/simulateur` },
-    openGraph: { title: niche.simulator.title || `Simulateur de prix ${year}`, description: niche.simulator.description || `Cycles de prix ${niche.entities}.`, url: `${SITE_URL}/simulateur`, siteName: niche.siteName, type: 'website' },
+    openGraph: { title: simTitle || `Simulateur de prix ${year}`, description: simDescription || `Cycles de prix ${niche.entities}.`, url: `${SITE_URL}/simulateur`, siteName: niche.siteName, type: 'website' },
   }
 }
 

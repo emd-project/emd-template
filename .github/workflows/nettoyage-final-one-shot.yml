@@ -1,0 +1,74 @@
+name: nettoyage-final-one-shot
+
+# ============================================================================
+# NETTOYAGE FINAL — phase 3 close.
+# 1) Supprime `skills/` du template : la doctrine vit dans emd-project/emd-methodo,
+#    le gabarit et TOUTES les tâches de rédaction y ont été repointés. Plus rien
+#    ne lit ce dossier. (Markdown pur → poussé immédiatement, ne peut pas casser
+#    le build.)
+# 2) TENTE la purge des dépendances orphelines (framer-motion, gsap, embla,
+#    react-intersection-observer, lottie) : uninstall → tsc + build + tests →
+#    commit SEULEMENT si tout est vert. Si ça échoue (ex. components/signature
+#    encore présent et important framer-motion), l'étape 1 reste acquise.
+#
+# ▶ Lancement : Actions → « nettoyage-final-one-shot » → Run workflow.
+#   Option « supprimer_signature » : coche pour supprimer aussi
+#   components/signature (jamais câblés dans le MDX) — augmente les chances
+#   que la purge des dépendances passe.
+# Ne se déclenche JAMAIS automatiquement. S'auto-supprime en cas de succès.
+# ============================================================================
+
+on:
+  workflow_dispatch:
+    inputs:
+      supprimer_signature:
+        description: "Supprimer aussi components/signature (non câblés dans le MDX)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  nettoyage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Config git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: "1. Supprimer skills/ (doctrine → emd-methodo) — push immédiat"
+        run: |
+          git rm -rf --ignore-unmatch skills
+          git diff --cached --quiet || git commit -m "chore: remove embedded skills/ (doctrine lives in emd-project/emd-methodo, tasks repointed)"
+          git push origin main
+
+      - name: "1bis (optionnel). Supprimer components/signature"
+        if: ${{ inputs.supprimer_signature }}
+        run: |
+          git rm -rf --ignore-unmatch components/signature
+          git diff --cached --quiet || git commit -m "chore: remove un-wired signature components (idea moves to composable sections)"
+
+      - name: "2. Purge des dépendances orphelines (gate : tsc + build + tests)"
+        run: |
+          npm ci
+          npm uninstall framer-motion gsap embla-carousel-react react-intersection-observer @lottiefiles/react-lottie-player
+          npx tsc --noEmit
+          npm run build
+          npx vitest run
+          git add package.json package-lock.json
+          git diff --cached --quiet || git commit -m "chore: drop unused dependencies (framer-motion, gsap, embla, intersection-observer, lottie)"
+
+      - name: "3. Auto-suppression du workflow + push final"
+        run: |
+          git rm -f .github/workflows/nettoyage-final-one-shot.yml
+          git commit -m "chore: final cleanup workflow self-removal"
+          git push origin main

@@ -1,12 +1,13 @@
 import type { NextConfig } from 'next'
 
+// Modèle EMD = MENTION, zéro affiliation : aucune API d'affiliation en connect-src.
 const csp = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: https:",
   "font-src 'self'",
-  "connect-src 'self' https://vitals.vercel-insights.com https://affiliate-api.amazon.fr https://api.github.com",
+  "connect-src 'self' https://vitals.vercel-insights.com https://api.github.com",
 ].join('; ')
 
 const nextConfig: NextConfig = {

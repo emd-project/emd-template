@@ -13,11 +13,16 @@
  * La recommandation finale vient de la prop `recommend` ; sans elle, on affiche
  * uniquement des faits réels (le choix du visiteur + liens vers comparer/choisir),
  * jamais un modèle ni un prix inventés.
+ *
+ * LIENS : la recommandation par défaut ne pointe QUE vers des routes qui existent.
+ * Il n'y a pas de page `/choisir` (hub) → le repli sans slug est `/classement`.
+ * Tous les liens sont préfixés par la locale active via `localePath`.
  */
 
 import { useState } from 'react'
 import type { CSSProperties } from 'react'
 import Link from 'next/link'
+import { localePath } from '@/niche.config'
 import { tl } from '@/lib/i18n'
 
 export type Step = {
@@ -44,16 +49,20 @@ const TINT = 'color-mix(in srgb, var(--accent-1) 7%, transparent)'
 /**
  * Recommandation par défaut : purement factuelle. Reprend le choix du visiteur et
  * l'oriente vers le comparateur / le guide. Aucune donnée inventée.
+ *
+ * Sans slug répondu, on retombe sur des HUBS qui existent toujours : `/classement`
+ * (il n'existe pas de page `/choisir`) et `/comparer`.
  */
-function defaultRecommend(answers: Answers, steps: Step[]): Recommendation {
+function defaultRecommend(answers: Answers, steps: Step[], locale: string): Recommendation {
   const first = steps[0]
   const firstAnswer = first ? answers[first.id] : undefined
   const chosen = first?.options.find((o) => o.value === firstAnswer)
   const slug = firstAnswer ?? ''
+  const lp = (path: string) => localePath(locale, path)
   return {
     produit: chosen?.label ?? '',
-    href: slug ? `/choisir/${slug}` : '/choisir',
-    comparerHref: slug ? `/comparer/${slug}` : '/comparer',
+    href: slug ? lp(`/choisir/${slug}`) : lp('/classement'),
+    comparerHref: slug ? lp(`/comparer/${slug}`) : lp('/comparer'),
   }
 }
 
@@ -80,7 +89,7 @@ export function QuizEngine({ steps, recommend, defaultProduit, locale = 'fr' }: 
   const [answers, setAnswers] = useState<Answers>(initialAnswers)
   const [done, setDone] = useState(seeded && STEPS.length === 1)
 
-  // ── Garde anti-placeholder ────────────────────────────
+  // ── Garde anti-placeholder ────────────────────
   // Dev : on casse, fort et tôt. Prod : on n'affiche rien plutôt que du faux.
   if (!configured) {
     if (process.env.NODE_ENV !== 'production') {
@@ -110,7 +119,7 @@ export function QuizEngine({ steps, recommend, defaultProduit, locale = 'fr' }: 
   }
 
   if (done) {
-    const rec = (recommend ?? defaultRecommend)(answers, STEPS)
+    const rec = recommend ? recommend(answers, STEPS) : defaultRecommend(answers, STEPS, locale)
     return <Result rec={rec} onRestart={restart} locale={locale} />
   }
 

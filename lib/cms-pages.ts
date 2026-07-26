@@ -19,6 +19,20 @@ export function getPageContent<T extends Record<string, unknown>>(slug: string):
   return data as T
 }
 
+/**
+ * True si le quiz d'une locale a de VRAIES questions.
+ * Locale par défaut → `content/pages/quiz.yaml` ; autre locale → `quiz.<locale>.yaml`.
+ *
+ * Garde anti-page-vide : sans questions, /quiz et /en/quiz renvoient 404, le bloc
+ * quiz de /choisir/[produit] disparaît, et les CTA « Faire le quiz » ne doivent pas
+ * être émis (ni dans les pages, ni dans le sitemap).
+ */
+export function hasQuizSteps(locale: string): boolean {
+  const slug = locale === niche.defaultLocale ? 'quiz' : `quiz.${locale}`
+  const steps = getPageContent(slug).steps
+  return Array.isArray(steps) && steps.length > 0
+}
+
 /** Read site settings */
 export function getSiteSettings(): SiteSettings {
   if (!fs.existsSync(SETTINGS_PATH)) return defaultSettings

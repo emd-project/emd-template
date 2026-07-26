@@ -36,3 +36,13 @@ export const CHOISIR_CONTENT = choisirData as unknown as Record<string, ChoisirP
 export function getChoisirContent(produit: string, _year?: number): ChoisirProductContent | undefined {
   return CHOISIR_CONTENT[produit]
 }
+
+/**
+ * True si `content/data/choisir.json` contient une entrée pour ce produit.
+ *
+ * Garde anti-lien-mort : on n'affiche le CTA « Faire le quiz → » (comparer,
+ * classement) que si la page /choisir/[produit] a vraiment quelque chose à rendre.
+ */
+export function hasChoisirContent(produit: string): boolean {
+  return Boolean(CHOISIR_CONTENT[produit])
+}

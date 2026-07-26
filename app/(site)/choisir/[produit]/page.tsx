@@ -4,7 +4,10 @@
  *
  * ANTI-PLACEHOLDER : le bloc quiz n'est rendu QUE si des questions existent
  * (content/pages/quiz.yaml). Sans questions, la section disparaît — on n'affiche
- * plus un faux quiz « Catégorie A / B / C ». Cf. scripts/check-placeholders.mjs.
+ * plus un faux quiz « Catégorie A / B / C ».
+ *
+ * ANTI-PAGE-VIDE : si `choisir.json` n'a pas d'entrée pour ce produit ET que le quiz
+ * n'a aucune question, il ne resterait que le hero → `notFound()`.
  */
 
 import { notFound } from 'next/navigation'
@@ -66,6 +69,10 @@ export default async function ChoisirPage({ params }: { params: Params }) {
   const accent = getHeroAccent(produit)
   const editorial = getChoisirContent(produit, year)
   const steps = getSteps()
+
+  // Ni éditorial (choisir.json) ni questions : la page se réduirait au hero.
+  // Une page absente vaut mieux qu'une page vide.
+  if (!editorial && steps.length === 0) notFound()
 
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',

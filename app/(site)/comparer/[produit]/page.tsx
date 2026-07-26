@@ -2,12 +2,16 @@
  * /comparer/[produit] — comparateur côte à côte (style Voltéo).
  * Server Component — ComparateurSelector isolé en 'use client'.
  * Modèle MENTION : comparatif neutre, aucun lien monétisé.
+ *
+ * Le bloc « Faire le quiz → » n'est rendu QUE si /choisir/[produit] existe vraiment
+ * (entrée dans content/data/choisir.json) — sinon lien mort vers un 404.
  */
 
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { getProduit, PRODUIT_SLUGS } from '@/lib/comparateur'
+import { hasChoisirContent } from '@/lib/choisir-content'
 import { ComparateurSelector } from '@/components/comparer/ComparateurSelector'
 import { currentYear } from '@/lib/utils/year'
 import { niche } from '@/niche.config'
@@ -51,6 +55,7 @@ export default async function ComparateurProduitPage({ params }: { params: Param
 
   const year = currentYear()
   const label = stripYear(data.label)
+  const hasChoisir = hasChoisirContent(produit)
 
   const jsonLd = {
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',
@@ -96,10 +101,12 @@ export default async function ComparateurProduitPage({ params }: { params: Param
               Prix indicatifs, sourcés et datés. Comparatif neutre et indépendant, sans lien monétisé.
             </p>
 
-            <div style={{ marginTop: 32, padding: 28, background: 'var(--cream-2)', border: '1px solid var(--line)', borderRadius: 'var(--r-lg)', textAlign: 'center' }}>
-              <p style={{ fontSize: 16, color: 'var(--ink-2)', marginBottom: 16 }}>Vous hésitez encore ? Répondez à 4 questions pour trouver votre modèle.</p>
-              <Link href={`/choisir/${produit}`} className="btn btn-accent">Faire le quiz →</Link>
-            </div>
+            {hasChoisir && (
+              <div style={{ marginTop: 32, padding: 28, background: 'var(--cream-2)', border: '1px solid var(--line)', borderRadius: 'var(--r-lg)', textAlign: 'center' }}>
+                <p style={{ fontSize: 16, color: 'var(--ink-2)', marginBottom: 16 }}>Vous hésitez encore ? Répondez à 4 questions pour trouver votre modèle.</p>
+                <Link href={`/choisir/${produit}`} className="btn btn-accent">Faire le quiz →</Link>
+              </div>
+            )}
           </div>
         </section>
       </main>

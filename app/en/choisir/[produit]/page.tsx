@@ -5,6 +5,9 @@
  *
  * ANTI-PLACEHOLDER : the quiz block renders only if EN steps exist (quiz.en.yaml).
  * No steps → no section, never a fake « Category A / B / C » quiz.
+ *
+ * ANTI-EMPTY-PAGE : with no EN steps AND no EN editorial, only the hero would be
+ * left → `notFound()`.
  */
 
 import { notFound } from 'next/navigation'
@@ -68,6 +71,9 @@ export default async function ChoisirPageEn({ params }: { params: Params }) {
   const label = stripYear(data.label)
   const accent = getHeroAccent(produit)
   const steps = getSteps()
+
+  // No EN questions and no EN editorial → the page would be a bare hero.
+  if (steps.length === 0) notFound()
 
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',

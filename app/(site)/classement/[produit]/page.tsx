@@ -2,6 +2,9 @@
  * /classement/[produit] — classement « Top N » (asset GEO, data-driven).
  * Server Component. Possède l'intent best/top/meilleur (cf. CLAUDE.md anti-cannibalisation).
  * Modèle MENTION : aucun CTA d'achat — au plus un lien NEUTRE vers la source officielle.
+ *
+ * Le CTA « Trouver mon modèle → » n'est émis QUE si /choisir/[produit] existe
+ * vraiment (entrée dans content/data/choisir.json) — sinon lien mort.
  */
 
 import { notFound } from 'next/navigation'
@@ -9,6 +12,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { getClassement, getClassements, CLASSEMENT_SLUGS } from '@/lib/classement'
 import { getProduit } from '@/lib/comparateur'
+import { hasChoisirContent } from '@/lib/choisir-content'
 import { ClassementList, type ClassementLabels } from '@/components/classement/ClassementList'
 import { currentYear } from '@/lib/utils/year'
 import { best } from '@/lib/utils/grammar'
@@ -71,6 +75,7 @@ export default async function ClassementPage({ params }: { params: Params }) {
   const plural = c.items.length > 1
   const tabs = Object.values(getClassements('fr'))
   const hasComparateur = Boolean(getProduit(produit))
+  const hasChoisir = hasChoisirContent(produit)
 
   const jsonLd = [
     {
@@ -125,7 +130,7 @@ export default async function ClassementPage({ params }: { params: Params }) {
               classement={c}
               labels={LABELS}
               comparerHref={hasComparateur ? `/comparer/${produit}` : undefined}
-              quizHref={`/choisir/${produit}`}
+              quizHref={hasChoisir ? `/choisir/${produit}` : undefined}
             />
           </div>
         </section>

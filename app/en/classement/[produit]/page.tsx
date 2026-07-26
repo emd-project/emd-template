@@ -2,6 +2,9 @@
  * /en/classement/[produit] — ranking (EN mirror of /classement/[produit]).
  * Server Component. EN data via getClassement(slug, 'en') (FR fallback).
  * MENTION model: no purchase CTA — at most a NEUTRAL link to the official page.
+ *
+ * The « Find my model → » CTA is emitted only when /en/choisir/[produit] actually
+ * renders, i.e. when quiz.en.yaml has steps — otherwise it would be a dead link.
  */
 
 import { notFound } from 'next/navigation'
@@ -9,6 +12,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { getClassement, getClassements, CLASSEMENT_SLUGS } from '@/lib/classement'
 import { getProduit } from '@/lib/comparateur'
+import { hasQuizSteps } from '@/lib/cms-pages'
 import { ClassementList, type ClassementLabels } from '@/components/classement/ClassementList'
 import { currentYear } from '@/lib/utils/year'
 import { tl } from '@/lib/i18n'
@@ -64,6 +68,7 @@ export default async function ClassementPageEn({ params }: { params: Params }) {
   const label = stripYear(c.label)
   const tabs = Object.values(getClassements('en'))
   const hasComparateur = Boolean(getProduit(produit, 'en'))
+  const hasChoisirEn = hasQuizSteps('en')
 
   const jsonLd = [
     {
@@ -118,7 +123,7 @@ export default async function ClassementPageEn({ params }: { params: Params }) {
               classement={c}
               labels={LABELS}
               comparerHref={hasComparateur ? `/en/comparer/${produit}` : undefined}
-              quizHref={`/en/choisir/${produit}`}
+              quizHref={hasChoisirEn ? `/en/choisir/${produit}` : undefined}
             />
           </div>
         </section>

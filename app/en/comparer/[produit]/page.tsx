@@ -2,12 +2,16 @@
  * /en/comparer/[produit] — side-by-side comparator (EN mirror).
  * Server Component — ComparateurSelector ('use client') with locale="en".
  * EN data via getProduit(slug, 'en') (FR fallback).
+ *
+ * The « Take the quiz → » block renders only when /en/choisir/[produit] actually
+ * exists, i.e. when quiz.en.yaml has steps — otherwise it would be a dead link.
  */
 
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { getProduit, PRODUIT_SLUGS } from '@/lib/comparateur'
+import { hasQuizSteps } from '@/lib/cms-pages'
 import { ComparateurSelector } from '@/components/comparer/ComparateurSelector'
 import { currentYear } from '@/lib/utils/year'
 import { niche } from '@/niche.config'
@@ -57,6 +61,7 @@ export default async function ComparatorProduitPageEn({ params }: { params: Para
 
   const year = currentYear()
   const label = stripYear(data.label)
+  const hasChoisirEn = hasQuizSteps('en')
 
   const jsonLd = {
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',
@@ -102,10 +107,12 @@ export default async function ComparatorProduitPageEn({ params }: { params: Para
               Indicative prices, sourced and dated. Neutral, independent comparison — no affiliate links.
             </p>
 
-            <div style={{ marginTop: 32, padding: 28, background: 'var(--cream-2)', border: '1px solid var(--line)', borderRadius: 'var(--r-lg)', textAlign: 'center' }}>
-              <p style={{ fontSize: 16, color: 'var(--ink-2)', marginBottom: 16 }}>Still unsure? Answer 4 questions to find your model.</p>
-              <Link href={`/en/choisir/${produit}`} className="btn btn-accent">Take the quiz →</Link>
-            </div>
+            {hasChoisirEn && (
+              <div style={{ marginTop: 32, padding: 28, background: 'var(--cream-2)', border: '1px solid var(--line)', borderRadius: 'var(--r-lg)', textAlign: 'center' }}>
+                <p style={{ fontSize: 16, color: 'var(--ink-2)', marginBottom: 16 }}>Still unsure? Answer 4 questions to find your model.</p>
+                <Link href={`/en/choisir/${produit}`} className="btn btn-accent">Take the quiz →</Link>
+              </div>
+            )}
           </div>
         </section>
       </main>

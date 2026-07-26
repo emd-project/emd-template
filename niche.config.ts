@@ -56,6 +56,18 @@ export type NicheConfig = {
     enabled: boolean
     criteria: string[]
   }
+  /**
+   * Page /simulateur — **DÉSACTIVÉE PAR DÉFAUT**.
+   *
+   * Le simulateur de cycles de prix ne tient que s'il existe de VRAIES données de
+   * prix (sourcées et datées). Sans elles, la page n'affiche qu'un « Aucune donnée
+   * de cycle de prix pour le moment » : une coquille vide annoncée dans la nav, le
+   * footer et le sitemap. Tant que `enabled` est faux, les routes `/simulateur`
+   * (FR + EN) renvoient un 404 et le lien disparaît partout.
+   *
+   * `title` / `description` restent renseignables : ils pilotent les métadonnées le
+   * jour où la niche active réellement le simulateur.
+   */
   simulator: {
     enabled: boolean
     title: string
@@ -195,7 +207,8 @@ export const niche: NicheConfig = {
 
   quiz: { enabled: true, question: '', criteria: [] },
   comparator: { enabled: true, criteria: [] },
-  simulator: { enabled: true, title: '', description: '' },
+  // Aucune donnée de cycle de prix par défaut : page /simulateur désactivée.
+  simulator: { enabled: false, title: '', description: '' },
   // Modèle MENTION : page /deals désactivée par défaut.
   deals: { enabled: false },
 
@@ -283,6 +296,15 @@ export function isMultilingual(): boolean {
 /** True si la page /deals est activée (défaut : NON — modèle MENTION). */
 export function dealsEnabled(): boolean {
   return niche.deals?.enabled === true
+}
+
+/**
+ * True si la page /simulateur est activée (défaut : NON — aucune donnée de cycle
+ * de prix dans le template). Les routes FR + EN renvoient 404 quand c'est faux ;
+ * nav, footer et sitemap sont conditionnés au même flag.
+ */
+export function simulatorEnabled(): boolean {
+  return niche.simulator.enabled === true
 }
 
 /**

@@ -1,12 +1,18 @@
 /**
  * /en/simulateur — price-cycle simulator (EN mirror of /simulateur).
+ * DISABLED BY DEFAULT: `niche.simulator.enabled === false` → immediate `notFound()`.
+ * The template ships no price-cycle data (`CYCLES = []`), so the route would only
+ * render an empty state. Enable `simulator.enabled` once the niche has real,
+ * sourced and dated prices.
+ *
  * Static data. Server Component · ISR 86400s. No affiliate CTA (EMD = mention).
  */
 
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { currentYear } from '@/lib/utils/year'
-import { niche } from '@/niche.config'
+import { niche, simulatorEnabled } from '@/niche.config'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
@@ -52,6 +58,8 @@ const jsonLd = {
 }
 
 export default function SimulatorPageEn() {
+  if (!simulatorEnabled()) notFound()
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />

@@ -1,13 +1,21 @@
 /**
  * /simulateur — Simulateur de cycles de prix (style Voltéo).
+ * DÉSACTIVÉ PAR DÉFAUT : `niche.simulator.enabled === false` → `notFound()` immédiat.
+ *
+ * Le template ne fournit AUCUNE donnée de cycle de prix (`CYCLES = []`). Livrer la
+ * route telle quelle, c'est annoncer dans la nav et le sitemap une page qui n'affiche
+ * qu'un « Aucune donnée… ». On active `simulator.enabled` uniquement quand la niche
+ * dispose de vrais prix sourcés et datés.
+ *
  * Données statiques. Server Component · ISR 86400s.
  * Modèle EMD = MENTION, pas d'affiliation : aucun CTA d'achat affilié.
  */
 
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { currentYear } from '@/lib/utils/year'
-import { niche } from '@/niche.config'
+import { niche, simulatorEnabled } from '@/niche.config'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
@@ -47,6 +55,8 @@ const jsonLd = {
 }
 
 export default function SimulateurPage() {
+  if (!simulatorEnabled()) notFound()
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />

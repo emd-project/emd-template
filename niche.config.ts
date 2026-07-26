@@ -336,9 +336,19 @@ const LEGAL_SLUGS: Record<string, { legalNotice: string; privacy: string }> = {
 
 /**
  * Chemin localisé d'une page légale. Repli : locale demandée → locale par défaut → FR.
- * Ex. legalPath('en', 'privacy') → '/en/privacy' ; legalPath('fr', 'privacy') → '/confidentialite'.
+ *
+ * ⚠️ Le repli porte sur le PRÉFIXE **ET** sur le SLUG. Une locale sans entrée
+ * `LEGAL_SLUGS` n'a pas non plus de routes légales : renvoyer `/nl/confidentialite`
+ * (préfixe d'une locale inconnue + slug FR) était un 404 garanti. On résout donc
+ * d'abord UNE locale servable, puis on l'utilise pour les deux moitiés de l'URL.
+ *
+ * Ex. legalPath('en', 'privacy') → '/en/privacy' ; legalPath('fr', 'privacy') →
+ * '/confidentialite' ; legalPath('nl', 'privacy') → '/confidentialite' (et non un 404).
  */
 export function legalPath(lang: string, page: 'legalNotice' | 'privacy'): string {
-  const slugs = LEGAL_SLUGS[lang] ?? LEGAL_SLUGS[niche.defaultLocale] ?? LEGAL_SLUGS.fr
-  return localePath(lang, `/${slugs[page]}`)
+  let resolved = lang
+  if (!LEGAL_SLUGS[resolved]) resolved = niche.defaultLocale
+  if (!LEGAL_SLUGS[resolved]) resolved = 'fr'
+  const slugs = LEGAL_SLUGS[resolved] ?? LEGAL_SLUGS.fr
+  return localePath(resolved, `/${slugs[page]}`)
 }

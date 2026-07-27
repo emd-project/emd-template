@@ -95,7 +95,15 @@ export type NicheConfig = {
   style: {
     mode: 'dark' | 'light'
     hero: 'split' | 'centered' | 'minimal'
+    /**
+     * TIRÉ par `suggestVariants` à l'init (champ `effects`) — ne JAMAIS laisser
+     * le défaut du template : c'est un levier de DA à part entière (halo du hero).
+     */
     effects: 'aurora' | 'subtle' | 'none'
+    /**
+     * TIRÉ par `suggestVariants` à l'init (champ `cards`) — ne JAMAIS laisser le
+     * défaut du template : le traitement des cartes change la lecture de tout le site.
+     */
     cards: 'bordered' | 'filled' | 'minimal'
     uiStyle: string
   }
@@ -221,6 +229,8 @@ export const niche: NicheConfig = {
   style: {
     mode: 'light',
     hero: 'centered',
+    // ⚠️ effects & cards : valeurs de TEMPLATE. L'init les remplace par le tirage
+    // de suggestVariants(domaine, famille) — les garder = 15 sites identiques.
     effects: 'subtle',
     cards: 'bordered',
     uiStyle: 'electrique',

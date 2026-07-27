@@ -53,7 +53,7 @@ L'axe de décision : **peut-on SOUSCRIRE l'entité en ligne, ou est-ce un objet 
   toujours un libellé douteux dans `sites.csv`.
 - `confidence: 'low'` → aucun mot-clé reconnu, défaut prudent `editorial` : **l'annoncer** aussi.
 
-### 2. Squelette + permutations — `lib/variants.ts`
+### 2. Squelette + permutations + style — `lib/variants.ts`
 
 ```ts
 import { suggestVariants } from '@/lib/variants'
@@ -71,7 +71,24 @@ du seed. Passer `family` explicitement reste préférable dès que le **secteur*
 - **Permutations** : `shape` (`rounded`/`soft`/`sharp`) · `border` (`standard`/`hairline`/`bold`) ·
   `shadow` (`standard`/`flat`/`deep`) → écrire dans `niche.config.permutations`.
   Appliquées par `PermutationStyle` (override de tokens en `!important`, theme-safe) — **rien en CSS**.
+- **Style** : `v.effects` (`subtle`/`none`/`aurora`) et `v.cards` (`bordered`/`filled`/`minimal`) →
+  **écrire dans `niche.config.style.effects` et `niche.config.style.cards`**. Ce sont deux vrais
+  leviers de DA, et ils sont sortis au **défaut du template** (`subtle` + `bordered`) sur **4 sites
+  provisionnés sur 4** : ils n'étaient pas tirés du tout. Les laisser au défaut = bug d'init.
 - Écrire `niche.style.hero` cohérent (`split` pour comparateur/marche, sinon `centered`).
+
+**Collision de home avec les sites voisins.** La famille `comparateur` n'expose que **deux** homes
+distinctes (`marche`, `comparateur`) pour cinq secteurs : deux sites provisionnés à la suite tombent
+vite sur la même. Passer les homes déjà prises en **3ᵉ paramètre** (optionnel) :
+
+```ts
+const v = suggestVariants(niche.domain, family, { home: ['marche', 'comparateur'] })
+if (v.homeCollision) { /* pool épuisé : tirage gardé → faire diverger palette + typo */ }
+```
+
+Le re-tirage se fait **dans le pool restant** de la famille (et non en re-salant le seed, qui peut
+retomber sur la même valeur — c'est ce qui laissait passer les collisions avec l'avant-dernier site).
+Pool entièrement exclu → le tirage est **conservé** et `homeCollision` vaut `true` : le signaler.
 
 ### 3. Palette — `niche.config.palette` → `app/globals.css`
 
@@ -114,6 +131,11 @@ const pair = suggestFonts(niche.domain, v.home)
   l'archetype de home** (`FAMILY_BY_HOME`) — comparateur/marche → grotesque/géométrique ;
   magazine/fil → serif-éditorial/expressif. Deux sites divergent en typo (anti-empreinte) tout en
   restant cohérents avec leur home. Si la spec impose une paire (`skin`/fonts), **elle gagne** sur le tirage.
+- ⛔ **La paire par défaut du template (`bricolage` : Bricolage Grotesque × Hanken Grotesk) est HORS
+  TIRAGE** (`TEMPLATE_DEFAULT_PAIRING_ID`). Elle sortait sur 2 domaines provisionnés sur 4, et un site
+  qui affiche la typo du template est **indistinguable d'un fork non configuré**. Elle reste dans
+  `FONT_PAIRINGS` (pool documentaire) : le filtrage se fait au tirage. Ne la remettre que si une spec
+  l'impose explicitement — et c'est alors un choix humain, pas un tirage.
 - **Écrire la paire dans `app/layout.tsx`** via `next/font/google` (imports **statiques** : nom Google →
   espaces remplacés par `_`, ex. `Space Grotesk` → `Space_Grotesk`), alimentant `--next-font-display`
   (titres) et `--next-font-primary` (corps). next/font ne charge rien dynamiquement :
@@ -144,15 +166,17 @@ const pair = suggestFonts(niche.domain, v.home)
 
 1. **Famille** : `classifyNiche({ domain, siteName, sector })` → **annoncer** `family` + `reason`
    (+ `conflict` / `confidence: 'low'` s'il y en a).
-2. **Variantes** : `suggestVariants(niche.domain, family)` → écrire `niche.config.layouts`
-   (`home`, `category`, `article`) + `niche.config.permutations` + `niche.style.hero`.
+2. **Variantes** : `suggestVariants(niche.domain, family)` (+ `{ home: [...] }` si les homes des sites
+   voisins sont connues) → écrire `niche.config.layouts` (`home`, `category`, `article`) +
+   `niche.config.permutations` + **`niche.config.style.effects` / `niche.config.style.cards`** +
+   `niche.style.hero`.
 3. **Palette** : direction mutée → `niche.config.palette` → **tous** les blocs de `globals.css`.
 4. **Typo** : `suggestFonts(niche.domain, home)` → **`app/layout.tsx`** (+ `niche.config.fonts` pour trace).
 5. **Dépublier les previews** : supprimer `/home-vN`, `/cat-vN`, `/art-vN` (+ `/en/...`).
 6. **Annoncer** (sans s'arrêter) le récapitulatif, puis enchaîner le BUILD.
 
 > Sélection déterministe (seed domaine) + famille (secteur) → deux sites divergent automatiquement
-> (squelette, formes, palette **et** typo) sans choix manuel.
+> (squelette, formes, effets, cartes, palette **et** typo) sans choix manuel.
 
 ---
 
@@ -177,6 +201,8 @@ const pair = suggestFonts(niche.domain, v.home)
 - **Palette propagée dans `:root` seulement** → tous les sites identiques en mode clair.
 - **Valeur écrite dans `volteo.css :root`**.
 - **Aucune variante choisie** : `niche.config.layouts` doit être renseigné.
+- **`style.effects` / `style.cards` laissés au défaut du template** (`subtle` + `bordered`) : ils
+  font partie du tirage de `suggestVariants` depuis qu'on a constaté 4 sites identiques sur 4.
 - **Famille décidée à la main** au lieu de `classifyNiche` (c'est ce qui envoyait les sites produit
   sur une home comparateur).
 - **Previews non dépubliées** : `/home-vN`, `/cat-vN`, `/art-vN` ne doivent plus exister en prod.

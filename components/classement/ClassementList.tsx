@@ -6,6 +6,10 @@
  * MODÈLE MENTION : aucun CTA d'achat. Le seul lien externe possible sur un item est
  * NEUTRE (`item.url` = source officielle / page de marque), en
  * `rel="noopener noreferrer nofollow"` — jamais monétisé.
+ *
+ * `showTldr` : les pages classement remontent le bloc « En bref » dans le hero
+ * (colonne de droite, pour exploiter la largeur) et passent alors `showTldr={false}`
+ * — sinon le même résumé s'afficherait deux fois.
  */
 
 import Link from 'next/link'
@@ -37,6 +41,8 @@ type Props = {
   labels: ClassementLabels
   comparerHref?: string
   quizHref?: string
+  /** Rendre le bloc « En bref » ici (défaut). false = déjà rendu par le hero de la page. */
+  showTldr?: boolean
 }
 
 const card: CSSProperties = {
@@ -46,14 +52,14 @@ const card: CSSProperties = {
   boxShadow: 'var(--shadow-sm)',
 }
 
-export function ClassementList({ classement, labels, comparerHref, quizHref }: Props) {
+export function ClassementList({ classement, labels, comparerHref, quizHref, showTldr = true }: Props) {
   const items = [...classement.items].sort((a, b) => a.rank - b.rank)
   const cols = '64px minmax(0, 1fr)'
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-10)' }}>
-      {/* TL;DR */}
-      {classement.tldr && classement.tldr.length > 0 && (
+      {/* TL;DR — sauf si le hero l'affiche déjà (showTldr=false) */}
+      {showTldr && classement.tldr && classement.tldr.length > 0 && (
         <aside aria-label={labels.tldr} style={{ ...card, padding: 'var(--space-6) var(--space-7)' }}>
           <div className="eyebrow" style={{ marginBottom: 'var(--space-4)' }}>{labels.tldr}</div>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
@@ -133,7 +139,7 @@ export function ClassementList({ classement, labels, comparerHref, quizHref }: P
             <div key={i}>
               <h2 style={{ fontFamily: 'var(--next-font-display), system-ui, sans-serif', fontSize: 'clamp(18px, 2.4vw, 24px)', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.25, margin: '0 0 var(--space-3)' }}>{s.q}</h2>
               {s.body.split('\n\n').map((para, j) => (
-                <p key={j} style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.7, margin: '0 0 var(--space-3)' }}>{para}</p>
+                <p key={j} style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.7, margin: '0 0 var(--space-3)', maxWidth: '68ch' }}>{para}</p>
               ))}
             </div>
           ))}

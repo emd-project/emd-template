@@ -96,13 +96,16 @@ export type NicheConfig = {
     mode: 'dark' | 'light'
     hero: 'split' | 'centered' | 'minimal'
     /**
-     * TIRÉ par `suggestVariants` à l'init (champ `effects`) — ne JAMAIS laisser
-     * le défaut du template : c'est un levier de DA à part entière (halo du hero).
+     * TIRÉ par `suggestVariants` à l'init (champ `effects`) — ne pas laisser le
+     * défaut du template : c'est la TRACE que la sélection auto a tourné.
+     * ⚠️ Comme `fonts`, ce champ n'est lu par AUCUN code aujourd'hui (le CSS
+     * applique ses dégradés aurora inconditionnellement) : le changer ne change
+     * rien à l'écran tant que le câblage n'est pas fait. Cf. docs/AUTO-DESIGN.md.
      */
     effects: 'aurora' | 'subtle' | 'none'
     /**
-     * TIRÉ par `suggestVariants` à l'init (champ `cards`) — ne JAMAIS laisser le
-     * défaut du template : le traitement des cartes change la lecture de tout le site.
+     * TIRÉ par `suggestVariants` à l'init (champ `cards`) — même statut que
+     * `effects` ci-dessus : trace d'init, pas encore câblé au rendu.
      */
     cards: 'bordered' | 'filled' | 'minimal'
     uiStyle: string
@@ -184,6 +187,9 @@ export type NicheConfig = {
    *  - shape  : rayons (--radius-*)        'rounded' (défaut) | 'soft' | 'sharp'
    *  - border : bordures (--border*)        'standard' (défaut) | 'hairline' | 'bold'
    *  - shadow : ombres (--shadow-*)         'standard' (défaut) | 'flat' | 'deep'
+   *
+   * Ce sont les SEULS leviers de `suggestVariants` qui changent réellement le rendu
+   * sans toucher la palette ou la typo (cf. components/layout/PermutationStyle.tsx).
    */
   permutations?: {
     shape?: 'rounded' | 'soft' | 'sharp'
@@ -229,8 +235,10 @@ export const niche: NicheConfig = {
   style: {
     mode: 'light',
     hero: 'centered',
-    // ⚠️ effects & cards : valeurs de TEMPLATE. L'init les remplace par le tirage
-    // de suggestVariants(domaine, famille) — les garder = 15 sites identiques.
+    // effects & cards : valeurs de TEMPLATE. L'init les remplace par le tirage de
+    // suggestVariants(domaine, famille) — les 4 derniers sites provisionnés les
+    // ont toutes deux gardées, faute d'être tirées. (Trace d'init : pas encore
+    // câblées au rendu — cf. le commentaire du type ci-dessus.)
     effects: 'subtle',
     cards: 'bordered',
     uiStyle: 'electrique',

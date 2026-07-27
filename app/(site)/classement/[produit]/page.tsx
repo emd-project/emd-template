@@ -3,6 +3,12 @@
  * Server Component. Possède l'intent best/top/meilleur (cf. CLAUDE.md anti-cannibalisation).
  * Modèle MENTION : aucun CTA d'achat — au plus un lien NEUTRE vers la source officielle.
  *
+ * HERO EN 2 COLONNES (desktop) : l'intro reste à une largeur de LECTURE (~62ch, cf.
+ * references/design-ux-regles.md) et le « En bref » remonte à droite pour occuper la
+ * largeur au lieu de laisser un tiers de vide. En dessous de ~760px, les deux colonnes
+ * s'empilent toutes seules (flex-wrap, aucune media query). Le TL;DR étant rendu ici,
+ * on passe `showTldr={false}` à ClassementList — sinon il s'afficherait deux fois.
+ *
  * Le CTA « Trouver mon modèle → » n'est émis QUE si /choisir/[produit] rend vraiment
  * quelque chose. La page cible ne 404 que si elle n'a NI éditorial (choisir.json)
  * NI questions de quiz : la condition ici doit être la MÊME, sinon on a soit un lien
@@ -80,6 +86,7 @@ export default async function ClassementPage({ params }: { params: Params }) {
   const hasComparateur = Boolean(getProduit(produit))
   // MÊME condition que le notFound() de /choisir/[produit] : éditorial OU questions.
   const hasChoisir = hasChoisirContent(produit) || hasQuizSteps(niche.defaultLocale)
+  const hasTldr = Boolean(c.tldr && c.tldr.length > 0)
 
   const jsonLd = [
     {
@@ -123,8 +130,35 @@ export default async function ClassementPage({ params }: { params: Params }) {
             <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 4.4vw, 48px)', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.08, marginBottom: 12 }}>
               Top {c.items.length} {best(g, plural)} {label} {year}
             </h1>
-            {c.intro && <p style={{ fontSize: 17, color: 'var(--ink-2)', maxWidth: 620, lineHeight: 1.6 }}>{c.intro}</p>}
-            {c.updated && <p style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 10 }}>Mis à jour le {new Date(c.updated).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>}
+
+            {/* 2 colonnes : intro (lecture) + En bref (remplit la largeur). S'empile en mobile. */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 'var(--space-7)' }}>
+              <div style={{ flex: '1 1 420px', minWidth: 0, maxWidth: 620 }}>
+                {c.intro && <p style={{ fontSize: 17, color: 'var(--ink-2)', lineHeight: 1.6, margin: 0 }}>{c.intro}</p>}
+                {c.updated && <p style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 10, marginBottom: 0 }}>Mis à jour le {new Date(c.updated).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>}
+              </div>
+              {hasTldr && (
+                <aside
+                  aria-label={LABELS.tldr}
+                  style={{
+                    flex: '1 1 280px', minWidth: 0, maxWidth: 380,
+                    background: 'var(--bg-surface)', border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)',
+                    padding: 'var(--space-6)',
+                  }}
+                >
+                  <div className="eyebrow" style={{ marginBottom: 'var(--space-4)' }}>{LABELS.tldr}</div>
+                  <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                    {c.tldr?.map((line, i) => (
+                      <li key={i} style={{ display: 'flex', gap: 'var(--space-3)', fontSize: '14.5px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                        <span aria-hidden="true" style={{ color: 'var(--accent-1)', fontWeight: 700, flexShrink: 0 }}>→</span>
+                        <span>{line}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </aside>
+              )}
+            </div>
           </div>
         </section>
 
@@ -135,6 +169,7 @@ export default async function ClassementPage({ params }: { params: Params }) {
               labels={LABELS}
               comparerHref={hasComparateur ? `/comparer/${produit}` : undefined}
               quizHref={hasChoisir ? `/choisir/${produit}` : undefined}
+              showTldr={false}
             />
           </div>
         </section>

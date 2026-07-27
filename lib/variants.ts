@@ -117,6 +117,18 @@ export function resolveShadow(): Shadow {
   return niche.permutations?.shadow ?? 'standard'
 }
 
+// ─── Leviers de style tirés à l'init (niche.config.style) ───────────────────
+/**
+ * `style.effects` et `style.cards` sont deux vrais leviers de DA (halo/aurora du
+ * hero, traitement des cartes) — mais ils n'étaient JAMAIS tirés : les 4 derniers
+ * sites provisionnés sont tous sortis avec le défaut du template
+ * (`subtle` + `bordered`). Ils font donc partie de la suggestion, au même titre
+ * que shape/border/shadow. Les valeurs suivent EXACTEMENT le type de
+ * `NicheConfig['style']`.
+ */
+export type Effects = 'aurora' | 'subtle' | 'none'
+export type Cards = 'bordered' | 'filled' | 'minimal'
+
 // ─── Famille de home ────────────────────────────────────────────────────────
 
 /**
@@ -153,14 +165,45 @@ function at<T>(arr: readonly T[], n: number): T {
   return arr[n % arr.length]
 }
 
+/** Dédoublonne en préservant l'ordre (les pools contiennent des doublons de pondération). */
+function unique<T>(arr: readonly T[]): T[] {
+  return arr.filter((v, i) => arr.indexOf(v) === i)
+}
+
+/** Combinaison complète suggérée pour un site (écrite dans `niche.config` à l'init). */
+export type SuggestedVariants = {
+  home: HomeVariant
+  category: CategoryVariant
+  shape: Shape
+  border: Border
+  shadow: Shadow
+  /** → `niche.config.style.effects` (ne PAS laisser le défaut du template). */
+  effects: Effects
+  /** → `niche.config.style.cards` (ne PAS laisser le défaut du template). */
+  cards: Cards
+  family: HomeFamily
+  /**
+   * `true` quand `exclude.home` couvrait TOUT le pool de la famille : le tirage
+   * initial est conservé (mieux vaut une home répétée qu'une home hors famille),
+   * mais l'appelant doit le SAVOIR — c'est le signal qu'il faut faire diverger le
+   * site autrement (palette, typo, permutations).
+   */
+  homeCollision: boolean
+}
+
 /**
  * Suggestion déterministe d'une combinaison complète.
  *
  * @param seed    domaine du site (fait diverger deux forks automatiquement)
  * @param family  famille de design. **OPTIONNEL** : omise, elle est DÉDUITE du
  *                seed via `classifyNiche`.
+ * @param exclude homes déjà utilisées par les sites voisins (N-1, N-2, …).
+ *                **OPTIONNEL**. Le pool `comparateur` n'a que DEUX homes
+ *                distinctes pour cinq secteurs : re-saler le seed ne règle la
+ *                collision qu'avec le site précédent. Passer ici la liste des
+ *                homes à éviter donne une exclusion réelle.
  *
- * ⚠️ Historique : ce paramètre valait `'editorial'` par défaut. Les deux skills
+ * ⚠️ Historique : `family` valait `'editorial'` par défaut. Les deux skills
  * appelant `suggestVariants(niche.domain)` (un seul argument), la famille était
  * toujours `editorial` → `comparateur`, `marche` et `presse` étaient
  * INATTEIGNABLES par le chemin d'init nominal, quel que soit le secteur.
@@ -169,23 +212,35 @@ function at<T>(arr: readonly T[], n: number): T {
  * Quand le SECTEUR est connu (colonne CATÉGORIE de `sites.csv`), le passer
  * explicitement reste préférable — c'est la vérité terrain :
  *   suggestVariants(niche.domain, classifyNiche({ domain, sector }).family)
+ *
+ * Les DEUX derniers paramètres sont optionnels : `suggestVariants(domaine)` et
+ * `suggestVariants(domaine, famille)` restent valides et rendent le même tirage.
  */
 export function suggestVariants(
   seed: string = niche.domain || niche.siteName,
-  family?: HomeFamily
-): {
-  home: HomeVariant
-  category: CategoryVariant
-  shape: Shape
-  border: Border
-  shadow: Shadow
-  family: HomeFamily
-} {
+  family?: HomeFamily,
+  exclude?: { home?: readonly string[] }
+): SuggestedVariants {
   const fam = family ?? classifyNiche({ domain: seed, siteName: niche.siteName }).family
   const h = seedHash(seed)
-  const pool =
+  const pool: readonly HomeVariant[] =
     fam === 'comparateur' ? POOL_COMPARATEUR : fam === 'beaute' ? POOL_BEAUTE : POOL_EDITORIAL
-  const home = at(pool, h) as HomeVariant
+
+  let home = at(pool, h)
+  let homeCollision = false
+
+  // Anti-répétition : re-tirage DANS le pool restant (et pas re-salage du seed,
+  // qui peut retomber sur la même valeur — c'est le bug de collision N-2).
+  const banned = exclude?.home ?? []
+  if (banned.length > 0 && banned.includes(home)) {
+    const remaining = unique(pool).filter((v) => !banned.includes(v))
+    if (remaining.length > 0) {
+      home = at(remaining, h >>> 14)
+    } else {
+      homeCollision = true
+    }
+  }
+
   return {
     home,
     // L'identité presse impose ses propres pages catégorie.
@@ -193,6 +248,11 @@ export function suggestVariants(
     shape: at(['rounded', 'soft', 'sharp'] as const, h >>> 4),
     border: at(['hairline', 'standard', 'bold'] as const, h >>> 6),
     shadow: at(['flat', 'standard', 'deep'] as const, h >>> 8),
+    // Offsets DISTINCTS de shape/border/shadow : réutiliser >>>4 ou >>>6
+    // corrélerait les effets aux rayons (tous les sites « sharp » en aurora).
+    effects: at(['subtle', 'none', 'aurora'] as const, h >>> 10),
+    cards: at(['bordered', 'filled', 'minimal'] as const, h >>> 12),
     family: fam,
+    homeCollision,
   }
 }

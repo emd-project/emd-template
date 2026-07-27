@@ -2,6 +2,8 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { niche } from '@/niche.config'
+import { suggestVariants } from '@/lib/variants'
+import { FONT_PAIRINGS, TEMPLATE_DEFAULT_PAIRING_ID, suggestFonts } from '@/lib/typography'
 
 /**
  * Garde-fous DA — la version EXÉCUTABLE des règles de docs/AUTO-DESIGN.md.
@@ -191,6 +193,140 @@ describe.runIf(isConfigured)("DA — l'init a bien tourné", () => {
       const importName = family.replace(/\s+/g, '_')
       expect(layout, `niche.config.fonts annonce « ${family} », absent de layout.tsx.`)
         .toContain(importName)
+    }
+  })
+})
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 3. LE GÉNÉRATEUR DE DA — les leviers sont-ils VIVANTS ?
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Domaines RÉELS du réseau EMD (+ quelques niches voisines) : un tirage qui se
+ * comporte bien sur des seeds inventés mais mal sur les vrais ne sert à rien.
+ */
+const EMD_DOMAINS = [
+  'meilleur-suv.be',
+  'comparer-banque.be',
+  'meilleure-citadine.be',
+  'meilleur-abonnement-5g.be',
+  'meilleur-operateur-mobile.be',
+  'meilleure-neobanque.be',
+  'quel-fournisseur-energie.be',
+  'meilleur-chocolat.be',
+  'meilleur-matelas.be',
+  'comparatif-aspirateur.fr',
+  'top-vpn.fr',
+  'meilleure-assurance-auto.be',
+  'meilleur-credit-hypothecaire.be',
+  'meilleure-mutuelle.be',
+  'top-tondeuse-robot.be',
+  'guide-smartphone.be',
+  'meilleur-casque-audio.be',
+  'beaute-naturelle.be',
+  'tendances-mode.be',
+  'meilleur-hotel-paris.fr',
+] as const
+
+describe('DA — style.effects et style.cards sont TIRÉS (deux leviers morts avant)', () => {
+  // Constat sur les 4 derniers sites provisionnés : `subtle` + `bordered` sur
+  // 4/4, parce que suggestVariants ne les renvoyait tout simplement pas.
+  const EFFECTS = ['aurora', 'subtle', 'none']
+  const CARDS = ['bordered', 'filled', 'minimal']
+
+  for (const domain of EMD_DOMAINS) {
+    it(`${domain} — effects & cards dans leurs pools`, () => {
+      const v = suggestVariants(domain)
+      expect(EFFECTS, `effects « ${v.effects} » hors pool`).toContain(v.effects)
+      expect(CARDS, `cards « ${v.cards} » hors pool`).toContain(v.cards)
+    })
+  }
+
+  it('reste déterministe (même seed → même effects/cards)', () => {
+    const a = suggestVariants('meilleur-suv.be')
+    const b = suggestVariants('meilleur-suv.be')
+    expect(a.effects).toBe(b.effects)
+    expect(a.cards).toBe(b.cards)
+  })
+})
+
+describe("DA — suggestFonts ne rend JAMAIS la typo du template", () => {
+  // Un site en Bricolage × Hanken est indistinguable d'un fork non configuré :
+  // c'est littéralement ce que le garde-fou « les fonts par défaut ont été
+  // remplacées » ci-dessus refuse. Le tirage ne doit donc pas pouvoir la sortir.
+  const ARCHETYPES: (string | undefined)[] = [
+    undefined,
+    'magazine',
+    'comparateur',
+    'marche',
+    'fil',
+    'presse',
+  ]
+
+  for (const domain of EMD_DOMAINS) {
+    it(`${domain} — quel que soit l'archetype de home`, () => {
+      for (const home of ARCHETYPES) {
+        const pair = suggestFonts(domain, home)
+        expect(pair.id, `${domain} / ${home ?? 'sans archetype'}`).not.toBe(
+          TEMPLATE_DEFAULT_PAIRING_ID
+        )
+        expect(pair.display).not.toBe('Bricolage Grotesque')
+      }
+    })
+  }
+
+  it('la paire par défaut reste dans le POOL exporté (filtrée au tirage seulement)', () => {
+    // FONT_PAIRINGS est la source de vérité documentaire (16 paires) : on filtre
+    // au moment du tirage, on ne mutile pas la liste.
+    expect(FONT_PAIRINGS.some((p) => p.id === TEMPLATE_DEFAULT_PAIRING_ID)).toBe(true)
+  })
+
+  it('rend toujours une paire exploitable (pool jamais vide)', () => {
+    for (const home of ARCHETYPES) {
+      const pair = suggestFonts('meilleure-neobanque.be', home)
+      expect(pair.display.length).toBeGreaterThan(0)
+      expect(pair.body.length).toBeGreaterThan(0)
+    }
+  })
+})
+
+describe('DA — exclusion de home (anti-collision avec les sites voisins)', () => {
+  // La famille `comparateur` n'a que DEUX homes distinctes pour cinq secteurs :
+  // sans exclusion réelle, deux sites voisins se ressemblent.
+  it('une home exclue ne ressort pas quand le pool le permet', () => {
+    const seed = 'quel-fournisseur-energie.be'
+    const base = suggestVariants(seed)
+    expect(base.family).toBe('comparateur')
+
+    const rerolled = suggestVariants(seed, base.family, { home: [base.home] })
+    expect(rerolled.home).not.toBe(base.home)
+    expect(rerolled.homeCollision).toBe(false)
+    expect(rerolled.family).toBe(base.family)
+  })
+
+  it('exclure une home NON tirée ne change rien', () => {
+    const seed = 'meilleure-citadine.be'
+    const base = suggestVariants(seed)
+    const other = base.home === 'magazine' ? 'fil' : 'magazine'
+    expect(suggestVariants(seed, base.family, { home: [other] })).toEqual(base)
+  })
+
+  it('pool épuisé (beaute = presse seule) → tirage gardé ET signalé', () => {
+    const v = suggestVariants('beaute-naturelle.be', 'beaute', { home: ['presse'] })
+    expect(v.home).toBe('presse')
+    expect(v.category).toBe('presse')
+    expect(v.homeCollision).toBe(true)
+  })
+
+  it('sans exclusion, le tirage historique est inchangé (rétro-compat)', () => {
+    // Les deux nouveaux paramètres sont optionnels : les appels existants
+    // (`suggestVariants(domaine)`, `suggestVariants(domaine, famille)`) doivent
+    // rendre exactement la même chose qu'un appel avec un `exclude` vide.
+    for (const domain of EMD_DOMAINS) {
+      const base = suggestVariants(domain)
+      expect(suggestVariants(domain, base.family, {})).toEqual(base)
+      expect(suggestVariants(domain, base.family, { home: [] })).toEqual(base)
+      expect(base.homeCollision).toBe(false)
     }
   })
 })

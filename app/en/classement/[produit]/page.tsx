@@ -3,6 +3,12 @@
  * Server Component. EN data via getClassement(slug, 'en') (FR fallback).
  * MENTION model: no purchase CTA — at most a NEUTRAL link to the official page.
  *
+ * TWO-COLUMN HERO (desktop), mirroring the FR page: intro keeps a comfortable reading
+ * measure (~62ch) while « Key takeaways » moves up to the right so the width is used
+ * instead of leaving a third of the page empty. Below ~760px both columns stack on
+ * their own (flex-wrap, no media query). Since the TL;DR is rendered here, we pass
+ * `showTldr={false}` to ClassementList to avoid rendering it twice.
+ *
  * The « Find my model → » CTA is emitted only when /en/choisir/[produit] actually
  * renders, i.e. when quiz.en.yaml has steps — otherwise it would be a dead link.
  */
@@ -69,6 +75,7 @@ export default async function ClassementPageEn({ params }: { params: Params }) {
   const tabs = Object.values(getClassements('en'))
   const hasComparateur = Boolean(getProduit(produit, 'en'))
   const hasChoisirEn = hasQuizSteps('en')
+  const hasTldr = Boolean(c.tldr && c.tldr.length > 0)
 
   const jsonLd = [
     {
@@ -112,8 +119,35 @@ export default async function ClassementPageEn({ params }: { params: Params }) {
             <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 4.4vw, 48px)', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.08, marginBottom: 12 }}>
               Top {c.items.length} best {label} {year}
             </h1>
-            {c.intro && <p style={{ fontSize: 17, color: 'var(--ink-2)', maxWidth: 620, lineHeight: 1.6 }}>{c.intro}</p>}
-            {c.updated && <p style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 10 }}>Updated {new Date(c.updated).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>}
+
+            {/* Two columns: intro (reading measure) + key takeaways. Stacks on mobile. */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 'var(--space-7)' }}>
+              <div style={{ flex: '1 1 420px', minWidth: 0, maxWidth: 620 }}>
+                {c.intro && <p style={{ fontSize: 17, color: 'var(--ink-2)', lineHeight: 1.6, margin: 0 }}>{c.intro}</p>}
+                {c.updated && <p style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 10, marginBottom: 0 }}>Updated {new Date(c.updated).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>}
+              </div>
+              {hasTldr && (
+                <aside
+                  aria-label={LABELS.tldr}
+                  style={{
+                    flex: '1 1 280px', minWidth: 0, maxWidth: 380,
+                    background: 'var(--bg-surface)', border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)',
+                    padding: 'var(--space-6)',
+                  }}
+                >
+                  <div className="eyebrow" style={{ marginBottom: 'var(--space-4)' }}>{LABELS.tldr}</div>
+                  <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                    {c.tldr?.map((line, i) => (
+                      <li key={i} style={{ display: 'flex', gap: 'var(--space-3)', fontSize: '14.5px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                        <span aria-hidden="true" style={{ color: 'var(--accent-1)', fontWeight: 700, flexShrink: 0 }}>→</span>
+                        <span>{line}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </aside>
+              )}
+            </div>
           </div>
         </section>
 
@@ -124,6 +158,7 @@ export default async function ClassementPageEn({ params }: { params: Params }) {
               labels={LABELS}
               comparerHref={hasComparateur ? `/en/comparer/${produit}` : undefined}
               quizHref={hasChoisirEn ? `/en/choisir/${produit}` : undefined}
+              showTldr={false}
             />
           </div>
         </section>

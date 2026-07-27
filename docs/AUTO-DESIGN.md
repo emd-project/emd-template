@@ -71,11 +71,19 @@ du seed. Passer `family` explicitement reste préférable dès que le **secteur*
 - **Permutations** : `shape` (`rounded`/`soft`/`sharp`) · `border` (`standard`/`hairline`/`bold`) ·
   `shadow` (`standard`/`flat`/`deep`) → écrire dans `niche.config.permutations`.
   Appliquées par `PermutationStyle` (override de tokens en `!important`, theme-safe) — **rien en CSS**.
+  **Ce sont les trois permutations qui ont un effet VISUEL réel aujourd'hui.**
 - **Style** : `v.effects` (`subtle`/`none`/`aurora`) et `v.cards` (`bordered`/`filled`/`minimal`) →
-  **écrire dans `niche.config.style.effects` et `niche.config.style.cards`**. Ce sont deux vrais
-  leviers de DA, et ils sont sortis au **défaut du template** (`subtle` + `bordered`) sur **4 sites
-  provisionnés sur 4** : ils n'étaient pas tirés du tout. Les laisser au défaut = bug d'init.
-- Écrire `niche.style.hero` cohérent (`split` pour comparateur/marche, sinon `centered`).
+  écrire dans `niche.config.style.effects` / `niche.config.style.cards`. Ils sortaient au **défaut du
+  template** (`subtle` + `bordered`) sur **4 sites provisionnés sur 4** — ils n'étaient pas tirés du
+  tout. Ils le sont depuis, et l'init doit reporter le tirage dans la config.
+
+> ⚠️ **`style.effects` et `style.cards` ne sont encore CÂBLÉS À RIEN.** Aucun composant ne les lit :
+> `PermutationStyle` ne surcharge que shape/border/shadow, et `globals.css` applique ses dégradés
+> aurora / le traitement des cartes **inconditionnellement**. Les écrire est donc une **trace d'init**
+> (comme `niche.config.fonts`), **pas** une promesse de rendu : changer la valeur ne change rien à
+> l'écran tant que le câblage n'est pas fait. **Ne pas les invoquer pour justifier qu'un site est
+> différent d'un autre** — la divergence visible vient de la home, des permutations, de la palette et
+> de la typo. Câbler ces deux leviers est un **chantier séparé**.
 
 **Collision de home avec les sites voisins.** La famille `comparateur` n'expose que **deux** homes
 distinctes (`marche`, `comparateur`) pour cinq secteurs : deux sites provisionnés à la suite tombent
@@ -89,6 +97,8 @@ if (v.homeCollision) { /* pool épuisé : tirage gardé → faire diverger palet
 Le re-tirage se fait **dans le pool restant** de la famille (et non en re-salant le seed, qui peut
 retomber sur la même valeur — c'est ce qui laissait passer les collisions avec l'avant-dernier site).
 Pool entièrement exclu → le tirage est **conservé** et `homeCollision` vaut `true` : le signaler.
+
+- Écrire `niche.style.hero` cohérent (`split` pour comparateur/marche, sinon `centered`).
 
 ### 3. Palette — `niche.config.palette` → `app/globals.css`
 
@@ -168,7 +178,7 @@ const pair = suggestFonts(niche.domain, v.home)
    (+ `conflict` / `confidence: 'low'` s'il y en a).
 2. **Variantes** : `suggestVariants(niche.domain, family)` (+ `{ home: [...] }` si les homes des sites
    voisins sont connues) → écrire `niche.config.layouts` (`home`, `category`, `article`) +
-   `niche.config.permutations` + **`niche.config.style.effects` / `niche.config.style.cards`** +
+   `niche.config.permutations` + `niche.config.style.effects` / `niche.config.style.cards` (trace) +
    `niche.style.hero`.
 3. **Palette** : direction mutée → `niche.config.palette` → **tous** les blocs de `globals.css`.
 4. **Typo** : `suggestFonts(niche.domain, home)` → **`app/layout.tsx`** (+ `niche.config.fonts` pour trace).
@@ -176,7 +186,7 @@ const pair = suggestFonts(niche.domain, v.home)
 6. **Annoncer** (sans s'arrêter) le récapitulatif, puis enchaîner le BUILD.
 
 > Sélection déterministe (seed domaine) + famille (secteur) → deux sites divergent automatiquement
-> (squelette, formes, effets, cartes, palette **et** typo) sans choix manuel.
+> (squelette, formes, palette **et** typo) sans choix manuel.
 
 ---
 
@@ -201,8 +211,9 @@ const pair = suggestFonts(niche.domain, v.home)
 - **Palette propagée dans `:root` seulement** → tous les sites identiques en mode clair.
 - **Valeur écrite dans `volteo.css :root`**.
 - **Aucune variante choisie** : `niche.config.layouts` doit être renseigné.
-- **`style.effects` / `style.cards` laissés au défaut du template** (`subtle` + `bordered`) : ils
-  font partie du tirage de `suggestVariants` depuis qu'on a constaté 4 sites identiques sur 4.
+- **`style.effects` / `style.cards` laissés au défaut du template** (`subtle` + `bordered`) : c'est la
+  trace que l'étape 2 n'a pas été reportée dans la config. (Sans impact visuel tant que le câblage
+  n'est pas fait — ne pas confondre ce garde-fou de traçabilité avec un défaut de rendu.)
 - **Famille décidée à la main** au lieu de `classifyNiche` (c'est ce qui envoyait les sites produit
   sur une home comparateur).
 - **Previews non dépubliées** : `/home-vN`, `/cat-vN`, `/art-vN` ne doivent plus exister en prod.

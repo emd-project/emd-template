@@ -119,12 +119,20 @@ export function resolveShadow(): Shadow {
 
 // ─── Leviers de style tirés à l'init (niche.config.style) ───────────────────
 /**
- * `style.effects` et `style.cards` sont deux vrais leviers de DA (halo/aurora du
- * hero, traitement des cartes) — mais ils n'étaient JAMAIS tirés : les 4 derniers
- * sites provisionnés sont tous sortis avec le défaut du template
- * (`subtle` + `bordered`). Ils font donc partie de la suggestion, au même titre
- * que shape/border/shadow. Les valeurs suivent EXACTEMENT le type de
- * `NicheConfig['style']`.
+ * `style.effects` et `style.cards` faisaient partie de la DA sur le papier mais
+ * n'étaient JAMAIS tirés : les 4 derniers sites provisionnés sont tous sortis
+ * avec le défaut du template (`subtle` + `bordered`). `suggestVariants` les tire
+ * désormais, au même titre que shape/border/shadow. Les valeurs suivent
+ * EXACTEMENT le type de `NicheConfig['style']`.
+ *
+ * ⚠️ ÉTAT RÉEL DU CÂBLAGE — à savoir avant d'espérer un changement visuel :
+ * AUCUN code du repo ne LIT aujourd'hui `niche.style.effects` ni
+ * `niche.style.cards`. `PermutationStyle` ne surcharge que les tokens de
+ * shape/border/shadow, et `globals.css` applique ses dégradés aurora et le
+ * traitement des cartes **inconditionnellement**. Le tirage est donc en place
+ * (et tracé dans la config), mais **le rendu ne bouge pas encore** : câbler ces
+ * deux leviers (tokens supplémentaires dans `PermutationStyle`, ou classe posée
+ * sur le shell) est un CHANTIER SÉPARÉ. Ne pas documenter l'inverse.
  */
 export type Effects = 'aurora' | 'subtle' | 'none'
 export type Cards = 'bordered' | 'filled' | 'minimal'

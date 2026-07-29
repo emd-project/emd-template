@@ -1,0 +1,45 @@
+/* ============================================================================
+   da-site.css — LA DIRECTION ARTISTIQUE DE CE SITE
+   ============================================================================
+
+   VIDE dans le template. C'est le SEUL fichier que l'init remplit librement
+   pour exprimer la DA d'un site : effets de titre, traitements de cartes,
+   ambiances de section, animations. Il est importé EN DERNIER, après
+   volteo-overrides.css, donc il gagne à spécificité égale.
+
+   POURQUOI CE FICHIER EXISTE
+   Les composants (homes, hubs, articles) sont PARTAGÉS par tous les sites du
+   réseau : y toucher casse les autres forks et interdit toute correction
+   centralisée. Ici, au contraire, chaque site écrit ce qu'il veut sans risque.
+   C'est l'endroit où un site devient reconnaissable.
+
+   RÈGLES DURES (un manquement = bug de DA)
+   1. TOKENS UNIQUEMENT — var(--accent-1), var(--bg-surface), var(--text-*)…
+      JAMAIS un hex en dur. Un hex ici casse le mode clair/sombre et sort de la
+      palette calculée.
+   2. 3 À 5 EFFETS MAXIMUM, choisis dans docs/DA-EFFETS.md, et cohérents entre
+      eux (ils doivent servir le MÊME parti pris). Au-delà, c'est un sapin de Noël.
+   3. TOUTE ANIMATION est enveloppée d'un @media (prefers-reduced-motion: reduce)
+      qui la neutralise. Non négociable (WCAG 2.3.3).
+   4. AUCUNE RÈGLE DE LAYOUT (grid-template-columns, position, largeurs de
+      colonnes). Le layout appartient aux composants ; ici on fait de la peau :
+      couleur, matière, mouvement, typographie.
+   5. Contraste WCAG recalculé après coup : ≥ 4,5 pour le texte, ≥ 3 pour les
+      gros titres, bordures et anneaux de focus.
+   6. Ne jamais poser un token qui s'inverse (--text-primary, --bg-primary) sur
+      un fond qui ne s'inverse pas (accent, image, scrim) → texte invisible en
+      thème opposé.
+
+   MODE D'EMPLOI
+   L'init écrit ici, sous cet en-tête : le PARTI PRIS en une phrase, puis les
+   effets retenus, chacun sous un commentaire qui le nomme et dit d'où il vient
+   (« carte : bordure qui s'allume — DA-EFFETS §2.4 »).
+
+   Catalogue des effets disponibles : docs/DA-EFFETS.md
+   Palette & directions : docs/DA-DIRECTIONS.md
+   Règles chiffrées d'UI : emd-methodo/references/design-ux-regles.md
+   ============================================================================ */
+
+/* PARTI PRIS : (à écrire par l'init — une phrase, l'idée directrice du site) */
+
+/* (aucun effet dans le template — chaque site remplit ce fichier) */

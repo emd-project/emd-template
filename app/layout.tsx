@@ -19,11 +19,17 @@ import './styles/volteo-hub.css'
 import './styles/volteo-article.css'
 import './styles/volteo-comparateur.css'
 import './styles/volteo-motion.css'
-// Overrides — DOIT rester le DERNIER import (cf. en-tête du fichier).
+// Overrides du template — dernier des fichiers PARTAGÉS.
 import './styles/volteo-overrides.css'
+// DA du site — DOIT rester le TOUT DERNIER import : c'est le seul fichier
+// propre à ce site (effets de titre, cartes, ambiances, animations).
+// Vide dans le template, rempli à l'init. Cf. docs/DA-EFFETS.md.
+import './styles/da-site.css'
 
 // ── Fonts — défaut V1 Voltéo (Hanken Grotesk + Bricolage Grotesque) ──
-//    Remplacées à l'init par les fonts du skin choisi pour la niche.
+//    REMPLACÉES À L'INIT par la paire tirée pour la niche (suggestFonts).
+//    ⚠️ Un site qui sort avec CETTE paire est indistinguable d'un fork non
+//    configuré : elle est exclue du tirage, ne la réintroduis jamais à la main.
 const fontPrimary = Hanken_Grotesk({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700', '800'],

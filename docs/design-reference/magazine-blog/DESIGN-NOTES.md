@@ -1,54 +1,21 @@
-# DESIGN-NOTES — Magazine / Blog informationnel (barre qualité)
+# ⛔ ARCHIVÉ — ne pas lire, ne pas appliquer
 
-Deuxième archétype, à côté du comparateur (`../comparateur-energie/`). Sert de niveau cible
-quand l'init compose une DA pour un site **éditorial / informationnel** (pas transactionnel).
-Reproduire la **rigueur**, pas les couleurs.
+Ce fichier décrivait un moteur qui **n'existe plus**. Il citait comme API vivante :
+`niche.config.homeSections`, `ArticleTicker`, `RecentArticles`, `ArticleMasonry`, `CategorySection`,
+`AuthorTeaser` — **tous supprimés du template**. Un agent qui le prenait au sérieux partait sur une
+architecture morte ; son contenu a donc été retiré plutôt que laissé en place.
 
-## Philosophie
+**Où est la doctrine vivante :** `docs/AUTO-DESIGN.md` (DA à l'init) · `lib/niche-classify.ts` (famille) ·
+`lib/variants.ts` (squelette + permutations) · `lib/typography.ts` (typo) · `docs/DA-DIRECTIONS.md`
+(5 directions de palette) · `emd-methodo/references/design-ux-regles.md` (règles chiffrées).
 
-Contenu d'abord. La confiance vient de la **typographie** et du **blanc**, pas d'un visuel
-produit. Sensation « kiosque / rédaction » : titres forts, hiérarchie nette, lecture confortable.
-La home n'a PAS de formulaire de comparaison ni d'estimateur — elle met en avant des **articles**.
+**Les deux seules idées de ce fichier qui n'existent nulle part ailleurs**, conservées pour le backlog
+du catalogue de sections :
 
-## Couleurs
+1. **Masonry éditorial** — une grille d'articles à hauteurs inégales, par opposition aux grilles
+   homogènes 3 cartes des homes actuelles.
+2. **Bloc auteur / autorité en home** — une section qui expose l'auteur et son expertise directement
+   sur la page d'accueil (aujourd'hui l'auteur n'apparaît qu'en byline d'article et sur `/auteurs/[slug]`).
 
-Palette retenue (souvent neutres + 1 accent éditorial). Le fond peut être clair (crème/blanc cassé
-+ encre) ou affirmé, mais reste sobre : la couleur ponctue (catégories, liens, accents), elle ne
-sature pas. Une couleur par catégorie en **petits tags**, pas en aplats.
-
-## Typographie (le cœur de l'archétype)
-
-La typo EST le design. Contraste fort : un display à caractère (serif éditorial « Playfair/
-Fraunces »-like, ou grotesque expressif) pour les titres d'articles + un body très lisible. Gros
-titres d'articles, interlignage généreux, mesure de lecture ~65-75 caractères.
-
-## Pattern de home (magazine)
-
-1. **Bandeau ticker** des derniers articles (optionnel) — `ArticleTicker`.
-2. **Article à la une** : un grand featured + grille des suivants — `RecentArticles` (fait
-   déjà exactement ça : featured 2 cols + grille).
-3. **Rails par catégorie / rubriques** — `CategorySection`.
-4. **Masonry / grille éditoriale** pour explorer — `ArticleMasonry`.
-5. **Auteur / à propos** (autorité éditoriale) — `AuthorTeaser`.
-6. **Newsletter**.
-Pas de : hero quick-form, estimateur à sliders, table d'offres, bandeau « N fournisseurs ».
-
-## Sections home (niche.config.ts.homeSections)
-
-Archétype magazine → mener avec l'éditorial :
-`homeSections: ['ticker', 'articles', 'categories', 'author']`
-(à comparer au comparateur : `['ticker', 'deals', 'articles', 'categories', 'tools', 'author']`).
-Le hero penche `centered` ou `minimal` (éditorial), pas `split` avec visuel produit.
-
-## Motion
-
-Sobre. Révélations douces au scroll, pas d'animations « produit ». `prefers-reduced-motion`
-respecté.
-
-## Comment s'en servir comme barre qualité
-
-- typo à fort contraste display/body, titres d'articles généreux ;
-- home menée par un **article à la une** + grille, pas par un outil ;
-- couleur sobre qui ponctue, une teinte par rubrique en petit tag ;
-- blanc et hiérarchie comme matière première ;
-- aucune section vide ou plate.
+Le reste — « la typo EST le design », « couleurs souvent neutres », « fort contraste de graisses » —
+est de l'ambiance, pas une mise en page. À réinventer par site, jamais à recopier.

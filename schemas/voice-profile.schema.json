@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emd-project.be/schemas/voice-profile-v1.schema.json",
+  "title": "EMD — content/voice-profile.json",
+  "description": "Contrat de VOIX, phase 1. `copywriter` l'ecrit ; `builder` et la tache quotidienne le lisent pour rediger. Il ne decrit pas seulement comment le site parle, mais en quoi il ne parle pas comme ses voisins — d'ou les controles contre registry/voice-registry.json.\n\nCe schema DOCUMENTE la forme. C'est `scripts/validate-voice.mjs` qui fait foi a l'execution.",
+  "type": "object",
+  "required": ["schemaVersion", "site", "reader", "speaker", "register", "lexicon", "signature"],
+  "additionalProperties": false,
+
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+
+    "site": {
+      "type": "object",
+      "required": ["domain"],
+      "additionalProperties": false,
+      "properties": {
+        "domain": { "type": "string" },
+        "generatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+
+    "reader": {
+      "type": "object",
+      "required": ["state"],
+      "additionalProperties": false,
+      "description": "LA question qui determine tout le reste. Deux sites d'assurance auto n'ont aucune raison de sonner pareil si l'un s'adresse a un jeune conducteur qui vient de recevoir une prime a 2 000 euros et l'autre a un pere de famille qui compare par principe tous les trois ans.",
+      "properties": {
+        "state": {
+          "type": "string", "minLength": 40, "maxLength": 600,
+          "description": "Dans quel etat le lecteur arrive-t-il ? Concret, une ou deux phrases. VOICE-00 refuse un profil sans reponse ecrite : sans elle, le ton est choisi au hasard — et le hasard produit toujours le meme ton neutre et poli."
+        },
+        "level": { "type": "string", "description": "Niveau de connaissance suppose : novice, informe, connaisseur." },
+        "stakes": { "type": "string", "description": "Ce que la decision lui coute reellement, en clair et si possible chiffre." }
+      }
+    },
+
+    "speaker": {
+      "type": "object",
+      "required": ["authorName", "slug", "title", "location", "bio"],
+      "additionalProperties": false,
+      "properties": {
+        "authorName": {
+          "type": "string",
+          "pattern": "^\\p{Lu}[\\p{L}'’-]+( \\p{Lu}[\\p{L}'’-]+)? \\p{Lu}\\.$",
+          "description": "Prenom + initiale du nom suivie d'un point — « Amelie C. ». Un nom de famille complet est invente donc invérifiable ; un prenom seul se lit comme un pseudonyme et affaiblit l'E-E-A-T. Jamais « la redaction ». VOICE-01."
+        },
+        "slug": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "title": { "type": "string", "description": "Fonction reelle, avec le marche : « Journaliste automobile — marche du haut de gamme »." },
+        "location": { "type": "string", "description": "Ville ou region reelle. Doit apparaitre dans la bio." },
+        "since": { "type": "integer", "minimum": 1980, "description": "Annee de debut d'exercice. Une anciennete datee se verifie ; « depuis toujours » ne se verifie pas." },
+        "bio": {
+          "type": "string", "minLength": 400,
+          "description": "Dans l'ordre d'efficacite : d'ou vient l'expertise (un metier anterieur bat un diplome), ce que la personne fait concretement chaque mois, et ce qui l'agace dans son secteur. Ce dernier point est ce qui distingue un auteur d'une fiche de poste. VOICE-04."
+        },
+        "expertise": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "register": {
+      "type": "object",
+      "required": ["person", "address", "tone"],
+      "additionalProperties": false,
+      "properties": {
+        "person": {
+          "enum": ["je", "nous", "impersonnel"],
+          "description": "Trois voix tres differentes : `je` engage et assume, `nous` institutionnalise, `impersonnel` met la donnee au premier plan."
+        },
+        "address": { "enum": ["vous", "tu"], "description": "Tranche une fois, jamais melange." },
+        "tone": {
+          "type": "array", "minItems": 2, "items": { "type": "string" },
+          "description": "Au moins deux qualificatifs, et qu'ils s'opposent un peu. « factuel, direct » ne dit presque rien ; « factuel, un peu froid, pro-consommateur » dit quelque chose."
+        },
+        "rhythm": { "type": "string", "description": "Mecanique de phrase, executable : « phrases courtes, chiffres avant les adjectifs »." }
+      }
+    },
+
+    "lexicon": {
+      "type": "object",
+      "required": ["entityGender", "banned"],
+      "additionalProperties": false,
+      "properties": {
+        "entity": { "type": "string" },
+        "entities": { "type": "string" },
+        "entityGender": {
+          "enum": ["m", "f"],
+          "description": "Genre REEL de l'entite. « neobanque » est feminin, « operateur » masculin. Pilote tous les accords FR. Recoupe avec niche.config.ts par VOICE-02 : une faute d'accord sur le H1 signe le gabarit."
+        },
+        "preferred": {
+          "type": "array", "items": { "type": "string" },
+          "description": "Tournures reellement employees, CONCRETES : « le cout de detention sur trois ans » plutot que « une approche transparente »."
+        },
+        "banned": {
+          "type": "array", "minItems": 5, "items": { "type": "string" },
+          "description": "Mots proscrits PROPRES a ce site — une liste generique ne tient rien. Sur un site de luxe : bijou, joyau, d'exception, reve accessible, sans compromis. VOICE-05 refuse en plus les tics generiques (plongez, univers, incontournable, revolutionnaire, coup de coeur, veritable) dans preferred et formulations."
+        }
+      }
+    },
+
+    "signature": {
+      "type": "object",
+      "required": ["anchor", "oneRule", "formulations"],
+      "additionalProperties": false,
+      "properties": {
+        "anchor": {
+          "type": "string", "minLength": 20, "maxLength": 300,
+          "description": "Pas un slogan : une REGLE EDITORIALE observable dans le rendu. « le reseau hote imprime a cote de chaque prix — on ne compare jamais une marque, on compare un signal et une facture ». VOICE-07 mesure sa similarite avec le registre (Jaccard sur les mots pleins) : au-dela de 60 %, echec."
+        },
+        "oneRule": {
+          "type": "string",
+          "description": "La contrainte que chaque article respecte sans exception. C'est ce qui rend la voix tenable sur trois cents articles."
+        },
+        "formulations": {
+          "type": "array", "minItems": 3, "items": { "type": "string" },
+          "description": "Tournures recurrentes, courtes, qu'un lecteur regulier finirait par reconnaitre."
+        }
+      }
+    }
+  }
+}

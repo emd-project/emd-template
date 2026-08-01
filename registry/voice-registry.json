@@ -1,0 +1,48 @@
+{
+  "registryVersion": "2026.08",
+  "note": "Registre central des VOIX EMD. Source UNIQUE : il vit dans emd-template et n'est JAMAIS copie dans un fork. Un fork le lit ici et y ecrit son entree en phase 1 de l'init. C'est le pendant de da-registry.json : l'un empeche deux sites de se ressembler, l'autre empeche deux sites de PARLER pareil.",
+  "method": "Backfill du 2026-08-01. Auteur et signature lus dans niche.config.ts de chaque site.",
+  "why": "Les pages editoriales (a propos, methodologie, page auteur) sont INDEXEES et comparables : c'est la que Google detecte un reseau, pas dans les mentions legales qui sont noindex et volontairement identiques. Deux sites qui partagent un prenom d'auteur et une tournure signature sont reliables a la main en trente secondes.",
+  "rules": {
+    "authorNameFormat": "Prenom + initiale du nom suivie d'un point — « Amelie C. ». Jamais de nom de famille complet (invente = risque), jamais de prenom seul (lu comme un pseudonyme, affaiblit l'E-E-A-T), jamais « la redaction ».",
+    "firstNameUniqueness": "Un prenom d'auteur n'est utilise que par UN site du reseau.",
+    "excludeWindow": 8,
+    "signatureUniqueness": "La formulation signature (`signature.anchor`) doit etre propre au site. Deux sites du meme secteur ne peuvent pas la partager."
+  },
+  "parcStateAtBackfill": {
+    "sites": 19,
+    "duplicatedFirstNames": {
+      "Damien": ["simulateur-assurance-auto.be", "meilleur-suv.be (Damien C.)", "meilleure-voiture-utilitaire.be (Damien L.)"],
+      "Camille": ["quel-fournisseur-energie.be", "meilleur-parti-politique.be"],
+      "Julien": ["meilleur-fournisseur-electricite.be", "meilleure-voiture.be (Julien V.)"]
+    },
+    "nameFormatSplit": { "prenomSeul": 9, "prenomPlusInitiale": 9, "autre": 1 },
+    "duplicatedSignatures": [
+      "« le reseau hote a cote de chaque prix » — meilleur-abonnement-5g.be et meilleur-operateur-mobile.be, a un mot pres",
+      "« specs tabulaires facon fiche technique » — meilleur-suv.be et meilleure-voiture-utilitaire.be"
+    ]
+  },
+
+  "sites": [
+    { "domain": "simulateur-assurance-auto.be", "authorName": "Damien", "nameFormat": "prenom-seul", "signature": "la prime reelle et la garantie cote a cote", "flags": ["prenom partage avec 2 sites", "format non conforme"] },
+    { "domain": "quel-fournisseur-energie.be", "authorName": "Camille", "nameFormat": "prenom-seul", "signature": "le cout annuel total, gaz + electricite, toujours affiche", "flags": ["prenom partage avec meilleur-parti-politique.be", "format non conforme"] },
+    { "domain": "meilleur-abonnement-5g.be", "authorName": "Bastien", "nameFormat": "prenom-seul", "signature": "le reseau hote affiche a cote de chaque prix — on ne compare jamais une marque, on compare un signal et une facture", "flags": ["signature quasi identique a meilleur-operateur-mobile.be", "format non conforme"] },
+    { "domain": "quelle-assurance-auto.be", "authorName": "Gregory", "nameFormat": "prenom-seul", "signature": "grille suisse sobre, mono-accent bordeaux, zero rayon", "flags": ["format non conforme"] },
+    { "domain": "meilleure-citadine.be", "authorName": "Lea", "nameFormat": "prenom-seul", "signature": "choisir une citadine sans se faire avoir : donnees reelles, prix locaux, zero survente", "flags": ["format non conforme"] },
+    { "domain": "comparer-banque.be", "authorName": "Marion", "nameFormat": "prenom-seul", "signature": "le cout annuel reel affiche a cote de chaque banque", "flags": ["format non conforme"] },
+    { "domain": "meilleur-operateur-mobile.be", "authorName": "Nadia", "nameFormat": "prenom-seul", "signature": "le reseau hote imprime a cote de chaque prix", "flags": ["signature quasi identique a meilleur-abonnement-5g.be", "format non conforme"] },
+    { "domain": "meilleure-voiture-de-luxe.be", "authorName": null, "nameFormat": null, "signature": "escalier-de-tranche", "flags": ["seul site du moteur V2", "auteur a relever dans voice-profile.json"] },
+
+    { "domain": "meilleure-neobanque.be", "authorName": "Maxime", "nameFormat": "prenom-seul", "signature": "la clarte tarifaire d'abord", "flags": ["format non conforme"] },
+    { "domain": "meilleur-fournisseur-electricite.be", "authorName": "Julien", "nameFormat": "prenom-seul", "signature": "le prix au kWh toujours visible", "flags": ["prenom partage avec meilleure-voiture.be", "format non conforme"] },
+    { "domain": "meilleure-fibre-internet.be", "authorName": "Nicolas", "nameFormat": "prenom-seul", "signature": "le debit reel d'abord", "flags": ["format non conforme"] },
+    { "domain": "www.meilleur-suv.be", "authorName": "Damien C.", "nameFormat": "prenom-initiale", "signature": "specs tabulaires facon banc d'essai", "flags": ["prenom partage avec 2 sites", "signature quasi identique a meilleure-voiture-utilitaire.be"] },
+    { "domain": "meilleure-voiture.be", "authorName": "Julien V.", "nameFormat": "prenom-initiale", "signature": "bande categories sombre + mosaique hero decalee", "flags": ["prenom partage avec meilleur-fournisseur-electricite.be"] },
+    { "domain": "www.meilleure-voiture-familiale.be", "authorName": "Audrey P.", "nameFormat": "prenom-initiale", "signature": "le coffre reel en litres, sieges-auto installes" },
+    { "domain": "meilleur-chocolat.be", "authorName": "Margaux", "nameFormat": "prenom-seul", "signature": "le carnet de degustation du chocolat belge", "flags": ["format non conforme"] },
+    { "domain": "meilleur-parti-politique.be", "authorName": "Camille", "nameFormat": "prenom-seul", "signature": "le badge +/− sur chaque mesure", "flags": ["prenom partage avec quel-fournisseur-energie.be", "format non conforme", "prenom seul VOULU sur ce site — sujet politique, decision assumee"] },
+    { "domain": "www.meilleures-assurances-auto.be", "authorName": "Thomas R.", "nameFormat": "prenom-initiale", "signature": "emeraude-petrol + cuivre ; barres de garantie" },
+    { "domain": "meilleure-voiture-7-places.be", "authorName": "Sophie L.", "nameFormat": "prenom-initiale", "signature": "fiche famille tabulaire — sieges-auto de front, coffre en service" },
+    { "domain": "www.meilleure-voiture-utilitaire.be", "authorName": "Damien L.", "nameFormat": "prenom-initiale", "signature": "specs tabulaires facon fiche technique", "flags": ["prenom partage avec 2 sites", "signature quasi identique a meilleur-suv.be"] }
+  ]
+}

@@ -7,9 +7,9 @@ description: Phase 2 de l'init — conçoit la direction artistique du site et l
 
 Tu habilles une arborescence qui existe déjà. Lis d'abord `content/site-plan.json` (ce que le site contient) et `content/voice-profile.json` (comment il parle) : la DA doit servir ces deux-là, pas l'inverse.
 
-Tu écris **directement dans le repo** — `niche.config.ts`, `app/globals.css`, `app/layout.tsx`, `app/styles/da-site.css` — et tu produis **`content/da-report.json`**, qui n'est pas un second contrat mais une **preuve** : ce que tu as tiré, muté et calculé. `scripts/validate-da.mjs` relit le rapport ET les fichiers réels, et recalcule tout ce qui est calculable.
+Tu écris **directement dans le repo** — `niche.config.ts`, `app/globals.css`, `app/layout.tsx`, `app/styles/da-site.css`. `content/da-report.json` n'est pas un second contrat mais une **preuve** : ce que tu as tiré, muté et calculé, écrit noir sur blanc pour que la revue humaine puisse le confronter au rendu.
 
-> Pourquoi cette distinction compte. Le registre de l'ancien moteur enregistrait `meilleur-chocolat.be` en Playfair Display alors que le site tourne en DM Serif Display depuis des mois. Personne ne s'en est aperçu, parce que rien ne comparait jamais la déclaration à la réalité. Ici, ce qui est déclaré est vérifié contre le disque.
+> Pourquoi cette distinction compte. Le registre de l'ancien moteur enregistrait `meilleur-chocolat.be` en Playfair Display alors que le site tourne en DM Serif Display depuis des mois. Personne ne s'en est aperçu, parce que rien ne comparait jamais la déclaration à la réalité.
 
 **Tu travailles en aveugle.** Personne ne regarde le rendu avant la phase 4. Aucune décision « au feeling » : chaque choix vient d'une bibliothèque curée ou d'un tirage seedé, et tout ce qui est vérifiable l'est par calcul ou par grep.
 

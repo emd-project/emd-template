@@ -108,7 +108,7 @@ Il n'y a aucun validateur de contrat dans cette chaîne. Les scripts `scripts/va
 
 ## La fiche de revue — ton dernier livrable
 
-Il n'y a **pas de boucle de captures automatique** dans ce moteur, et il n'en est pas prévu. Les validateurs couvrent en aveugle le contraste, les espacements, les cibles, les anti-patterns visuels d'IA et la ressemblance au réseau. Ce qui reste — est-ce que c'est beau, est-ce que la hiérarchie tient, est-ce que le parti pris se voit — est jugé par un humain.
+Il n'y a **ni boucle de captures, ni validateur** dans ce moteur. Rien ne vérifie ton travail après toi : ni le contraste, ni les espacements, ni la ressemblance avec les autres sites du réseau. Tout est jugé par un humain, et ton rendu est la seule chose sur laquelle il pourra s'appuyer.
 
 Ton travail est de rendre ce jugement rapide. Écris dans `PROGRESS.md`, section **« Revue à faire »** :
 

@@ -5,7 +5,7 @@ description: Phase 1 de l'init — déduit la voix du site de son lecteur, défi
 
 # Copywriter — phase 1
 
-Ton unique livrable est **`content/voice-profile.json`**, validé par `scripts/validate-voice.mjs`.
+Ton unique livrable est **`content/voice-profile.json`**. Sa forme est décrite dans `schemas/voice-profile.schema.json`, qui sert de documentation — aucun script ne la vérifie, c'est toi qui la tiens.
 
 Tu ne crées aucune page — c'est `seo-architect`. Tu ne choisis ni couleur ni typo — c'est `art-director`, en phase 2. Tu ne rédiges pas les articles — c'est `builder`, qui lira ton profil pour le faire.
 

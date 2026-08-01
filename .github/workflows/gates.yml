@@ -1,0 +1,73 @@
+name: gates
+
+# Le template DOIT passer ses propres portes.
+#
+# C'est la seule question qui aurait evite les cinq bugs du premier run reel :
+# un garde qui ne tourne jamais contre le depot qu'il garde n'est pas un garde,
+# c'est une intention. Ici il tourne a chaque commit, sur le template nu.
+#
+# `EMD_UI_CHECK=strict` force l'armement : sans lui, check-ui-guards se desarme
+# tant que niche.config.ts n'est pas configure — utile dans un fork, mais ce
+# serait precisement l'inverse de ce qu'on veut tester ici.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/**'
+      - 'app/**'
+      - 'components/**'
+      - 'schemas/**'
+      - '.github/workflows/gates.yml'
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Les validateurs sont syntaxiquement valides
+        # Un validateur qui ne demarre pas bloque un run sans rien dire d'utile.
+        run: |
+          for f in scripts/*.mjs; do
+            echo "node --check $f"
+            node --check "$f"
+          done
+
+      - name: Les schemas sont du JSON valide
+        run: |
+          for f in schemas/*.json registry/*.json; do
+            echo "parse $f"
+            node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))"
+          done
+
+      - name: Le template nu passe check-ui-guards
+        # LE test qui compte. Si le template ne peut pas passer sa propre porte,
+        # aucun fork ne le pourra, et l'echec se decouvrira pendant un run — sur
+        # un domaine achete, avec un site a moitie construit.
+        env:
+          EMD_UI_CHECK: strict
+        run: node scripts/check-ui-guards.mjs
+
+      - name: Les registres du template sont bien des panneaux, pas des donnees
+        # Les vrais registres vivent dans emd-methodo. Si une copie de donnees
+        # revenait ici, chaque fork en heriterait et validerait contre elle —
+        # les controles de divergence passeraient en ne prouvant rien.
+        run: |
+          node -e "
+            const fs = require('fs');
+            for (const f of ['registry/da-registry.json','registry/voice-registry.json']) {
+              const j = JSON.parse(fs.readFileSync(f,'utf8'));
+              if (j.moved !== true || (j.sites ?? []).length > 0) {
+                console.error(f + ' porte des donnees. Les registres vivent dans emd-methodo : ce depot est un template GitHub, et tout fork en heriterait une copie figee.');
+                process.exit(1);
+              }
+            }
+            console.log('OK — les deux registres sont des panneaux inertes.');
+          "

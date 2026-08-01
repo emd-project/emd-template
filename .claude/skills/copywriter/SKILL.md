@@ -75,19 +75,17 @@ Ce qui fait une bonne bio, dans l'ordre : **d'où vient l'expertise** (un métie
 
 ---
 
-## Validation
+## Relis-toi, et enregistre-toi
 
-```bash
-node scripts/validate-voice.mjs content/voice-profile.json <copie locale du registre emd-methodo>
-```
+Il n'y a pas de validateur. Cinq points à vérifier toi-même avant de rendre — et ce que tu ne peux pas corriger, tu l'écris dans ton rendu.
 
-Le registre vit dans **`emd-project/emd-methodo`**, chemin `registry/voice-registry.json`, et **ne se copie jamais dans un fork** : récupère-le à distance avant de valider.
+1. **Le format du nom** : « Prénom X. ». Ni nom de famille complet, qui serait inventé donc invérifiable, ni prénom seul, qui se lit comme un pseudonyme.
+2. **Le prénom est-il libre ?** Lis `registry/voice-registry.json` dans **`emd-project/emd-methodo`** — celui de ton fork est un panneau inerte, `"sites": []`. Aujourd'hui Damien signe trois sites, Camille deux, Julien deux. Deux pages auteur indexées avec le même prénom relient deux sites en trente secondes.
+3. **La formule signature est-elle propre au site ?** Compare-la aux entrées du registre. `meilleur-abonnement-5g.be` et `meilleur-operateur-mobile.be` sont à un mot près — c'est exactement ce qu'il faut éviter.
+4. **Le genre de l'entité est-il le bon ?** « néobanque » est féminin, « opérateur » masculin. Une faute d'accord sur le H1 est visible par n'importe quel lecteur et signe le gabarit.
+5. **La bio est-elle vérifiable ?** Un lieu réel, une ancienneté datée, et ce qui agace la personne dans son secteur. « passionné depuis toujours » ne dit rien.
 
-> ⚠️ Le `registry/voice-registry.json` présent dans ton fork est un **panneau inerte**, pas des données (`"moved": true`, `"sites": []`). Il vient de l'époque où les registres vivaient dans le template — et comme le template est un template GitHub, chaque fork en héritait une copie figée, ce qui désarmait le dispositif en silence. **Valider contre lui ferait passer `VOICE-06` et `VOICE-07` sans rien prouver.**
-
-Sans registre, ces deux contrôles sont sautés et le disent — un profil « valide » sans registre n'a rien prouvé sur la divergence.
-
-**Écris ton entrée au registre d'`emd-methodo` dans le même mouvement.** Prénom, formule signature, registre. C'est la seule action de la phase dont l'oubli ne casse rien aujourd'hui et désarme le dispositif pour tous les sites suivants.
+**Écris ton entrée au registre d'`emd-methodo` dans le même mouvement** — prénom, formule signature, registre. C'est la seule action de la phase dont l'oubli ne casse rien aujourd'hui et désarme le dispositif pour tous les sites suivants.
 
 ## Ce que tu ne fais jamais
 

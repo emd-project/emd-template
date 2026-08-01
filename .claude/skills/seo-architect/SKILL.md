@@ -121,23 +121,18 @@ Une arborescence profonde et vide est **pire** qu'une arborescence plate et dens
 
 ---
 
-## Phase 1.6 — Validation
+## Phase 1.6 — Relis-toi
 
-```bash
-node scripts/validate-plan.mjs content/site-plan.json --init
-```
+Il n'y a pas de validateur. Personne ne vérifiera ton plan à ta place, et rien ne t'arrêtera : c'est à toi de le relire avant de le rendre.
 
-**Tu ne rends pas la main sur un fichier qui échoue**, et tu ne contournes jamais un invariant en modifiant le validateur. Si une règle te bloque, c'est le plan qui est fautif — ou c'est une vraie discussion à avoir, séparément, avec le cas qui la justifie.
+Six questions, dans cet ordre. Si l'une reste sans réponse satisfaisante, corrige — et si tu ne peux pas corriger, **écris-le dans ton rendu** plutôt que de le taire.
 
-Les échecs fréquents et ce qu'ils veulent dire :
-
-- **PLAN-01** — deux propriétaires pour la même requête : ton découpage confond deux intentions, ou tu as créé une page en trop.
-- **PLAN-02** — un article mord sur le head nu : qualifie-le (persona, usage, face-à-face) ou supprime-le.
-- **PLAN-05** — une catégorie blog vide : soit tu lui donnes des articles, soit elle n'existe pas.
-- **PLAN-07** — le ratio de mentions décroche : tu as écrit trop d'informationnel. Le modèle est ⅔ comparatifs de marques, ⅓ info.
-- **PLAN-09** — budget irréaliste : réduis `maxArticles`, pas la cadence.
-
----
+1. **Deux propriétaires pour la même requête ?** Passe les `owns` de tous les assets et de tous les articles, en ignorant la casse, les accents et l'article défini initial : « les meilleurs SUV » et « meilleurs SUV » sont la MÊME requête. Un doublon veut dire que ton découpage confond deux intentions, ou que tu as créé une page en trop.
+2. **Un article mord-il sur le head nu ?** « les meilleurs X », « top X », « classement X » appartiennent au classement. Le blog prend les variantes qualifiées — persona, usage, face-à-face. Qualifie l'article, ou supprime-le.
+3. **Une catégorie blog sans article ?** Soit tu lui donnes des articles, soit elle n'existe pas : une entrée de menu qui mène au vide coûte plus qu'elle ne rapporte.
+4. **Le ratio de mentions tient-il ?** Deux tiers des articles doivent faire surgir au moins deux marques réelles. En dessous, tu as écrit trop d'informationnel, et le modèle économique ne tient plus.
+5. **Chaque article a-t-il ses trois questions cibles**, formulées en question et issues de la recherche ? Sans elles, la page n'est pas citable.
+6. **Le budget est-il honnête ?** `maxArticles` ne doit pas dépasser ce que `dailyPublish` absorbe en douze mois. Si ça dépasse, réduis le nombre d'articles — jamais la cadence.
 
 ## Rendu de fin de phase
 

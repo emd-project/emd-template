@@ -2,12 +2,10 @@
 /**
  * scripts/check-ui-guards.mjs — LES PLANCHERS D'UI, MÉCANISÉS.
  *
- * `validate-design.mjs` ne vérifie que le contraste (INV-D8). C'était le manque le
- * plus sérieux de la V2 : sans planchers chiffrés, un design généré peut être
- * « unique » et illisible. Ce script porte la moitié GREPPABLE de
- * `docs/DESIGN-SEUILS.md`, plus la liste d'anti-patterns visuels d'IA que la V1
- * nommait explicitement et que `frontend-design` ne couvre pas (il connaît trois
- * looks par défaut, pas ceux-là).
+ * Sans planchers chiffrés, un design généré peut être « unique » et illisible.
+ * Ce script porte la moitié GREPPABLE de `references/design-ux-regles.md`
+ * (dépôt `emd-project/emd-methodo`), plus la liste d'anti-patterns visuels d'IA
+ * que ce document nomme explicitement.
  *
  * Usage :
  *   node scripts/check-ui-guards.mjs              # gate (exit 1 si violation)
@@ -46,7 +44,32 @@ const errors = []
 const warnings = []
 const files = []
 
-const fail = (rule, file, line, msg, excerpt) => errors.push({ rule, file, line, msg, excerpt })
+/**
+ * Fichiers qu'un fork SUBIT et n'a pas le droit de corriger : le systeme de
+ * design partage par tous les sites du reseau, et le chrome du CMS (noindex,
+ * jamais servi au lecteur, ne porte aucune direction artistique).
+ */
+const isShared = (file) =>
+  /^app\/styles\/volteo[a-z-]*\.css$/.test(file) || /^app\/admin\//.test(file)
+
+/**
+ * Une violation dans un fichier partage n'est pas imputable au site : l'y
+ * bloquer arrete un run pour une dette qu'il ne peut pas payer. Elle devient
+ * donc un AVERTISSEMENT dans un fork, et reste BLOQUANTE en mode strict —
+ * c'est-a-dire dans la CI du template, le seul endroit ou cette dette se paie.
+ *
+ * Le premier correctif n'avait traite que le compteur UI-12 ; UI-01, UI-03,
+ * UI-08 et AIP-04 continuaient de scanner ces memes fichiers. Resultat : dix
+ * violations propres au moteur suffisaient a rendre le gate infranchissable
+ * pour tout fork des qu'une DA l'armait.
+ */
+const fail = (rule, file, line, msg, excerpt) => {
+  if (!STRICT && isShared(file)) {
+    warnings.push({ rule, file, line, msg: `${msg}  [dette moteur — hors perimetre du fork]`, excerpt })
+    return
+  }
+  errors.push({ rule, file, line, msg, excerpt })
+}
 const warn = (rule, file, line, msg, excerpt) => warnings.push({ rule, file, line, msg, excerpt })
 
 // ─── Collecte ─────────────────────────────────────────────────
@@ -314,6 +337,10 @@ function render(list, mark) {
 console.log(`\ncheck-ui-guards — ${files.length} fichier(s) analysé(s)`)
 console.log(`  tailles de police distinctes : ${fontSizes.size} (plafond 10)`)
 console.log(`  familles de polices : ${fontFamilies.size} (plafond 3)`)
+{
+  const debt = warnings.filter((w) => isShared(w.file)).length
+  if (debt) console.log(`  dont ${debt} avertissement(s) de dette moteur (fichiers partagés, hors périmètre du fork)`)
+}
 
 if (warnings.length) {
   console.log(`\n${warnings.length} avertissement(s) :`)
@@ -325,7 +352,7 @@ if (!errors.length) {
   process.exit(0)
 }
 
-console.log(`\n${errors.length} violation(s) — doctrine : docs/DESIGN-SEUILS.md`)
+console.log(`\n${errors.length} violation(s) — doctrine : emd-project/emd-methodo · references/design-ux-regles.md`)
 render(errors, 'x')
 
 if (warnOnly) {

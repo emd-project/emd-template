@@ -1,0 +1,208 @@
+{
+  "registryVersion": "2026.08",
+  "note": "Registre central des directions artistiques EMD. Source UNIQUE : il vit dans emd-template et n'est JAMAIS copie dans un fork. Un fork le lit ici (github_read_file) et y ecrit son entree en phase 2 de l'init. Trente copies divergentes n'empecheraient aucune ressemblance.",
+  "method": "Backfill du 2026-08-01, par OBSERVATION et non par declaration. Les polices sont lues dans app/layout.tsx de chaque site — c'est le seul endroit que le runtime charge ; niche.config.fonts n'est lu par aucun code et ment sur plusieurs sites. Palette, mode, layout et permutations sont lus dans niche.config.ts. accent1Hue est calcule depuis l'hex (HSL), pas saisi a la main.",
+  "thresholds": {
+    "accentHueMinDelta": 25,
+    "excludeWindow": 8,
+    "note": "accent1Hue doit diverger d'au moins 25 degres de CHACUN des `excludeWindow` derniers sites. Les polices display et body doivent etre absentes de la meme fenetre. Le couple bgPrimary/bgSurface ne doit pas etre identique a un voisin de la fenetre."
+  },
+  "parcStateAtBackfill": {
+    "sites": 19,
+    "accentPairsUnderThreshold": 41,
+    "accentPairsTotal": 171,
+    "closestAccentPairDegrees": 0.4,
+    "hueBands": {
+      "orange-cuivre": "13,0 - 42,4 (6 sites)",
+      "vert-teal-cyan": "161,4 - 194,3 (7 sites)",
+      "bleu-indigo": "225,2 - 244,5 (2 sites)",
+      "rouge": "349,5 - 353,0 (4 sites)"
+    },
+    "duplicatedFontPairs": ["Archivo x Inter — quelle-assurance-auto.be, comparer-banque.be, meilleur-fournisseur-electricite.be"],
+    "templateDefaultFontsStillUsed": ["simulateur-assurance-auto.be", "meilleur-parti-politique.be", "meilleur-chocolat.be"],
+    "duplicatedBackgroundCouples": ["#F8FAFC / #FFFFFF — comparer-banque.be, meilleur-operateur-mobile.be"]
+  },
+
+  "sites": [
+    {
+      "domain": "[defauts emd-template]",
+      "repo": null,
+      "registeredAt": "2026-01-01",
+      "note": "Entree sentinelle, pas un vrai site. Les valeurs par defaut du template sont inscrites au registre pour qu'aucun site ne puisse y retomber par inertie.",
+      "fonts": { "display": "Bricolage Grotesque", "body": "Hanken Grotesk", "mono": null },
+      "accent1": "#FF3D57", "accent1Hue": 351.4, "accent2": "#3DFFC0",
+      "bgPrimary": null, "bgSurface": null, "mode": null,
+      "layoutHome": null, "permutations": null,
+      "signature": null
+    },
+
+    {
+      "domain": "simulateur-assurance-auto.be", "repo": "simulateur-assurance-auto.be", "registeredAt": "2026-07-10",
+      "fonts": { "display": "Bricolage Grotesque", "body": "Instrument Sans", "mono": "Spline Sans Mono" },
+      "accent1": "#B01E33", "accent1Hue": 351.4, "accent2": "#355E48",
+      "bgPrimary": "#FAF8F3", "bgSurface": "#FFFFFF", "mode": "light",
+      "layoutHome": "fil", "permutations": { "shape": "sharp", "border": "standard", "shadow": "flat" },
+      "signature": "la prime reelle et la garantie cote a cote",
+      "flags": ["display = police par defaut du template"]
+    },
+    {
+      "domain": "quel-fournisseur-energie.be", "repo": "quel-fournisseur-energie.be", "registeredAt": "2026-07-13",
+      "fonts": { "display": "Spectral", "body": "Figtree", "mono": null },
+      "accent1": "#8E2F3C", "accent1Hue": 351.8, "accent2": "#8A5A16",
+      "bgPrimary": "#FAF6EE", "bgSurface": "#FFFFFF", "mode": "light",
+      "layoutHome": "magazine", "permutations": { "shape": "sharp", "border": "standard", "shadow": "standard" },
+      "signature": "le cout annuel total, gaz + electricite, toujours affiche"
+    },
+    {
+      "domain": "meilleur-abonnement-5g.be", "repo": "meilleur-abonnement-5g.be", "registeredAt": "2026-07-17",
+      "fonts": { "display": "Space Grotesk", "body": "IBM Plex Sans", "mono": null },
+      "accent1": "#4FD1C5", "accent1Hue": 174.5, "accent2": "#C9F24D",
+      "bgPrimary": "#0B1016", "bgSurface": "#141C26", "mode": "dark",
+      "layoutHome": "marche", "permutations": { "shape": "sharp", "border": "bold", "shadow": "deep" },
+      "signature": "le reseau hote affiche a cote de chaque prix — on ne compare jamais une marque, on compare un signal et une facture"
+    },
+    {
+      "domain": "quelle-assurance-auto.be", "repo": "quelle-assurance-auto.be", "registeredAt": "2026-07-20",
+      "fonts": { "display": "Archivo", "body": "Inter", "mono": null },
+      "accent1": "#A81E2E", "accent1Hue": 353.0, "accent2": "#16181D",
+      "bgPrimary": "#FFFFFF", "bgSurface": "#FFFFFF", "mode": "light",
+      "layoutHome": "comparateur", "permutations": { "shape": "sharp", "border": "hairline", "shadow": "flat" },
+      "signature": "grille suisse sobre, mono-accent bordeaux, zero rayon",
+      "flags": ["paire Archivo x Inter partagee avec 2 autres sites", "bgPrimary === bgSurface"]
+    },
+    {
+      "domain": "meilleure-citadine.be", "repo": "meilleure-citadine.be", "registeredAt": "2026-07-23",
+      "fonts": { "display": "Fraunces", "body": "Inter", "mono": null },
+      "accent1": "#4CC9F0", "accent1Hue": 194.3, "accent2": "#F9C74F",
+      "bgPrimary": "#0C0E12", "bgSurface": "#14171D", "mode": "dark",
+      "layoutHome": "fil", "permutations": { "shape": "rounded", "border": "hairline", "shadow": "flat" },
+      "signature": "choisir une citadine en Belgique sans se faire avoir : donnees reelles, prix locaux, zero survente"
+    },
+    {
+      "domain": "comparer-banque.be", "repo": "comparer-banque.be", "registeredAt": "2026-07-27",
+      "fonts": { "display": "Archivo", "body": "Inter", "mono": null },
+      "accent1": "#9E3408", "accent1Hue": 17.6, "accent2": "#0E644A",
+      "bgPrimary": "#F8FAFC", "bgSurface": "#FFFFFF", "mode": "light",
+      "layoutHome": "comparateur", "permutations": { "shape": "soft", "border": "hairline", "shadow": "standard" },
+      "signature": "le cout annuel reel affiche a cote de chaque banque",
+      "flags": ["paire Archivo x Inter partagee avec 2 autres sites", "couple de fonds partage avec meilleur-operateur-mobile.be"]
+    },
+    {
+      "domain": "meilleur-operateur-mobile.be", "repo": "meilleur-operateur-mobile.be", "registeredAt": "2026-07-27",
+      "fonts": { "display": "Plus Jakarta Sans", "body": "Plus Jakarta Sans", "mono": null },
+      "accent1": "#8C6404", "accent1Hue": 42.4, "accent2": "#1F66B7",
+      "bgPrimary": "#F8FAFC", "bgSurface": "#FFFFFF", "mode": "light",
+      "layoutHome": "comparateur", "permutations": { "shape": "soft", "border": "hairline", "shadow": "flat" },
+      "signature": "le reseau hote imprime a cote de chaque prix",
+      "flags": ["display === body", "couple de fonds partage avec comparer-banque.be", "signature quasi identique a meilleur-abonnement-5g.be"]
+    },
+    {
+      "domain": "meilleure-voiture-de-luxe.be", "repo": "meilleure-voiture-de-luxe.be", "registeredAt": "2026-07-31",
+      "fonts": { "display": "Zilla Slab", "body": "Public Sans", "mono": "Spline Sans Mono" },
+      "accent1": "#9E1B32", "accent1Hue": 349.5, "accent2": "#003399",
+      "bgPrimary": "#ECEFE9", "bgSurface": null, "mode": null,
+      "layoutHome": "marge-de-montant", "permutations": null,
+      "signature": "escalier-de-tranche",
+      "flags": ["seul site sorti du moteur V2", "absent de provisioned-log.csv", "aucune tache de redaction"]
+    },
+
+    {
+      "domain": "meilleure-neobanque.be", "repo": "meilleure-neobanque.be", "registeredAt": null, "backfilledAt": "2026-08-01",
+      "fonts": { "display": "Sora", "body": "Inter", "mono": null },
+      "accent1": "#25A37C", "accent1Hue": 161.4, "accent2": "#C6953F",
+      "bgPrimary": "#0C1418", "bgSurface": "#122029", "mode": "dark",
+      "layoutHome": "comparateur", "permutations": { "shape": "soft", "border": "hairline", "shadow": "deep" },
+      "signature": "la clarte tarifaire d'abord"
+    },
+    {
+      "domain": "meilleur-fournisseur-electricite.be", "repo": "meilleur-fournisseur-electricite.be", "registeredAt": null, "backfilledAt": "2026-08-01",
+      "fonts": { "display": "Archivo", "body": "Inter", "mono": null },
+      "accent1": "#0B6E80", "accent1Hue": 189.2, "accent2": "#B45309",
+      "bgPrimary": "#EDF3F6", "bgSurface": "#FFFFFF", "mode": "light",
+      "layoutHome": "comparateur", "permutations": { "shape": "soft", "border": "standard", "shadow": "flat" },
+      "signature": "le prix au kWh toujours visible",
+      "flags": ["paire Archivo x Inter partagee avec 2 autres sites", "accent1 a 3,7 degres de meilleure-fibre-internet.be"]
+    },
+    {
+      "domain": "meilleure-fibre-internet.be", "repo": "meilleure-fibre-internet.be", "registeredAt": null, "backfilledAt": "2026-08-01",
+      "fonts": { "display": "Outfit", "body": "DM Sans", "mono": "DM Mono" },
+      "accent1": "#0E7490", "accent1Hue": 192.9, "accent2": "#B45309",
+      "bgPrimary": "#EDF2F7", "bgSurface": "#FFFFFF", "mode": "light",
+      "layoutHome": "comparateur", "permutations": { "shape": "soft", "border": "standard", "shadow": "flat" },
+      "signature": "le debit reel d'abord",
+      "flags": ["accent1 a 1,4 degre de meilleure-citadine.be et 3,7 de meilleur-fournisseur-electricite.be"]
+    },
+    {
+      "domain": "www.meilleur-suv.be", "repo": "meilleur-suv.be", "registeredAt": null, "backfilledAt": "2026-08-01",
+      "fonts": { "display": "Familjen Grotesk", "body": "Inter", "mono": null },
+      "accent1": "#E8A33D", "accent1Hue": 35.8, "accent2": "#5FA8FF",
+      "bgPrimary": "#0E1420", "bgSurface": "#161E2D", "mode": "dark",
+      "layoutHome": null, "permutations": null,
+      "signature": "specs tabulaires facon banc d'essai + bande categories sombre",
+      "flags": ["niche.config.layouts absent — le resolver retombe silencieusement sur magazine"]
+    },
+    {
+      "domain": "meilleure-voiture.be", "repo": "meilleure-voiture.be", "registeredAt": null, "backfilledAt": "2026-08-01",
+      "fonts": { "display": "Barlow Semi Condensed", "body": "Figtree", "mono": null },
+      "accent1": "#1C3FAA", "accent1Hue": 225.2, "accent2": "#007A74",
+      "bgPrimary": "#F2F4F8", "bgSurface": "#FFFFFF", "mode": "light",
+      "layoutHome": null, "permutations": null,
+      "signature": "bande categories sombre + mosaique hero decalee",
+      "flags": ["niche.config.layouts absent"]
+    },
+    {
+      "domain": "www.meilleure-voiture-familiale.be", "repo": "meilleure-voiture-familiale.be", "registeredAt": null, "backfilledAt": "2026-08-01",
+      "fonts": { "display": "Fraunces", "body": "Mulish", "mono": null },
+      "accent1": "#0E7C66", "accent1Hue": 168.0, "accent2": "#2D6CB5",
+      "bgPrimary": "#F4F1EA", "bgSurface": "#FBF9F4", "mode": "light",
+      "layoutHome": null, "permutations": null,
+      "signature": "le coffre reel en litres, sieges-auto installes",
+      "flags": ["niche.config.layouts absent", "accent1 a 0,7 degre de meilleures-assurances-auto.be"]
+    },
+    {
+      "domain": "meilleur-chocolat.be", "repo": "www.meilleur-chocolat.be", "registeredAt": null, "backfilledAt": "2026-08-01",
+      "fonts": { "display": "DM Serif Display", "body": "Hanken Grotesk", "mono": "DM Mono" },
+      "accent1": "#A85C28", "accent1Hue": 24.4, "accent2": "#A1304A",
+      "bgPrimary": "#FAF3E8", "bgSurface": "#FFFDF8", "mode": "light",
+      "layoutHome": "magazine", "permutations": { "shape": "soft", "border": "standard", "shadow": "standard" },
+      "signature": "le carnet de degustation du chocolat belge",
+      "flags": ["body = police par defaut du template", "le registre V2 annoncait Playfair Display x Source Serif 4 — jamais deploye"]
+    },
+    {
+      "domain": "meilleur-parti-politique.be", "repo": "meilleur-parti-politique", "registeredAt": null, "backfilledAt": "2026-08-01",
+      "fonts": { "display": "Bricolage Grotesque", "body": "Public Sans", "mono": null },
+      "accent1": "#4B40D4", "accent1Hue": 244.5, "accent2": "#F6B23C",
+      "bgPrimary": "#F4F2EC", "bgSurface": "#FFFFFF", "mode": "light",
+      "layoutHome": "comparateur", "permutations": { "shape": "rounded", "border": "standard", "shadow": "flat" },
+      "signature": "le badge +/− sur chaque mesure",
+      "flags": ["display = police par defaut du template", "accent1 indigo — proche du cliche IA a surveiller"]
+    },
+    {
+      "domain": "www.meilleures-assurances-auto.be", "repo": "meilleures-assurances-auto.be", "registeredAt": null, "backfilledAt": "2026-08-01",
+      "fonts": { "display": "Outfit", "body": "IBM Plex Sans", "mono": "IBM Plex Mono" },
+      "accent1": "#0B6E59", "accent1Hue": 167.3, "accent2": "#B5530F",
+      "bgPrimary": "#EEF3F1", "bgSurface": "#FFFFFF", "mode": "light",
+      "layoutHome": null, "permutations": null,
+      "signature": "emeraude-petrol + cuivre sur porcelaine verte ; motif barres de garantie",
+      "flags": ["niche.config.layouts absent du TYPE lui-meme", "n'utilise pas volteo mais un jeu qo-*.css", "accent1 a 0,7 degre de meilleure-voiture-familiale.be"]
+    },
+    {
+      "domain": "meilleure-voiture-7-places.be", "repo": "meilleure-voiture-7-places.be", "registeredAt": null, "backfilledAt": "2026-08-01",
+      "fonts": { "display": "Saira Condensed", "body": "Figtree", "mono": null },
+      "accent1": "#BE4A2A", "accent1Hue": 13.0, "accent2": "#5E7C4F",
+      "bgPrimary": "#F8F3EA", "bgSurface": "#FFFFFF", "mode": "light",
+      "layoutHome": "magazine", "permutations": { "shape": "sharp", "border": "hairline", "shadow": "flat" },
+      "signature": "fiche famille tabulaire — sieges-auto de front, coffre en service, seuil de chargement",
+      "flags": ["accent1 a 4,6 degres de comparer-banque.be"]
+    },
+    {
+      "domain": "www.meilleure-voiture-utilitaire.be", "repo": "meilleure-voiture-utilitaire.be", "registeredAt": null, "backfilledAt": "2026-08-01",
+      "fonts": { "display": "Chivo", "body": "Mulish", "mono": null },
+      "accent1": "#E0913C", "accent1Hue": 31.1, "accent2": "#5FA8A0",
+      "bgPrimary": "#0E141B", "bgSurface": "#161F2A", "mode": "dark",
+      "layoutHome": null, "permutations": null,
+      "signature": "specs tabulaires facon fiche technique — charge utile, volume, longueur",
+      "flags": ["niche.config.layouts absent du TYPE lui-meme", "accent1 a 4,7 degres de meilleur-suv.be", "signature quasi identique a meilleur-suv.be"]
+    }
+  ]
+}

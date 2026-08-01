@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emd-project.be/schemas/site-plan-v1.schema.json",
+  "title": "EMD — content/site-plan.json",
+  "description": "Contrat de la PHASE 1. `seo-architect` l'ecrit depuis Cuik ; `art-director` le lit pour habiller les assets ; `builder` l'implemente (routes, menu, maillage, sitemap) ; la tache quotidienne le met a jour (planned -> published). Aucun agent ne cree une page hors de ce fichier.\n\nCe schema DOCUMENTE la forme. C'est `scripts/validate-plan.mjs` qui fait foi a l'execution : il refait ces controles en Node pur, sans dependance, et y ajoute les invariants PLAN-01 a PLAN-12 qu'un schema JSON ne sait pas exprimer (unicite des requetes, head nu reserve, ratio de mentions, budget absorbable).",
+  "type": "object",
+  "required": ["schemaVersion", "site", "market", "clusters", "assets", "budget"],
+  "additionalProperties": false,
+
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+
+    "site": {
+      "type": "object",
+      "required": ["domain", "sector", "positioning", "generatedAt"],
+      "additionalProperties": false,
+      "properties": {
+        "domain": { "type": "string" },
+        "sector": {
+          "type": "string",
+          "description": "Colonne CATEGORIE de pipeline/sites.csv. Verite terrain : il alimente classifyNiche() en phase 2, qui decide de la famille de home."
+        },
+        "positioning": {
+          "type": "string", "maxLength": 400,
+          "description": "L'angle editorial en UNE phrase. Conditionne la DA et la voix : sans lui, les choix des phases suivantes ne sont pas coherents entre eux."
+        },
+        "generatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+
+    "market": {
+      "type": "object",
+      "required": ["country", "primaryLocale", "locales"],
+      "additionalProperties": false,
+      "properties": {
+        "country": { "type": "string", "pattern": "^[A-Z]{2}$" },
+        "primaryLocale": { "type": "string", "pattern": "^[a-z]{2}$" },
+        "locales": {
+          "type": "array", "items": { "type": "string", "pattern": "^[a-z]{2}$" },
+          "minItems": 1, "uniqueItems": true,
+          "description": "Toute locale listee ici est soumise a PLAN-08 : chaque asset et chaque article actif doit porter son chemin traduit."
+        },
+        "cuik": {
+          "type": "object", "additionalProperties": false,
+          "description": "Parametres de rappel, pour rejouer la recherche a l'identique. BE francophone : locationIds ['2056'], languageId '1002'.",
+          "properties": {
+            "locationIds": { "type": "array", "items": { "type": "string" } },
+            "languageId": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "research": {
+      "type": "object",
+      "description": "Tracabilite. Permet d'auditer POURQUOI le plan a cette forme, et de le rejouer dans six mois.",
+      "additionalProperties": false,
+      "properties": {
+        "seeds": { "type": "array", "items": { "type": "string" } },
+        "keywordIdeasAt": { "type": "string", "format": "date-time" },
+        "competitors": {
+          "type": "array",
+          "items": {
+            "type": "object", "required": ["domain"], "additionalProperties": false,
+            "properties": {
+              "domain": { "type": "string" },
+              "rankedKeywords": { "type": "integer", "minimum": 0 },
+              "observedDepth": {
+                "type": "integer", "minimum": 0,
+                "description": "Profondeur reelle lue dans les URL du concurrent. A lire litteralement : les references belges du secteur financier exposent quatre niveaux, avec des pages de definition en bout de branche. C'est la branche terminale qui manque presque toujours, et c'est la qu'est le volume non dispute."
+              },
+              "urlPatterns": { "type": "array", "items": { "type": "string" } },
+              "analyzedAt": { "type": "string", "format": "date-time" }
+            }
+          }
+        }
+      }
+    },
+
+    "clusters": {
+      "type": "array", "minItems": 1,
+      "description": "Territoires semantiques. Un cluster n'est PAS une page : c'est un sujet que plusieurs assets et articles se partagent. Un cluster a une seule requete est une page — la rattacher ailleurs.",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "intent", "volume", "priority", "keywordSource", "checkedAt"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "label": { "type": "string" },
+          "intent": {
+            "enum": ["informational", "commercial", "transactional", "navigational", "comparative"],
+            "description": "REPRIS de main_intent (DataForSEO), jamais devine. Ne jamais inferer une intention que la donnee fournit."
+          },
+          "volume": { "type": "integer", "minimum": 0 },
+          "difficulty": { "type": "number", "minimum": 0, "maximum": 100 },
+          "priority": {
+            "type": "integer", "minimum": 1, "maximum": 5,
+            "description": "1 = pilier, 5 = optionnel. Pilote l'ordre de publication de la tache quotidienne : c'est ce champ qui decide de ce qui sort pendant les six prochains mois. Ne pas le distribuer au hasard."
+          },
+          "personas": { "type": "array", "items": { "type": "string" } },
+          "keywordSource": {
+            "enum": ["keyword_ideas", "ranked_keywords", "gsc", "manual"],
+            "description": "PLAN-03. Un volume sans source est un volume invente, et c'est pire qu'un volume absent : il a l'air fiable."
+          },
+          "checkedAt": { "type": "string" }
+        }
+      }
+    },
+
+    "assets": {
+      "type": "array", "minItems": 1,
+      "description": "Les pages structurelles du site : le menu, en somme. Le catalogue V1 est une BIBLIOTHEQUE disponible, pas une liste imposee ni une liste interdite — on y puise, et on n'ouvre un type `custom` que si le marche le reclame et qu'aucun asset existant ne le sert.",
+      "items": {
+        "type": "object",
+        "required": ["type", "slug", "status"],
+        "properties": {
+          "type": {
+            "enum": ["classement", "comparateur", "choisir", "quiz", "simulateur", "blog-categorie", "page", "custom"],
+            "description": "classement = LA page rankee de reference, proprietaire du head nu. comparateur = cote a cote multi-items. choisir = aide a la decision. blog-categorie = un rayon du blog. page = editorial hors catalogue (a propos, methodologie). custom = type ouvert pour ce marche, a justifier dans `rationale`."
+          },
+          "slug": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "cluster": { "type": "string" },
+          "path": { "type": "string", "pattern": "^/" },
+          "localizedPaths": {
+            "type": "object",
+            "additionalProperties": { "type": "string", "pattern": "^/" },
+            "description": "Un slug traduit, pas recopie. Une page anglaise lie vers les URL anglaises."
+          },
+          "depth": { "type": "integer", "minimum": 0, "maximum": 4 },
+          "owns": {
+            "type": "array", "items": { "type": "string" },
+            "description": "Requetes exactes RESERVEES. Unicite globale stricte (PLAN-01). Le head nu (« les meilleurs X », « top X », « classement X ») appartient au classement et a lui seul (PLAN-02)."
+          },
+          "status": {
+            "enum": ["seed", "planned", "disabled"],
+            "description": "seed = livre rempli a l'init. planned = existe au plan, n'emet ni route ni sitemap ni lien. disabled = eteint, avec raison ecrite obligatoire."
+          },
+          "disabledReason": {
+            "type": "string", "minLength": 20,
+            "description": "PLAN-04. Eteindre un asset est une decision legitime — la taire ne l'est pas. Exemple reel : « une seule famille d'items, toutes les reponses du quiz aboutiraient a la meme page ; mieux vaut pas de quiz qu'un quiz qui ment »."
+          },
+          "wordsMin": { "type": "integer", "minimum": 300, "description": "Plancher. 1000 minimum pour un classement." },
+          "mentionSlots": { "type": "integer", "minimum": 0, "description": "Marques reelles que la page doit faire surgir. C'est l'inventaire vendable." },
+          "rationale": { "type": "string", "maxLength": 600, "description": "Obligatoire pour un type `custom`." }
+        }
+      }
+    },
+
+    "articles": {
+      "type": "array",
+      "description": "Le blog. Il FAIT des comparatifs de marques — c'est le coeur des mentions — mais ne duplique jamais le head nu d'un asset, et maille toujours vers lui.",
+      "items": {
+        "type": "object",
+        "required": ["slug", "categorie", "cluster", "type", "owns", "questions", "status"],
+        "properties": {
+          "slug": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "categorie": { "type": "string", "description": "Doit referencer un asset de type blog-categorie (PLAN-05)." },
+          "cluster": { "type": "string" },
+          "type": {
+            "enum": ["comparatif", "face-a-face", "info"],
+            "description": "comparatif = « meilleurs X pour [persona] ». face-a-face = « X vs Y ». info = comment / pourquoi / prix / definition."
+          },
+          "owns": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "questions": {
+            "type": "array", "minItems": 3, "items": { "type": "string" },
+            "description": "H2 formules EN QUESTION, issus de la recherche et non inventes. C'est le materiau que les LLM citent : sans eux la page n'est pas citable (PLAN-06)."
+          },
+          "persona": { "type": "string", "description": "Segment de lecteur. Le levier de longue traine le moins dispute." },
+          "brands": {
+            "type": "array", "items": { "type": "string" },
+            "description": "Marques reelles attendues. PLAN-07 exige que 2/3 des articles en portent au moins 2."
+          },
+          "priority": { "type": "integer", "minimum": 1, "maximum": 5 },
+          "status": { "enum": ["seed", "planned"] },
+          "localizedPaths": { "type": "object", "additionalProperties": { "type": "string", "pattern": "^/" } }
+        }
+      }
+    },
+
+    "budget": {
+      "type": "object",
+      "required": ["seedArticles", "dailyPublish", "maxArticles"],
+      "additionalProperties": false,
+      "description": "Le garde-fou anti-thin. Une arborescence profonde et vide est PIRE qu'une arborescence plate et dense.",
+      "properties": {
+        "seedArticles": { "type": "integer", "minimum": 1, "description": "Articles entierement rediges a l'init. Ce sont les piliers (priorite 1-2), pas les pages faciles." },
+        "dailyPublish": { "type": "integer", "minimum": 0 },
+        "maxArticles": {
+          "type": "integer", "minimum": 1,
+          "description": "Taille totale du plan. PLAN-09 refuse tout ce que `dailyPublish` ne peut pas absorber en douze mois."
+        }
+      }
+    }
+  }
+}

@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
     "check:placeholders": "node scripts/check-placeholders.mjs",
+    "check:ui": "node scripts/check-ui-guards.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "audit": "npm audit --audit-level=high --omit=dev",

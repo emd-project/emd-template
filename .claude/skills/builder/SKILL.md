@@ -15,15 +15,7 @@ Tu implémentes. Les décisions sont prises et écrites :
 
 **Ta règle unique : tout ce que tu écris est traçable à l'un de ces fichiers.** Si tu te retrouves à choisir une couleur, inventer une URL ou trancher une hiérarchie de titres, tu es sorti de ton rôle — ou un contrat est incomplet, et c'est le contrat qu'il faut corriger, pas combler en silence.
 
-Vérifie-les avant de toucher au code :
-
-```bash
-node scripts/validate-plan.mjs content/site-plan.json --init
-node scripts/validate-voice.mjs content/voice-profile.json registry/voice-registry.json
-node scripts/validate-da.mjs content/da-report.json registry/da-registry.json
-```
-
-Construire sur un contrat invalide produit un site qu'il faudra défaire.
+Lis-les avant de toucher au code. S'il manque une valeur dont tu as besoin, ne la devine pas : signale que le contrat est incomplet dans ton rendu, et prends la décision la plus neutre possible en attendant. Construire sur un contrat bancal produit un site qu'il faudra défaire.
 
 ---
 

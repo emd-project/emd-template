@@ -77,6 +77,11 @@ const norm = (s) =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, ' ')
     .trim()
+    // L'article defini initial ne distingue pas deux requetes : « les meilleurs
+    // SUV » et « meilleurs SUV » sont LA MEME requete, et sans ce retrait deux
+    // pages peuvent legitimement les revendiquer chacune. Trou trouve au premier
+    // essai du validateur — c'est exactement le genre de doublon qui passe.
+    .replace(/^(les|le|la|l)\s+/, '')
 
 const isArr = (v) => Array.isArray(v)
 const isStr = (v) => typeof v === 'string' && v.trim().length > 0

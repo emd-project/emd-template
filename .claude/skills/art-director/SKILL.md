@@ -57,7 +57,11 @@ const v = suggestVariants(niche.domain, family, { home: [...homes des N derniers
 
 Une des directions de `docs/DA-DIRECTIONS.md`, ou un preset de `lib/da-presets/palettes.json` si la verticale est très typée — **puis MUTÉE** : teinte de marque ±12-45°, accent secondaire ré-accordé. **Jamais d'hex improvisés.** Un `brandColor` fourni remplace **uniquement** `accent-1`.
 
-`DA-03` recalcule l'écart de teinte contre les **8 derniers sites** du registre et refuse en dessous de **25°**. Ce n'est pas théorique : sur le parc actuel, 41 paires de sites sur 171 sont sous ce seuil, la plus serrée à **0,4°**. Quatre bandes absorbent 19 sites — orange-cuivre 13-42°, vert-teal-cyan 161-194°, bleu-indigo 225-244°, rouge 349-353°. **Regarde où sont les trous avant de choisir.**
+`DA-03` recalcule l'écart de teinte contre les **8 derniers sites** du registre — celui d'**`emd-project/emd-methodo`**, `registry/da-registry.json` — et refuse en dessous de **25°**.
+
+> ⚠️ Le `registry/da-registry.json` de ton fork est un **panneau inerte**, pas des données (`"moved": true`, `"sites": []`). Récupère le vrai registre depuis `emd-methodo` : valider contre le panneau ferait passer `DA-03` et `DA-06b` sans rien prouver.
+
+Ce n'est pas théorique : sur le parc actuel, 41 paires de sites sur 171 sont sous ce seuil, la plus serrée à **0,4°**. Quatre bandes absorbent 19 sites — orange-cuivre 13-42°, vert-teal-cyan 161-194°, bleu-indigo 225-244°, rouge 349-353°. **Regarde où sont les trous avant de choisir.**
 
 Vérifie aussi le **couple de fonds** : deux presets différents partagent souvent le même stack `#F8FAFC`/`#FFFFFF`, et les sites paraissent jumeaux malgré des accents distincts.
 
@@ -110,12 +114,12 @@ Sous le seuil → ajuster la **lightness** du token, pas la teinte, recalculer, 
 - **Previews supprimées** : `/home-vN`, `/cat-vN`, `/art-vN`, en FR et en EN (`DA-08`).
 - **Zéro couleur en dur** dans `app/` et `components/` (`DA-07`). Une couleur écrite dans un composant est un bug de build : c'est ainsi que l'empreinte partagée revient.
 - **Identité** : favicon monogramme `app/icon.svg` (rond `accent-1` + initiale, couleur de lettre calculée), logo header en SVG inline teinté `var(--accent-1)`.
-- **Enregistrement au registre**, maintenant et pas à la fin. C'est la seule action de la phase dont l'oubli ne casse rien aujourd'hui et désarme le dispositif pour tous les sites suivants.
+- **Enregistrement aux registres d'`emd-methodo`**, maintenant et pas à la fin. C'est la seule action de la phase dont l'oubli ne casse rien aujourd'hui et désarme le dispositif pour tous les sites suivants.
 
 ## Validation
 
 ```bash
-node scripts/validate-da.mjs content/da-report.json registry/da-registry.json
+node scripts/validate-da.mjs content/da-report.json <copie locale du registre emd-methodo>
 node scripts/check-ui-guards.mjs
 ```
 

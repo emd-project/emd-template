@@ -82,6 +82,22 @@ function ignored(lines, i) {
   return /ui-guard-ignore/.test(lines[i] ?? '') || /ui-guard-ignore/.test(lines[i - 1] ?? '')
 }
 
+/**
+ * La ligne est-elle dans un bloc `@media (prefers-reduced-motion: reduce)` ?
+ *
+ * WCAG 2.3.3 impose d'y neutraliser les animations, et la forme canonique est
+ * `animation-duration: 0.01ms`. UI-06 la signalait comme durée hors bornes : le
+ * garde pénalisait donc exactement le code qu'il doit exiger, et rendait le gate
+ * impassable sur tout site correctement accessible.
+ */
+function inReducedMotion(lines, i) {
+  for (let j = i; j >= 0 && i - j < 25; j--) {
+    if (/prefers-reduced-motion/.test(lines[j] ?? '')) return true
+    if (j !== i && /^\s*\}/.test(lines[j] ?? '')) return false
+  }
+  return false
+}
+
 // ─── Accumulateurs globaux (comptages inter-fichiers) ─────────
 
 const fontSizes = new Set()
@@ -92,6 +108,10 @@ const shadowValues = new Map()
 
 for (const { file, raw } of files) {
   const exempt = EXEMPT_FILES.has(file)
+  // Le systeme de design PARTAGE par tous les forks. Un fork n'a pas le droit
+  // d'y toucher (cf. art-director), donc l'y compter bloque un run pour une
+  // dette qu'il ne peut pas corriger. Elle se corrige une fois, au centre.
+  const shared = /^app\/styles\/volteo[a-z-]*\.css$/.test(file)
   const lines = raw.split(/\r?\n/)
 
   for (let i = 0; i < lines.length; i++) {
@@ -103,10 +123,19 @@ for (const { file, raw } of files) {
     // ── Typographie ────────────────────────────────────────
 
     // Recense les tailles pour le comptage global.
-    for (const m of line.matchAll(/font-size:\s*([0-9.]+)(px|rem|em)/g)) fontSizes.add(m[1] + m[2])
-    for (const m of line.matchAll(/\btext-(xs|sm|base|lg|xl|2xl|3xl|4xl|5xl|6xl|7xl|8xl|9xl)\b/g)) fontSizes.add(m[1])
-    for (const m of line.matchAll(/\btext-\[([0-9.]+)(px|rem)\]/g)) fontSizes.add(m[1] + m[2])
-    for (const m of line.matchAll(/font-family:\s*([^;]+);/g)) fontFamilies.add(m[1].split(',')[0].trim().replace(/['\"]/g, ''))
+    if (!shared) {
+      for (const m of line.matchAll(/font-size:\s*([0-9.]+)(px|rem|em)/g)) fontSizes.add(m[1] + m[2])
+      for (const m of line.matchAll(/\btext-(xs|sm|base|lg|xl|2xl|3xl|4xl|5xl|6xl|7xl|8xl|9xl)\b/g)) fontSizes.add(m[1])
+      for (const m of line.matchAll(/\btext-\[([0-9.]+)(px|rem)\]/g)) fontSizes.add(m[1] + m[2])
+    }
+    // Ne compter que de VRAIES familles : `var(--font-body)` et `inherit` sont
+    // des indirections vers la paire deja comptee, pas une troisieme police.
+    for (const m of line.matchAll(/font-family:\s*([^;]+);/g)) {
+      const fam = m[1].split(',')[0].trim().replace(/['"]/g, '')
+      if (!/^var\(/.test(fam) && !/^(inherit|initial|unset|revert|sans-serif|serif|monospace|system-ui|ui-sans-serif|ui-serif|ui-monospace|cursive|fantasy)$/i.test(fam)) {
+        fontFamilies.add(fam)
+      }
+    }
 
     // UI-01 — plancher absolu de taille de texte (11 px).
     for (const m of line.matchAll(/(?:font-size:\s*|\btext-\[)([0-9.]+)px/g)) {
@@ -145,14 +174,16 @@ for (const { file, raw } of files) {
     // ── UX & accessibilité ─────────────────────────────────
 
     // UI-06 — durées d'animation hors 100-600 ms.
-    for (const m of line.matchAll(/\bduration-\[?([0-9]+)m?s?\]?/g)) {
-      const ms = parseInt(m[1], 10)
-      if (!Number.isFinite(ms) || ms === 0) continue
-      if (ms < 100 || ms > 600) fail('UI-06', file, n, `durée ${ms}ms hors 100-600ms`, cut)
-    }
-    for (const m of line.matchAll(/transition(?:-duration)?:[^;]*?\b([0-9]+)ms/g)) {
-      const ms = parseInt(m[1], 10)
-      if (ms && (ms < 100 || ms > 600)) fail('UI-06', file, n, `durée ${ms}ms hors 100-600ms`, cut)
+    if (!inReducedMotion(lines, i)) {
+      for (const m of line.matchAll(/\bduration-\[?([0-9]+)m?s?\]?/g)) {
+        const ms = parseInt(m[1], 10)
+        if (!Number.isFinite(ms) || ms === 0) continue
+        if (ms < 100 || ms > 600) fail('UI-06', file, n, `durée ${ms}ms hors 100-600ms`, cut)
+      }
+      for (const m of line.matchAll(/transition(?:-duration)?:[^;]*?\b([0-9]+)ms/g)) {
+        const ms = parseInt(m[1], 10)
+        if (ms && (ms < 100 || ms > 600)) fail('UI-06', file, n, `durée ${ms}ms hors 100-600ms`, cut)
+      }
     }
 
     // UI-07 — cible tactile sous 44px sur un élément interactif.

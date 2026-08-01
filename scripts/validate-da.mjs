@@ -323,6 +323,15 @@ if (!isStr(report?.site?.domain)) fail('DA-00', 'site.domain', 'requis')
 {
   const IGNORED = new Set(['node_modules', '.next', '.git', '.vercel', 'dist', 'build', 'out', 'coverage'])
   const ALLOWED = new Set(['app/globals.css', 'app/styles/da-site.css', 'app/opengraph-image.tsx', 'app/icon.svg'])
+  // Exemptions de PERIMETRE, pas de complaisance.
+  // `app/admin/` est le chrome du CMS : noindex, jamais servi au lecteur, il ne
+  // porte aucune direction artistique. Les `app/styles/volteo*.css` sont le
+  // systeme de design partage par TOUS les forks — l'art-director a interdiction
+  // d'y toucher, et volteo-chrome.css documente ses valeurs comme volontairement
+  // invariantes (c'est meme ce que verifie tests/unit/da-guards.test.ts). Les y
+  // signaler bloquerait un run pour une dette qu'il ne peut pas corriger ; elle
+  // se corrige une fois, au centre.
+  const EXEMPT = [/^app\/admin\//, /^app\/styles\/volteo[a-z-]*\.css$/]
   const offenders = new Map()
   const walk = (dir) => {
     let entries
@@ -339,7 +348,7 @@ if (!isStr(report?.site?.domain)) fail('DA-00', 'site.domain', 'requis')
       }
       if (!/\.(tsx?|jsx?|css)$/.test(e.name)) continue
       const rel = path.relative(ROOT, abs).split(path.sep).join('/')
-      if (ALLOWED.has(rel)) continue
+      if (ALLOWED.has(rel) || EXEMPT.some((re) => re.test(rel))) continue
       const raw = fs.readFileSync(abs, 'utf-8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
       const hits = (raw.match(/#[0-9a-fA-F]{6}\b/g) ?? []).filter((h) => !/^#(000000|ffffff)$/i.test(h))
       if (hits.length) offenders.set(rel, [...new Set(hits)])
@@ -359,11 +368,20 @@ if (!isStr(report?.site?.domain)) fail('DA-00', 'site.domain', 'requis')
     const abs = path.resolve(ROOT, base)
     if (!fs.existsSync(abs)) continue
     for (const name of fs.readdirSync(abs)) {
-      if (/^(home-v\d|cat-v\d|art-v\d)$/.test(name)) found.push(`${base}/${name}`)
+      if (!/^(home-v\d|cat-v\d|art-v\d)$/.test(name)) continue
+      // L'API GitHub ne sait pas SUPPRIMER : github_commit_batch n'accepte que
+      // `content` ou `imageFilename`. Un fork provisionne par API ne peut donc
+      // jamais faire disparaitre ces dossiers, et cet invariant etait impassable
+      // par construction. Ce qui compte n'est pas l'absence du DOSSIER mais
+      // l'absence de PAGE : une route neutralisee en notFound() n'emet aucune
+      // route, aucune entree de sitemap, aucun lien, et ne s'indexe pas.
+      const page = path.resolve(abs, name, 'page.tsx')
+      const raw = fs.existsSync(page) ? fs.readFileSync(page, 'utf-8') : ''
+      if (!/notFound\s*\(\s*\)/.test(raw)) found.push(`${base}/${name}`)
     }
   }
   if (found.length) {
-    fail('DA-08', 'app', `${found.length} route(s) preview encore presente(s) : ${found.join(', ')}. Dix formes pre-ecrites partagees par trente forks = empreinte reseau detectable.`)
+    fail('DA-08', 'app', `${found.length} route(s) preview encore servie(s) : ${found.join(', ')}. Dix formes pre-ecrites partagees par trente forks = empreinte reseau detectable. Supprimer le dossier, ou a defaut remplacer son page.tsx par : import { notFound } from "next/navigation"; export default function Page() { notFound() }`)
   }
 }
 

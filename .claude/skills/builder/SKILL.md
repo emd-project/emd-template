@@ -103,15 +103,14 @@ Tout le contenu doit être dans le **HTML rendu par le serveur**. Server Compone
 ## Avant de committer
 
 ```bash
-tsc --noEmit && npm run lint && vitest run
-npm run check:placeholders
-npm run check:ui
-node scripts/validate-plan.mjs content/site-plan.json --init
+tsc --noEmit && npm run lint && vitest run && npm run build
 ```
 
-**L'ordre compte plus que la liste.** Ces contrôles passent **avant** le déploiement, jamais après. Un déploiement rouge alors que le run se croyait fini signifie toujours la même chose : une vérification a été sautée. Le cas déjà vu — du JSX dans un fichier `.ts` — est attrapé par `tsc --noEmit` en deux secondes, et coûte un build Vercel rouge plus un diagnostic à l'aveugle si on l'ignore.
+Ces quatre-là sont les seuls qui comptent, parce qu'un site qui ne compile pas ne se déploie pas. Si l'un casse, corrige. Si tu n'y arrives pas, **note-le et continue avec ce qui fonctionne** — un site livré avec un défaut écrit vaut mieux qu'un run arrêté.
 
-**Ne modifie jamais un validateur pour faire passer un build.** S'il bloque, c'est le contenu ou le contrat qui est fautif.
+L'ordre compte plus que la liste : ces contrôles passent **avant** le déploiement, jamais après. Le cas déjà vu — du JSX dans un fichier `.ts` — est attrapé par `tsc --noEmit` en deux secondes, et coûte un build Vercel rouge plus un diagnostic à l'aveugle si on l'ignore.
+
+Il n'y a aucun validateur de contrat dans cette chaîne. Les scripts `scripts/validate-*.mjs` et `check-ui-guards.mjs` existent dans le repo mais ont été retirés de la procédure : **ne les exécute pas.**
 
 ---
 

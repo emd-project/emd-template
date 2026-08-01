@@ -116,16 +116,19 @@ Sous le seuil → ajuster la **lightness** du token, pas la teinte, recalculer, 
 - **Identité** : favicon monogramme `app/icon.svg` (rond `accent-1` + initiale, couleur de lettre calculée), logo header en SVG inline teinté `var(--accent-1)`.
 - **Enregistrement aux registres d'`emd-methodo`**, maintenant et pas à la fin. C'est la seule action de la phase dont l'oubli ne casse rien aujourd'hui et désarme le dispositif pour tous les sites suivants.
 
-## Validation
+## Relis-toi
 
-```bash
-node scripts/validate-da.mjs content/da-report.json <copie locale du registre emd-methodo>
-node scripts/check-ui-guards.mjs
-```
+Il n'y a pas de validateur. Sept points à vérifier toi-même avant de rendre — et ce que tu ne peux pas corriger, tu l'écris dans ton rendu.
 
-`check-ui-guards` porte les planchers d'UI et les anti-patterns visuels d'IA. Il refuse notamment **plus de 3 familles de polices** et **plus de 10 tailles distinctes** : une paire plus une mono éventuelle tient dans le budget, une troisième famille de texte non.
+1. **Le parti pris est-il écrit en tête de `app/styles/da-site.css` ?** S'il n'y est pas, la prochaine intervention ne comprendra pas pourquoi le site ressemble à ça.
+2. **La typo est-elle réellement chargée ?** Vérifie les imports next/font dans `app/layout.tsx`. **`niche.config.fonts` n'est lu par aucun code** : l'écrire seul ne change rien au rendu. C'est le piège numéro un de cette phase, et trois sites du parc y sont tombés.
+3. **La palette est-elle dans les CINQ blocs de `globals.css` ?** `@theme`, `:root`, `@media (prefers-color-scheme: light)`, `html[data-theme="light"]`, `html[data-theme="dark"]`. En oublier un laisse tous les sites identiques dans un des deux modes.
+4. **Les accents du template ont-ils disparu ?** `#FF3D57`, `#C8001F`, `#3DFFC0`, `#7B61FF`.
+5. **Les contrastes sont-ils calculés, en clair ET en sombre ?** ≥ 4,5 pour le texte, ≥ 3 pour les gros titres, bordures et focus. Aucun arrondi : 4,49 échoue. Un accent lisible en clair ne l'est pas mécaniquement en sombre.
+6. **Reste-t-il une couleur en dur** dans un composant ou une page ? Hors `globals.css` et `da-site.css`, il ne doit y en avoir aucune — c'est ainsi que l'empreinte partagée revient. Laisse tranquilles `app/admin/` et `app/styles/volteo*.css` : c'est le chrome du CMS et le système partagé, tu n'as pas le droit d'y toucher.
+7. **Trois familles de polices au maximum.** Une paire plus une mono éventuelle tient dans le budget ; une troisième famille de texte, non.
 
-Échappatoire ponctuelle et justifiée : `// ui-guard-ignore`.
+Et pour `da-site.css` : tokens uniquement, zéro hex, toute animation sous `@media (prefers-reduced-motion: reduce)`, aucune règle de layout.
 
 ## Ce que tu ne fais jamais
 

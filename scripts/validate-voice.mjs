@@ -147,12 +147,25 @@ if (!isStr(voice?.reader?.state)) {
   }
   // Recoupement avec niche.config.ts quand il est déjà écrit : deux sources de
   // vérité qui divergent valent moins qu'une seule.
+  //
+  // Mais le recoupement n'a de sens QUE si le fichier a été configuré. En phase 1
+  // il porte encore les valeurs du template — `entity: 'produit'`,
+  // `entityGender: 'm'` — et les traiter comme une source de vérité faisait
+  // échouer d'office tout site dont l'entité est féminine, avant même que
+  // l'art-director ait le droit d'écrire ce fichier en phase 2. Le contrôle
+  // s'arme donc seul, comme celui de check-ui-guards.
   const cfg = path.resolve(process.cwd(), 'niche.config.ts')
   if (fs.existsSync(cfg)) {
     const raw = fs.readFileSync(cfg, 'utf-8')
+    const configured =
+      !/siteName:\s*'emd-template'/.test(raw) &&
+      !/domain:\s*'example\.com'/.test(raw) &&
+      !/entity:\s*'produit'/.test(raw)
     const m = raw.match(/entityGender:\s*'([mf])'/)
-    if (m && GENDERS.includes(lexicon.entityGender) && m[1] !== lexicon.entityGender) {
+    if (configured && m && GENDERS.includes(lexicon.entityGender) && m[1] !== lexicon.entityGender) {
       fail('VOICE-02', 'lexicon.entityGender', `« ${lexicon.entityGender} » ici, « ${m[1]} » dans niche.config.ts — les deux doivent dire la même chose`)
+    } else if (!configured && GENDERS.includes(lexicon.entityGender)) {
+      warn('VOICE-02', 'niche.config.ts', `pas encore configuré (valeurs du template) — le genre « ${lexicon.entityGender} » devra y être reporté en phase 2`)
     }
   }
 }

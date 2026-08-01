@@ -78,12 +78,16 @@ Ce qui fait une bonne bio, dans l'ordre : **d'où vient l'expertise** (un métie
 ## Validation
 
 ```bash
-node scripts/validate-voice.mjs content/voice-profile.json registry/voice-registry.json
+node scripts/validate-voice.mjs content/voice-profile.json <copie locale du registre emd-methodo>
 ```
 
-Le registre vit dans `emd-project/emd-template` et **ne se copie jamais dans un fork** : récupère-le à distance avant de valider. Sans lui, `VOICE-06` et `VOICE-07` sont sautés et le disent — un profil « valide » sans registre n'a rien prouvé sur la divergence.
+Le registre vit dans **`emd-project/emd-methodo`**, chemin `registry/voice-registry.json`, et **ne se copie jamais dans un fork** : récupère-le à distance avant de valider.
 
-**Écris ton entrée au registre dans le même mouvement.** Prénom, formule signature, registre. C'est la seule action de la phase dont l'oubli ne casse rien aujourd'hui et désarme le dispositif pour tous les sites suivants.
+> ⚠️ Le `registry/voice-registry.json` présent dans ton fork est un **panneau inerte**, pas des données (`"moved": true`, `"sites": []`). Il vient de l'époque où les registres vivaient dans le template — et comme le template est un template GitHub, chaque fork en héritait une copie figée, ce qui désarmait le dispositif en silence. **Valider contre lui ferait passer `VOICE-06` et `VOICE-07` sans rien prouver.**
+
+Sans registre, ces deux contrôles sont sautés et le disent — un profil « valide » sans registre n'a rien prouvé sur la divergence.
+
+**Écris ton entrée au registre d'`emd-methodo` dans le même mouvement.** Prénom, formule signature, registre. C'est la seule action de la phase dont l'oubli ne casse rien aujourd'hui et désarme le dispositif pour tous les sites suivants.
 
 ## Ce que tu ne fais jamais
 

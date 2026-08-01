@@ -1,0 +1,36 @@
+# DÉSACTIVÉ — ne se déclenche jamais tout seul.
+#
+# Ce workflow lançait, à chaque commit, la seule question qui aurait évité les
+# bugs de validateurs : « est-ce que le template nu passe ses propres portes ? ».
+# Il n'est pas souhaité. Il ne tourne donc plus que sur déclenchement manuel,
+# et un fork n'en hérite rien qui s'exécute.
+#
+# Le fichier subsiste uniquement parce que l'API GitHub ne sait pas supprimer.
+# Il peut être effacé à la main depuis l'interface web, en un clic.
+#
+# La vérification, elle, reste nécessaire : avant toute modification d'un
+# validateur, l'exécuter contre le template nu, à la main :
+#
+#   EMD_UI_CHECK=strict node scripts/check-ui-guards.mjs
+#
+# Si le template ne passe pas sa propre porte, aucun fork ne le pourra.
+
+name: gates (manuel)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Syntaxe des validateurs
+        run: for f in scripts/*.mjs; do node --check "$f"; done
+      - name: Le template nu passe check-ui-guards
+        env:
+          EMD_UI_CHECK: strict
+        run: node scripts/check-ui-guards.mjs

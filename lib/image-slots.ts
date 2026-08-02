@@ -1,17 +1,33 @@
 /**
- * Registre central des emplacements d'images fixes du site — SOURCE UNIQUE des
- * ids, dimensions, chemins et prompts des images structurelles.
+ * Registre des images STRUCTURELLES du site — source unique des ids, chemins,
+ * dimensions et prompts.
  *
- * Usage :
- * 1. <ImagePlaceholder slotId="home-hero-background" /> affiche l'image si elle existe,
- *    sinon un placeholder (détaillé en dev, épuré en prod). Filet de sécurité dev :
- *    en V2, un site en prod ne doit afficher AUCUN placeholder.
- * 2. La page /admin/images liste tous les slots et leur statut.
- * 3. Les prompts sont écrits pour Gemini / Nano Banana (le moteur réel) : courts
- *    (<= ~20 mots), descriptifs, finissant par « no text, no logos, no watermark ».
+ * ┌─ POURQUOI CE FICHIER A MAIGRI ────────────────────────────────────────────┐
+ * │ Il déclarait 24 emplacements. Un audit du rendu, le 2026-08-02, en a       │
+ * │ trouvé ZÉRO de consommé : `ImagePlaceholder`, seul composant appelant      │
+ * │ `getImageSlot`, n'était importé nulle part. Le registre n'était lu que par │
+ * │ `/admin/images`. Toutes ces images étaient générées — la partie la plus    │
+ * │ longue d'un run de provisionnement — poussées dans `public/`, et affichées │
+ * │ sur aucune page.                                                           │
+ * │                                                                            │
+ * │ Il ne reste que ce qui s'affiche : un hero, une couverture par catégorie,  │
+ * │ un portrait d'auteur. Pour un site à six catégories : 8 générations au     │
+ * │ lieu de 24.                                                                │
+ * └───────────────────────────────────────────────────────────────────────────┘
  *
- * Note : ce registre couvre QUE les images structurelles (pages fixes).
- * Les articles ont leurs images (cover/mid) via le frontmatter + la scheduled task.
+ * **Règle : on n'ajoute pas un slot ici sans le brancher dans un composant.**
+ * Un emplacement déclaré et non rendu coûte une génération, un aller-retour
+ * réseau et une ligne dans la checklist — pour rien.
+ *
+ * Ce que ce registre NE couvre PAS, volontairement :
+ * - les **covers d'articles**, qui viennent du `featureImage` du frontmatter et
+ *   sont produites par la tâche de rédaction quotidienne, article par article ;
+ * - l'**image OpenGraph**, générée dynamiquement par `app/opengraph-image.tsx` ;
+ * - les images **in-content** d'un article, qui RÉUTILISENT la couverture de
+ *   leur catégorie plutôt que d'en générer une nouvelle.
+ *
+ * Les prompts sont écrits pour Gemini / Nano Banana : courts (≤ ~20 mots),
+ * descriptifs, finissant par « no text, no logos, no watermark ».
  */
 
 import { niche } from '@/niche.config'
@@ -24,10 +40,10 @@ export type ImageSlot = {
   alt: string
   description: string
   prompt: string
-  section: 'home' | 'tools' | 'author' | 'brand' | 'blog'
+  section: 'home' | 'category' | 'author'
 }
 
-/** Placeholder pour remplacer dans les prompts : [niche] */
+/** Remplace les jetons de niche dans un prompt. */
 function p(str: string): string {
   return str
     .replace(/\[niche\]/g, niche.entity)
@@ -37,128 +53,55 @@ function p(str: string): string {
 
 const NEG = 'no text, no logos, no watermark'
 
-// ─── Slots statiques ────────────────────────────────────────────────────
+// ─── Slot statique ──────────────────────────────────────────────────────
 
 const STATIC_SLOTS: ImageSlot[] = [
-  // Home
   {
-    id: 'home-hero-background',
-    path: '/images/home/hero-background.webp',
+    id: 'home-hero',
+    path: '/images/home/hero.webp',
     width: 1920,
     height: 1080,
-    alt: 'Arrière-plan du hero',
-    description: 'Grande image en fond du hero above-fold. Ambiance immersive, cohérente avec la niche et la DA.',
+    alt: 'Illustration principale du site',
+    description:
+      "Image de tête de la home. C'est la première chose qu'un lecteur voit : elle porte le parti pris de la DA plus que n'importe quelle autre.",
     prompt: p(
       `Cinematic editorial background, [niche] theme, moody atmospheric lighting, shallow depth of field, muted color grading, premium magazine aesthetic, ${NEG}`
     ),
     section: 'home',
   },
-  {
-    id: 'home-hero-visual',
-    path: '/images/home/hero-visual.webp',
-    width: 1000,
-    height: 1250,
-    alt: 'Illustration principale du hero',
-    description: 'Visuel principal à droite du hero (variant "split"). Produit phare, illustration éditoriale, ou scène symbolique.',
-    prompt: p(
-      `Editorial hero visual for a [niche] guide, soft natural lighting, premium composition, negative space on one side, ${NEG}`
-    ),
-    section: 'home',
-  },
-
-  // Tools
-  {
-    id: 'comparer-hero',
-    path: '/images/tools/comparer-hero.webp',
-    width: 1920,
-    height: 600,
-    alt: 'Header du comparateur',
-    description: 'Bandeau horizontal en haut de /comparer. Évoque la comparaison, le choix.',
-    prompt: p(`Wide minimalist banner evoking side-by-side comparison of [nicheEn], clean background, editorial tone, ${NEG}`),
-    section: 'tools',
-  },
-  {
-    id: 'quiz-hero',
-    path: '/images/tools/quiz-hero.webp',
-    width: 1920,
-    height: 600,
-    alt: 'Header du quiz',
-    description: 'Bandeau horizontal en haut de /quiz. Évoque le parcours personnalisé.',
-    prompt: p(`Wide banner evoking a guided personalized choice for [nicheEn], soft gradients, abstract path, ${NEG}`),
-    section: 'tools',
-  },
-  {
-    id: 'simulateur-hero',
-    path: '/images/tools/simulateur-hero.webp',
-    width: 1920,
-    height: 600,
-    alt: 'Header du simulateur',
-    description: 'Bandeau horizontal en haut de /simulateur. Évoque le calcul, le budget.',
-    prompt: p(`Wide banner evoking calculation and budget for [niche], abstract data visualization, clean lines, ${NEG}`),
-    section: 'tools',
-  },
-  {
-    id: 'deals-hero',
-    path: '/images/tools/deals-hero.webp',
-    width: 1920,
-    height: 600,
-    alt: 'Header des deals',
-    description: 'Bandeau horizontal en haut de /deals. Évoque la bonne affaire, l\'opportunité.',
-    prompt: p(`Wide banner evoking premium offers for [niche], warm glowing accent lighting, editorial quality, ${NEG}`),
-    section: 'tools',
-  },
-
-  // Brand
-  {
-    id: 'og-default',
-    path: '/images/brand/og-default.webp',
-    width: 1200,
-    height: 630,
-    alt: 'Image OpenGraph par défaut',
-    description: 'Image de partage par défaut (fallback). Le site a déjà un opengraph-image.tsx dynamique ; celle-ci est optionnelle.',
-    prompt: p(`Branded social sharing card background for a [niche] guide, premium look, space for an overlay, ${NEG}`),
-    section: 'brand',
-  },
 ]
 
-// ─── Slots dynamiques (catégories, auteurs) ─────────────────────────────
+// ─── Slots dynamiques ───────────────────────────────────────────────────
 
 function dynamicSlots(): ImageSlot[] {
   const slots: ImageSlot[] = []
 
-  // Une image par catégorie (section home)
+  /**
+   * UNE image par catégorie, pour TROIS emplacements :
+   *   1. la carte de la catégorie sur la home,
+   *   2. l'en-tête de la page hub `/blog/[categorie]`,
+   *   3. l'illustration in-content des articles de cette catégorie.
+   *
+   * C'est le meilleur rapport visible/généré du registre : une génération,
+   * trois apparitions. L'ancien registre en demandait deux par catégorie —
+   * une carte et un fond d'article — dont aucune n'était rendue.
+   */
   niche.categories.forEach((cat) => {
     slots.push({
-      id: `home-category-${cat.slug}`,
+      id: `category-${cat.slug}`,
       path: `/images/categories/${cat.slug}.webp`,
-      width: 1200,
-      height: 800,
+      width: 1600,
+      height: 900,
       alt: `Illustration ${cat.label}`,
-      description: `Image d'illustration de la section "${cat.label}" sur la home et en page pilier.`,
+      description: `Couverture de la catégorie « ${cat.label} » : carte sur la home, en-tête du hub /blog/${cat.slug}, et illustration in-content de ses articles.`,
       prompt: p(
         `Editorial photo representing ${cat.label} in the [niche] context, shallow depth of field, premium magazine style, balanced composition, ${NEG}`
       ),
-      section: 'home',
+      section: 'category',
     })
   })
 
-  // Fond cinématique d'en-tête d'article par catégorie
-  niche.categories.forEach((cat) => {
-    slots.push({
-      id: `blog-category-background-${cat.slug}`,
-      path: `/images/blog/category-${cat.slug}.webp`,
-      width: 2400,
-      height: 1200,
-      alt: `Arrière-plan des articles ${cat.label}`,
-      description: `Fond cinématique derrière le titre de chaque article de la catégorie "${cat.label}". Atmosphérique, avec de l'espace pour un overlay sombre et du texte.`,
-      prompt: p(
-        `Cinematic dark editorial background representing ${cat.label} for a ${niche.entity} guide, moody atmospheric lighting, rich muted color grading, space for a dark overlay, ${NEG}`
-      ),
-      section: 'blog',
-    })
-  })
-
-  // Photo auteur
+  // Portrait de l'auteur — signature E-E-A-T, rendu sur la page auteur et la byline.
   if (niche.author.slug) {
     slots.push({
       id: `author-${niche.author.slug}`,
@@ -166,8 +109,8 @@ function dynamicSlots(): ImageSlot[] {
       width: 512,
       height: 512,
       alt: `Photo de ${niche.author.name}`,
-      description: 'Photo de l\'auteur principal, format carré. Page auteur, articles, section AuthorTeaser.',
-      prompt: `Professional editorial portrait of ${niche.author.name || 'the author'}, natural lighting, neutral background, ${NEG}`,
+      description: "Portrait de l'auteur, carré. Page auteur, encart auteur en bas d'article.",
+      prompt: `Professional editorial portrait, natural lighting, neutral background, candid and unglamorous, ${NEG}`,
       section: 'author',
     })
   }
@@ -177,21 +120,33 @@ function dynamicSlots(): ImageSlot[] {
 
 // ─── API publique ───────────────────────────────────────────────────────
 
-/** Retourne tous les slots (statiques + dynamiques depuis niche.config). */
+/**
+ * La checklist EXHAUSTIVE des images à générer à l'init.
+ * Taille attendue : 1 hero + 1 par catégorie + 1 auteur.
+ */
 export function getAllImageSlots(): ImageSlot[] {
   return [...STATIC_SLOTS, ...dynamicSlots()]
 }
 
-/** Retourne un slot par son ID. */
+/** Un slot par son id. */
 export function getImageSlot(id: string): ImageSlot | undefined {
   return getAllImageSlots().find((s) => s.id === id)
 }
 
-/** Retourne les slots groupés par section. */
+/** Le slot de couverture d'une catégorie, par son slug. */
+export function getCategoryImage(slug: string): ImageSlot | undefined {
+  return getImageSlot(`category-${slug}`)
+}
+
+/** Le portrait de l'auteur du site, s'il est déclaré. */
+export function getAuthorImage(): ImageSlot | undefined {
+  return niche.author.slug ? getImageSlot(`author-${niche.author.slug}`) : undefined
+}
+
+/** Les slots groupés par section — utilisé par /admin/images. */
 export function getImageSlotsBySection(): Record<string, ImageSlot[]> {
-  const slots = getAllImageSlots()
   const grouped: Record<string, ImageSlot[]> = {}
-  for (const slot of slots) {
+  for (const slot of getAllImageSlots()) {
     if (!grouped[slot.section]) grouped[slot.section] = []
     grouped[slot.section].push(slot)
   }

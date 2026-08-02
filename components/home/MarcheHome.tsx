@@ -4,6 +4,11 @@
  * Le « terminal de tarifs » + le classement sont alimentés par lib/classement
  * (data-driven, locale-aware) et MASQUÉS si aucun classement n'existe (runtime bête).
  * Aucun prix/valeur inventé : tout vient des données ou des catégories.
+ *
+ * IMAGE STRUCTURELLE : chaque ligne `.md-cat` affiche la couverture de sa catégorie
+ * (`category-<slug>` du registre `lib/image-slots`) dans la vignette carrée de tête,
+ * à la place du disque décoratif. La ligne est étroite : on remplace la pastille
+ * plutôt que d'ajouter un bandeau. Sans slot déclaré, le disque est conservé.
  */
 import Link from 'next/link'
 import Image from 'next/image'
@@ -12,6 +17,7 @@ import { getArticlesL, articleHrefL, formatDateL } from '@/lib/blog-l10n'
 import { getClassements } from '@/lib/classement'
 import { niche, localePath } from '@/niche.config'
 import { tl } from '@/lib/i18n'
+import { getCategoryImage } from '@/lib/image-slots'
 
 const catLabel = (slug: string) => niche.categories.find((c) => c.slug === slug)?.label ?? slug
 const catN = (slug: string) => (Math.max(0, niche.categories.findIndex((c) => c.slug === slug)) % 5) + 1
@@ -186,9 +192,16 @@ export function MarcheHome({ locale = niche.defaultLocale }: { locale?: string }
             <div className="md-cat-grid">
               {cats.map((c, i) => {
                 const count = articles.filter((a) => a.categorie === c.slug).length
+                const cover = getCategoryImage(c.slug)
                 return (
                   <Link href={lp(`/blog/${c.slug}`)} className="md-cat" key={c.slug}>
-                    <span className="ic" style={{ background: `var(--cat-${(i % 5) + 1})` }}><CatIc /></span>
+                    {cover ? (
+                      <span className="ic" style={{ background: `var(--cat-${(i % 5) + 1})`, overflow: 'hidden' }}>
+                        <Image src={cover.path} alt={cover.alt} width={48} height={48} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </span>
+                    ) : (
+                      <span className="ic" style={{ background: `var(--cat-${(i % 5) + 1})` }}><CatIc /></span>
+                    )}
                     <span className="tx"><h3>{c.label}</h3><small>{count} {m('articles')}</small></span>
                     <span className="go"><Arrow /></span>
                   </Link>

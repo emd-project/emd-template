@@ -3,6 +3,12 @@
  * Server Component, animations 100 % CSS (pas de carrousel JS : la une affiche
  * le dernier article ; les autres restent dans le DOM masqués pour le SEO).
  * LOCALE-AWARE via `locale` (libellés via tl(locale,'homeFil.*')).
+ *
+ * IMAGE STRUCTURELLE : chaque tuile de rubrique `.rub` affiche la couverture de
+ * sa catégorie (`category-<slug>` du registre `lib/image-slots`) dans la vignette
+ * carrée, à la place du disque décoratif. Les tuiles sont petites (grille 6
+ * colonnes) : on remplace la pastille plutôt que d'ajouter un bandeau, pour ne
+ * pas changer la hauteur de la grille. Sans slot déclaré, le disque est conservé.
  */
 import Link from 'next/link'
 import Image from 'next/image'
@@ -10,6 +16,7 @@ import { type ArticleMeta } from '@/lib/blog'
 import { getArticlesL, articleHrefL, formatDateL } from '@/lib/blog-l10n'
 import { niche, localePath } from '@/niche.config'
 import { tl } from '@/lib/i18n'
+import { getCategoryImage } from '@/lib/image-slots'
 
 const catLabel = (slug: string) => niche.categories.find((c) => c.slug === slug)?.label ?? slug
 const catN = (slug: string) => (Math.max(0, niche.categories.findIndex((c) => c.slug === slug)) % 5) + 1
@@ -113,9 +120,16 @@ export function FilHome({ locale = niche.defaultLocale }: { locale?: string }) {
             <div className="rub-grid">
               {niche.categories.map((c, i) => {
                 const count = articles.filter((a) => a.categorie === c.slug).length
+                const cover = getCategoryImage(c.slug)
                 return (
                   <Link href={lp(`/blog/${c.slug}`)} className="rub" key={c.slug}>
-                    <span className="rub-ic" style={{ background: `var(--cat-${(i % 5) + 1})` }}><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="7" /></svg></span>
+                    {cover ? (
+                      <span className="rub-ic" style={{ background: `var(--cat-${(i % 5) + 1})`, overflow: 'hidden' }}>
+                        <Image src={cover.path} alt={cover.alt} width={42} height={42} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </span>
+                    ) : (
+                      <span className="rub-ic" style={{ background: `var(--cat-${(i % 5) + 1})` }}><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="7" /></svg></span>
+                    )}
                     <h3>{c.label}</h3>
                     <span className="rub-n">{count} {f('articlesWeek')}</span>
                   </Link>

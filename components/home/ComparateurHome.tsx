@@ -3,6 +3,11 @@
  * + comment ça marche + stats + teaser blog + newsletter). Server Component.
  * LOCALE-AWARE : sert FR et EN via la prop `locale`. Les outils interactifs vivent
  * sur /comparer, /simulateur, /quiz.
+ *
+ * IMAGE STRUCTURELLE : chaque carte `.cat` affiche la couverture de sa catégorie
+ * (`category-<slug>` du registre `lib/image-slots`) en bandeau 16/9, à la place de
+ * la pastille d'icône décorative. Sans slot déclaré (template nu : `categories`
+ * est vide, donc aucune carte n'est rendue), la carte garde sa pastille.
  */
 import Link from 'next/link'
 import Image from 'next/image'
@@ -10,6 +15,7 @@ import { type ArticleMeta } from '@/lib/blog'
 import { getArticlesL, articleHrefL, formatDateL } from '@/lib/blog-l10n'
 import { niche, localePath } from '@/niche.config'
 import { tl } from '@/lib/i18n'
+import { getCategoryImage } from '@/lib/image-slots'
 
 const CAT_INDEX: Record<string, number> = Object.fromEntries(
   niche.categories.map((c, i) => [c.slug, (i % 5) + 1])
@@ -71,12 +77,19 @@ export function ComparateurHome({ locale = niche.defaultLocale }: { locale?: str
             <div className="cat-grid">
               {niche.categories.map((c) => {
                 const n = CAT_INDEX[c.slug] ?? 1
+                const cover = getCategoryImage(c.slug)
                 return (
                   <Link key={c.slug} href={lp('/comparer')} className="cat">
                     <span className="glow" style={{ background: `var(--cat-${n})` }} />
-                    <span className="cat-ic" style={{ background: `var(--cat-${n}-soft)`, color: `var(--cat-${n})` }}>
-                      <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><circle cx="12" cy="12" r="8" /></svg>
-                    </span>
+                    {cover ? (
+                      <span style={{ position: 'relative', display: 'block', width: '100%', aspectRatio: '16 / 9', borderRadius: 'var(--r)', overflow: 'hidden', marginBottom: 'auto' }}>
+                        <Image src={cover.path} alt={cover.alt} fill sizes="(max-width:620px) 100vw, (max-width:980px) 50vw, 33vw" style={{ objectFit: 'cover' }} />
+                      </span>
+                    ) : (
+                      <span className="cat-ic" style={{ background: `var(--cat-${n}-soft)`, color: `var(--cat-${n})` }}>
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><circle cx="12" cy="12" r="8" /></svg>
+                      </span>
+                    )}
                     <h3>{c.label}</h3>
                     {c.description && <p>{c.description}</p>}
                     <span className="go" style={{ color: `var(--cat-${n})` }}>{L('compare')} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></span>

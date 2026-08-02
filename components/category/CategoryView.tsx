@@ -8,6 +8,13 @@
  *                  (même props, même pagination).
  * Le SEO (metadata, JSON-LD, generateStaticParams) reste dans les routes ; ce
  * composant ne rend que le corps. Pagination identique aux variantes.
+ *
+ * IMAGE STRUCTURELLE : la couverture de la catégorie (`category-<slug>` du
+ * registre `lib/image-slots`) sert de FOND au `hub-hero`. Le dégradé du hub est
+ * conservé PAR-DESSUS, en voile, pour que le titre reste lisible. Si la catégorie
+ * n'a pas de slot déclaré (slug hors `niche.categories`, ou template nu dont
+ * `categories` est vide), on ne rend rien de plus : l'en-tête est exactement celui
+ * d'avant.
  */
 import Link from 'next/link'
 import Image from 'next/image'
@@ -17,6 +24,7 @@ import { niche, localePath } from '@/niche.config'
 import { tl } from '@/lib/i18n'
 import { Pagination } from '@/components/blog/Pagination'
 import { PresseCategory } from '@/components/presse/PresseCategory'
+import { getCategoryImage } from '@/lib/image-slots'
 import { resolveCategoryVariant, type CategoryVariant } from '@/lib/variants'
 
 const ARTICLES_PER_PAGE = 12
@@ -26,6 +34,14 @@ const CAT_INDEX: Record<string, number> = Object.fromEntries(
 )
 const catClass = (slug: string) => `c${CAT_INDEX[slug] ?? 1}`
 const catLabel = (slug: string) => CATEGORY_LABELS[slug] ?? slug
+
+/**
+ * Voile de lisibilité posé sur la couverture du hub. C'est le dégradé du
+ * `hub-hero` (var(--cream-2)) rejoué en overlay : opaque en bas, où vivent le
+ * titre et le compteur, transparent en haut, où l'image respire.
+ */
+const HUB_COVER_SCRIM =
+  'linear-gradient(180deg, color-mix(in srgb, var(--cream-2) 58%, transparent) 0%, color-mix(in srgb, var(--cream-2) 84%, transparent) 55%, var(--cream-2) 100%)'
 
 const Arrow = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
@@ -82,6 +98,9 @@ export function CategoryView({
   const w = WORDS[locale === 'en' ? 'en' : 'fr']
   const label = catLabel(categorie)
 
+  // Slot absent (catégorie hors config, template nu) → en-tête inchangé.
+  const cover = getCategoryImage(categorie)
+
   const total = articles.length
   const totalPages = Math.ceil(total / ARTICLES_PER_PAGE)
   const paged = articles.slice((currentPage - 1) * ARTICLES_PER_PAGE, currentPage * ARTICLES_PER_PAGE)
@@ -97,6 +116,12 @@ export function CategoryView({
   return (
     <main id="main-content">
       <header className="hub-hero">
+        {cover && (
+          <div style={{ position: 'absolute', inset: 0 }}>
+            <Image src={cover.path} alt={cover.alt} fill priority sizes="100vw" style={{ objectFit: 'cover' }} />
+            <span aria-hidden="true" style={{ position: 'absolute', inset: 0, background: HUB_COVER_SCRIM }} />
+          </div>
+        )}
         <span className="glow" aria-hidden="true" />
         <div className="wrap">
           <nav className="crumb" aria-label={tl(locale, 'nav.mainNav')}>

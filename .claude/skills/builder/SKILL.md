@@ -40,13 +40,24 @@ En dessous de 1000 mots la page est thin, donc non citable — enrichir le JSON,
 - **`/choisir`** → `content/data/choisir.json` : `tldr` + `sections` + `faq` repris du classement, **une entrée par slug comparateur**.
 - **Quiz** → `content/pages/quiz.yaml` **ET** `quiz.en.yaml` (sinon `/en/quiz` est un 404 permanent référencé par le footer EN), + `niche.quiz` : 3-6 questions menant à un item **réel**.
 
-**L'article seed : un seul, en deux langues.**
+**L'article seed : un seul, mais au standard de la tâche quotidienne.**
 
-Le plan n'en demande qu'un — c'est volontaire, la tâche quotidienne écrit les autres. Il porte :
+Le plan n'en demande qu'un — la tâche quotidienne écrit les autres. Mais c'est le premier article que trouvera un lecteur, et le premier que verra un crawler : **un seed plus court ou plus bâclé que les publications suivantes est immédiatement visible.**
 
-- **une cover neuve**, générée pour lui, déclarée en `featureImage` dans son frontmatter ;
-- **une image in-content réutilisée** : la couverture de sa catégorie, `/images/categories/<slug>.webp`, insérée dans le corps via `<ArticleImage>`. **Aucune génération** pour celle-là — c'est le mécanisme qui garde le coût d'un article à UNE seule image.
-- son **miroir EN strict**, même catégorie, même slug traduit, avec la paire ajoutée à `lib/i18n/article-slugs.ts`. Les deux versions partagent les mêmes images : on ne régénère jamais pour une traduction.
+**Applique `docs/SCHEDULED-TASK-REDACTION.md` intégralement.** C'est le même standard, sans exception. Les points sur lesquels un seed dérape le plus souvent :
+
+- **Le plancher de longueur** : ≥ 1200 mots pour un comparatif ou un face-à-face, ≥ 900 pour un informationnel, **dans chaque locale**. Une structure correcte ne compense jamais un contenu trop court. Si le sujet ne porte pas 900 mots honnêtes, c'est le sujet qui est mauvais.
+- **La longue traîne mesurée** : le sujet vient des requêtes `owns` de l'article dans `content/site-plan.json`, qui sortent de Cuik. Si tu dois l'affiner, `mcp__cuik__get_keyword_ideas` sur le head term du cluster — **jamais `get_ranked_keywords`**, qui rend 213 000 caractères et fait exploser le run.
+- **La SERP analysis** reste obligatoire, même si le plan a déjà tranché le sujet : elle sert à trouver le content gap, pas à choisir.
+- **La forme** : H1 ≤ 60 caractères, chapô 40-60 mots, TL;DR de 3 à 5 puces, **≥ 70 % des H2 formulés en question stricte**, FAQ finale de 6-7 questions, Answer-Explanation-Example par section, **≥ 3 signaux d'expérience**, ≥ 2 marques réelles traitées factuellement, sources datées, au moins un tableau si l'article compare.
+- **Jamais d'année en dur** dans le titre ou le frontmatter — `currentYear()`.
+
+**Ses images :**
+
+- **une cover neuve**, générée pour lui, prompt ≤ 20 mots décrivant **le sujet réel de l'article** — une scène concrète, jamais le secteur en général — déclarée en `featureImage` ;
+- **une image in-content réutilisée** : `/images/categories/<slug>.webp`, la couverture de sa catégorie, insérée à ~½ via `<ArticleImage>`. **Aucune génération** pour celle-là.
+
+**Son miroir EN** est strict : même catégorie, slug traduit, paire ajoutée à `lib/i18n/article-slugs.ts`, alt traduits. Les deux versions partagent les mêmes images — on ne régénère jamais pour une traduction. Et le plancher de longueur vaut aussi pour la traduction : une version anglaise résumée est un article thin de plus.
 
 **Les images structurelles** viennent de `getAllImageSlots()` : un hero, une couverture par catégorie, un portrait d'auteur. Le registre a été réduit à ce qui s'affiche réellement — n'y ajoute rien qui ne soit pas branché dans un composant.
 

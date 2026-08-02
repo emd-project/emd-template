@@ -30,22 +30,13 @@ NB : les fichiers propres au site restent locaux — seule la DOCTRINE génériq
 Ne PAS lire le dossier skills/ du repo du site (copies dépréciées). Toute règle modifiée depuis le dernier run l'emporte.
 
 # 1 — LONGUE TRAÎNE MESURÉE (Cuik) — avant de choisir quoi que ce soit
-Un sujet sans volume mesuré est un sujet inventé. Deux chemins, selon l'âge du site :
-
-  a) SITE AVEC SEARCH CONSOLE — le meilleur cas, et à privilégier toujours :
-     mcp__cuik__gsc_query_keywords sur [domaine], position_min 4, position_max 20, sort_by impressions.
-     Ce sont les requêtes en « striking distance » : le site les frôle déjà, un article dédié les fait basculer.
-     Elles valent mieux que n'importe quelle suggestion de planner, parce qu'elles sont VÉCUES.
-
-  b) SITE JEUNE, PAS ENCORE DE DONNÉES — repli :
-     mcp__cuik__get_keyword_ideas sur le head term du cluster visé, avec les paramètres du marché
-     ([market] BE francophone : location_ids ["2056"], language_id "1002").
-
-  Dans les deux cas, retenir une requête AVEC VOLUME RÉEL, non déjà possédée par un asset
-  (classement / comparateur / choisir) ni par un article déjà publié — cf. `content/site-plan.json`, champ `owns`.
-
-  ⚠️ NE JAMAIS appeler get_ranked_keywords ici : ~213 000 caractères pour 40 mots-clés, il fait exploser le run.
-     Il est réservé à l'init.
+Un sujet sans volume mesuré est un sujet inventé.
+mcp__cuik__get_keyword_ideas sur le head term du cluster visé, avec les paramètres du marché
+([market] BE francophone : location_ids ["2056"], language_id "1002").
+Retenir une requête AVEC VOLUME RÉEL, non déjà possédée par un asset (classement / comparateur / choisir)
+ni par un article déjà publié — cf. `content/site-plan.json`, champ `owns`.
+⚠️ NE JAMAIS appeler get_ranked_keywords ici : ~213 000 caractères pour 40 mots-clés, il fait exploser le run.
+   Il est réservé à l'init.
 
 # 2 — Choisir UN sujet — MODÈLE MENTION (⅔ marques-modèles / ⅓ info)
 Priorité : si content/priorites-geo.md a un brief NON coché (gap mesuré MentionLab) → le traiter.
@@ -67,7 +58,7 @@ Content gap documenté. Pas de SERP = run échoué. Si la requête est EXACTEMEN
 requalifier en variante persona/long-tail ou face-à-face.
 
 # 4 — Brief (interne) : cluster, requête retenue **avec son volume et sa difficulté mesurés à l'étape 1**,
-source de la donnée (gsc ou keyword_ideas), longue traîne associée, persona, intention, format, longueur cible,
+longue traîne associée, persona, intention, format, longueur cible,
 content gap, sources, FAQ, JSON-LD, **marques/modèles à citer (≥ 2)**.
 
 # 5 — Outline (H1/H2/H3 sans corps). H1 <= 60 car., head term en tête. Chapô 40-60 mots. TL;DR 3-5 bullets.
@@ -115,13 +106,13 @@ Un plan qui décrit un site différent de celui qui est déployé ne vaut plus r
 - TOUJOURS alt dans toutes les locales · sources datées · >= 70 % H2 en question · >= 3 signaux d'Expérience.
 
 # 15 — Si le run échoue : ne pousse RIEN, log « Bloqué » dans PROGRESS, fin propre.
-# 16 — Output final (8-12 lignes) : slug(s) ou échec + raison · cat · **requête retenue, son volume et sa source** ·
+# 16 — Output final (8-12 lignes) : slug(s) ou échec + raison · cat · **requête retenue et son volume** ·
 marques citées · **nombre de mots par locale** · commit · coût image.
 ```
 
 ## Pourquoi ce gabarit
 
-- **La demande d'abord, le calendrier ensuite.** La tâche vérifiait la SERP mais ne mesurait jamais le volume : elle pouvait produire un article impeccable sur une requête que personne ne tape. Cuik passe maintenant avant le choix du sujet. Sur un site déjà en ligne, la Search Console l'emporte sur le planner — une requête en position 4-20 est une demande **vécue**, pas une suggestion.
+- **La demande d'abord, le calendrier ensuite.** La tâche vérifiait la SERP mais ne mesurait jamais le volume : elle pouvait produire un article impeccable sur une requête que personne ne tape. Cuik passe maintenant avant le choix du sujet, et la requête retenue arrive dans le brief avec son chiffre.
 - **Un plancher de longueur, parce que la structure n'y suffisait pas.** Le gabarit décrivait la forme d'un article dans le détail — H2 en question, FAQ, tableau, signaux d'expérience — sans jamais dire combien de temps il devait tenir. On obtenait des articles correctement charpentés et trop courts pour dire quelque chose. Le classement a un plancher depuis toujours ; l'article n'en avait aucun.
 - **Doctrine centralisée** : les skills et garde-fous sont lus depuis `emd-project/emd-methodo`. Les copies `skills/` embarquées dans le repo du site sont **dépréciées**.
 - **Modèle mention** : ⅔ sujets à marques/modèles = inventaire vendable ; ⅓ info. Pas d'affiliation.

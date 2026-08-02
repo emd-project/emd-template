@@ -2,15 +2,24 @@
  * Registre des images STRUCTURELLES du site — source unique des ids, chemins,
  * dimensions et prompts.
  *
- * ┌─ DEUX RÈGLES, ET ELLES DÉCIDENT DE TOUT ──────────────────────────────────┐
+ * ┌─ TROIS RÈGLES, ET ELLES DÉCIDENT DE TOUT ─────────────────────────────────┐
  * │                                                                            │
- * │ 1. **Un prompt qui marcherait à l'identique sur un autre site du réseau    │
+ * │ 1. **LE SUJET COMMANDE. Le parti pris ne gouverne que le TRAITEMENT** —    │
+ * │    lumière, matière, palette. Jamais ce qui est représenté.                │
+ * │                                                                            │
+ * │    Cas vécu, 2026-08-02 : un site de voitures de luxe avec un parti pris   │
+ * │    « registre documentaire, papier comptable à bandes vertes » est revenu  │
+ * │    avec vingt photos de papier à bandes vertes. La catégorie « Électrique  │
+ * │    premium » montrait une feuille de comptabilité avec un câble posé       │
+ * │    dessus. Elle devait montrer une RECHARGE, traitée dans le registre du   │
+ * │    site. Le parti pris avait mangé le sujet.                               │
+ * │                                                                            │
+ * │ 2. **Un prompt qui marcherait à l'identique sur un autre site du réseau    │
  * │    est un prompt raté.** Les images sont le dernier endroit où l'empreinte │
  * │    partagée revient : on peut diverger sur la palette, la typo et les      │
- * │    effets, et sortir malgré tout dix sites illustrés de la même façon.     │
- * │    D'où l'injection systématique de `niche.signature` ci-dessous.          │
+ * │    effets, et sortir malgré tout dix sites illustrés pareil.               │
  * │                                                                            │
- * │ 2. **Une image décrit son SUJET, pas son secteur.** « voiture de luxe » ne │
+ * │ 3. **Une image décrit une SCÈNE, pas un concept.** « voiture de luxe » ne  │
  * │    donne rien ; « atelier de préparation, capot ouvert, lampe baladeuse »  │
  * │    donne une image. Vaut surtout pour les covers d'articles, qui ne sont   │
  * │    pas dans ce fichier mais suivent la même règle.                         │
@@ -31,9 +40,6 @@
  *   une par la tâche de rédaction, à partir du sujet réel de l'article ;
  * - l'**image OpenGraph**, générée par `app/opengraph-image.tsx` ;
  * - les images **in-content**, qui RÉUTILISENT la couverture de leur catégorie.
- *
- * Prompts écrits pour Gemini / Nano Banana : courts, descriptifs, finissant par
- * les négatifs.
  */
 
 import { niche } from '@/niche.config'
@@ -60,27 +66,28 @@ function p(str: string): string {
 const NEG = 'no text, no logos, no watermark'
 
 /**
- * La direction visuelle du SITE, injectée dans chaque prompt.
+ * Compose un prompt en TROIS temps, et l'ordre est ce qui empêche la confusion :
  *
- * `signature.inspiration` et `signature.forbidden` sont renseignés à l'init par
- * l'art-director, à partir du parti pris — et n'étaient lus par aucun code.
- * C'est précisément ce qui manquait : sans eux, un site « papier fiduciaire,
- * cuivre et marine » et un site « atelier mécanique, métal brossé » produisaient
- * exactement les mêmes photos.
+ *   1. le SUJET, en proposition autonome — c'est ce que la photo montre ;
+ *   2. le TRAITEMENT, explicitement dégradé au rang de style, avec l'interdit
+ *      « never depict these as the subject » ;
+ *   3. les NÉGATIFS.
+ *
+ * La version précédente injectait `signature.inspiration` en fragment nu
+ * (« visual direction: papier comptable à bandes vertes »). Un modèle d'image
+ * lit ça comme un sujet, pas comme une consigne de style — d'où les vingt
+ * feuilles de comptabilité sur un site de voitures.
  */
-function direction(): string {
+function compose(subject: string): string {
   const insp = (niche.signature?.inspiration ?? []).filter(Boolean).slice(0, 3).join(', ')
   const forbid = (niche.signature?.forbidden ?? []).filter(Boolean).slice(0, 3).join(', ')
-  const bits: string[] = []
-  if (insp) bits.push(`visual direction: ${insp}`)
-  if (forbid) bits.push(`avoid: ${forbid}`)
-  bits.push(NEG)
-  return bits.join(', ')
-}
 
-/** Compose un prompt : le sujet d'abord, la direction du site ensuite. */
-function compose(subject: string): string {
-  return `${p(subject)}, ${direction()}`
+  let out = `${p(subject)}.`
+  if (insp) {
+    out += ` Treatment only — colour, light and materials in the register of ${insp}; never depict these as the subject.`
+  }
+  if (forbid) out += ` Avoid: ${forbid}.`
+  return `${out} ${NEG}.`
 }
 
 // ─── Slot statique ──────────────────────────────────────────────────────
@@ -94,9 +101,9 @@ function staticSlots(): ImageSlot[] {
       height: 1080,
       alt: `Illustration principale — ${niche.siteName}`,
       description:
-        "Image de tête de la home. C'est la première chose qu'un lecteur voit : elle porte le parti pris de la DA plus que n'importe quelle autre image du site.",
+        "Image de tête de la home. C'est la première chose qu'un lecteur voit : elle porte le parti pris plus que n'importe quelle autre image du site.",
       prompt: compose(
-        `Editorial establishing shot for a guide about [nicheEn], atmospheric lighting, shallow depth of field, generous negative space for a headline`
+        `A real scene involving [nicheEn], photographed editorially, atmospheric light, shallow depth of field, generous negative space for a headline`
       ),
       section: 'home',
     },
@@ -113,9 +120,9 @@ function dynamicSlots(): ImageSlot[] {
    * l'en-tête du hub `/blog/[categorie]`, et l'illustration in-content des
    * articles de cette catégorie. Une génération, trois apparitions.
    *
-   * Le prompt part du LABEL de la catégorie, pas du secteur : c'est ce qui
+   * Le sujet vient du LABEL et de la DESCRIPTION de la catégorie — c'est ce qui
    * distingue « Fiscalité & société » de « Occasion & budget » sur un même site.
-   * Sa `description` sert de repli utile si l'agent réécrit le prompt.
+   * Si la description est vague, le prompt le sera : soigne-la dans niche.config.
    */
   niche.categories.forEach((cat) => {
     const topic = cat.description?.trim() || cat.label
@@ -127,14 +134,20 @@ function dynamicSlots(): ImageSlot[] {
       alt: `Illustration — ${cat.label}`,
       description: `Couverture de « ${cat.label} » : carte sur la home, en-tête du hub /blog/${cat.slug}, illustration in-content de ses articles.`,
       prompt: compose(
-        `Editorial photograph illustrating ${topic}, a concrete scene rather than a symbol, natural light, balanced composition`
+        `A concrete, recognisable scene showing ${topic} — the situation itself, not a symbol of it. Editorial photograph, natural light, balanced composition`
       ),
       section: 'category',
     })
   })
 
-  // Portrait de l'auteur. Son MÉTIER pilote l'image : une ancienne gestionnaire
-  // de parc et une journaliste beauté ne doivent pas recevoir le même visage.
+  /**
+   * Portrait de l'auteur. Son MÉTIER pilote l'image : une ancienne gestionnaire
+   * de parc et une journaliste beauté ne doivent pas recevoir le même visage.
+   *
+   * Volontairement HORS `compose()` : appliquer le parti pris matériel du site à
+   * un visage produirait un portrait stylisé, donc faux. Un portrait doit être
+   * plausible avant d'être beau.
+   */
   if (niche.author.slug) {
     slots.push({
       id: `author-${niche.author.slug}`,
@@ -143,7 +156,7 @@ function dynamicSlots(): ImageSlot[] {
       height: 512,
       alt: `Photo de ${niche.author.name}`,
       description: "Portrait de l'auteur, carré. Page auteur et encart en bas d'article.",
-      prompt: `Candid editorial portrait of a ${niche.author.title || 'specialist journalist'}, in their working environment, natural light, unglamorous and plausible, ${NEG}`,
+      prompt: `Candid editorial portrait of a ${niche.author.title || 'specialist journalist'}, in their real working environment, natural light, unglamorous and plausible, ${NEG}.`,
       section: 'author',
     })
   }
@@ -177,12 +190,14 @@ export function getAuthorImage(): ImageSlot | undefined {
 }
 
 /**
- * Direction visuelle du site, exposée pour les images HORS registre — cover
- * d'article, notamment. Le sujet vient de l'article, la direction vient d'ici :
- * `\`${sujet concret de l'article}, ${imagePromptDirection()}\``.
+ * Compose le prompt d'une image HORS registre — cover d'article, notamment.
+ *
+ * Le sujet vient de l'ARTICLE, pas du secteur : « recharge d'une berline
+ * électrique sur une borne rapide, parking d'entreprise, fin de journée »,
+ * jamais « voiture de luxe ». Le traitement et les négatifs sont ajoutés ici.
  */
-export function imagePromptDirection(): string {
-  return direction()
+export function composeImagePrompt(subject: string): string {
+  return compose(subject)
 }
 
 /** Les slots groupés par section — utilisé par /admin/images. */

@@ -111,13 +111,15 @@ Le blog **fait** des comparatifs de marques — c'est le cœur du modèle mentio
 
 **Parité.** Dès deux locales, chaque asset actif et chaque article porte son `localizedPaths` pour chaque locale secondaire (`PLAN-08`). Les slugs se **traduisent**, ils ne se recopient pas — un slug EN identique au FR déclenche un avertissement.
 
-**Budget.** Le piège de toute arborescence ambitieuse : planifier plus que la production ne peut remplir.
+**Budget — le plafond est bas, et c'est voulu.**
 
-- `seedArticles` — ce que l'init livre entièrement rédigé. Ce sont les **piliers** (priorité 1-2), pas les pages faciles. En mode `--init`, `PLAN-09b` refuse qu'un cluster pilier reste entièrement `planned` pendant que des pages de priorité 4 sortent : c'est le travers naturel, puisque les fiches courtes sont les plus rapides à écrire.
-- `dailyPublish` — la cadence de la tâche quotidienne.
-- `maxArticles` — **ce que `dailyPublish` absorbe en douze mois**, pas plus. `PLAN-09` recalcule et refuse au-delà.
+- **`seedArticles` : 1.** Un seul article entièrement rédigé à l'init, sur le cluster de priorité 1. Pas deux, pas neuf. Un run a duré quinze heures pour en avoir écrit neuf en deux langues — travail que la tâche quotidienne aurait étalé sur neuf jours, ce pour quoi elle existe.
+- **`dailyPublish`** : la cadence de la tâche quotidienne, généralement 1.
+- **`maxArticles`** : ce que `dailyPublish` absorbe en douze mois, pas plus. Planifier des pages qui ne seront jamais écrites produit une arborescence creuse — pire qu'une arborescence plate et dense.
 
-Une arborescence profonde et vide est **pire** qu'une arborescence plate et dense.
+**Catégories blog : 4 à 6, pas 8.** Chacune coûte une génération d'image à l'init et ouvre un hub qui restera vide jusqu'à ce que la tâche quotidienne l'alimente. Ouvre celles que les clusters justifient vraiment ; les autres restent au plan, sans route ni lien, et s'ouvriront quand il y aura de quoi les remplir.
+
+**Ce qui n'est PAS plafonné :** les pages pilier. Classements, comparateur, `/choisir` — ils sortent tous, complets, dès l'init. Ce sont eux qui portent les requêtes principales et qui se font citer. Le blog se remplit ensuite ; les piliers, non.
 
 ---
 

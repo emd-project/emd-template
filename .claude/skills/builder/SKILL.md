@@ -40,6 +40,16 @@ En dessous de 1000 mots la page est thin, donc non citable — enrichir le JSON,
 - **`/choisir`** → `content/data/choisir.json` : `tldr` + `sections` + `faq` repris du classement, **une entrée par slug comparateur**.
 - **Quiz** → `content/pages/quiz.yaml` **ET** `quiz.en.yaml` (sinon `/en/quiz` est un 404 permanent référencé par le footer EN), + `niche.quiz` : 3-6 questions menant à un item **réel**.
 
+**L'article seed : un seul, en deux langues.**
+
+Le plan n'en demande qu'un — c'est volontaire, la tâche quotidienne écrit les autres. Il porte :
+
+- **une cover neuve**, générée pour lui, déclarée en `featureImage` dans son frontmatter ;
+- **une image in-content réutilisée** : la couverture de sa catégorie, `/images/categories/<slug>.webp`, insérée dans le corps via `<ArticleImage>`. **Aucune génération** pour celle-là — c'est le mécanisme qui garde le coût d'un article à UNE seule image.
+- son **miroir EN strict**, même catégorie, même slug traduit, avec la paire ajoutée à `lib/i18n/article-slugs.ts`. Les deux versions partagent les mêmes images : on ne régénère jamais pour une traduction.
+
+**Les images structurelles** viennent de `getAllImageSlots()` : un hero, une couverture par catégorie, un portrait d'auteur. Le registre a été réduit à ce qui s'affiche réellement — n'y ajoute rien qui ne soit pas branché dans un composant.
+
 **Ce que le plan a mis en `disabled`, tu l'éteins pour de bon** : `enabled: false` **et** suppression de la route, en FR comme en EN, et retrait du lien de la nav, du footer et du sitemap. Un asset à moitié éteint laisse un 404 dans le menu.
 
 ---

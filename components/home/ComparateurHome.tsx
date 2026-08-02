@@ -4,23 +4,52 @@
  * LOCALE-AWARE : sert FR et EN via la prop `locale`. Les outils interactifs vivent
  * sur /comparer, /simulateur, /quiz.
  *
- * IMAGE STRUCTURELLE : chaque carte `.cat` affiche la couverture de sa catégorie
- * (`category-<slug>` du registre `lib/image-slots`) en bandeau 16/9, à la place de
- * la pastille d'icône décorative. Sans slot déclaré (template nu : `categories`
- * est vide, donc aucune carte n'est rendue), la carte garde sa pastille.
+ * IMAGE STRUCTURELLE — CATÉGORIES : chaque carte `.cat` affiche la couverture de sa
+ * catégorie (`category-<slug>` du registre `lib/image-slots`) en bandeau 16/9, à la
+ * place de la pastille d'icône décorative. Sans slot déclaré (template nu :
+ * `categories` est vide, donc aucune carte n'est rendue), la carte garde sa pastille.
+ *
+ * IMAGE STRUCTURELLE — HERO : `home-hero` est posé en fond de `.hero-bg` (déjà en
+ * `position:absolute; inset:0; z-index:0`, le contenu du hero étant en `z-index:1`),
+ * SOUS les blobs, avec un voile plein `--cream` par-dessus. `--cream` est un alias de
+ * `--bg-primary`, le fond de page : il s'inverse avec le thème EXACTEMENT comme le
+ * texte du titre, donc le h1 garde son contraste en clair comme en sombre.
+ * C'est la seule des quatre variantes de home qui a une surface de tête où une photo
+ * de fond a du sens (MagazineHome et FilHome ouvrent déjà sur la photo d'un article ;
+ * la tête de MarcheHome est un système d'orbites animées).
+ *
+ * DÉGRADATION SILENCIEUSE : le fichier est vérifié sur le disque avant d'être rendu.
+ * Tant que `public/images/home/hero.webp` n'existe pas, le hero est exactement celui
+ * d'avant — les blobs seuls — jamais une image cassée. Un slot déclaré ne prouve
+ * rien : l'image n'arrive qu'après la passe de génération.
  */
+import fs from 'fs'
+import path from 'path'
 import Link from 'next/link'
 import Image from 'next/image'
 import { type ArticleMeta } from '@/lib/blog'
 import { getArticlesL, articleHrefL, formatDateL } from '@/lib/blog-l10n'
 import { niche, localePath } from '@/niche.config'
 import { tl } from '@/lib/i18n'
-import { getCategoryImage } from '@/lib/image-slots'
+import { getCategoryImage, getImageSlot } from '@/lib/image-slots'
 
 const CAT_INDEX: Record<string, number> = Object.fromEntries(
   niche.categories.map((c, i) => [c.slug, (i % 5) + 1])
 )
 const catLabel = (slug: string) => niche.categories.find((c) => c.slug === slug)?.label ?? slug
+
+/**
+ * `true` si le fichier existe VRAIMENT dans public/ — même garde que /admin/images
+ * et que `resolveFeatureImage` de lib/blog. Le try/catch couvre l'absence d'accès fs
+ * au runtime serverless : on retombe alors sur le rendu sans image.
+ */
+function publicFileExists(relativePath: string): boolean {
+  try {
+    return fs.existsSync(path.join(process.cwd(), 'public', relativePath.replace(/^\//, '')))
+  } catch {
+    return false
+  }
+}
 
 function Cover({ a }: { a: ArticleMeta }) {
   if (a.featureImage) return <Image src={a.featureImage} alt={a.title} fill sizes="(max-width:900px) 100vw, 33vw" style={{ objectFit: 'cover' }} />
@@ -36,11 +65,22 @@ export function ComparateurHome({ locale = niche.defaultLocale }: { locale?: str
   const articles = getArticlesL(locale).slice(0, 3)
   const word = niche.rotatingWords?.[0] ?? niche.entities
 
+  const heroSlot = getImageSlot('home-hero')
+  const hero = heroSlot && publicFileExists(heroSlot.path) ? heroSlot : undefined
+
   return (
     <main id="main-content">
 
       <header className="hero">
-        <div className="hero-bg" aria-hidden="true"><span className="blob b1" /><span className="blob b2" /><span className="blob b3" /></div>
+        <div className="hero-bg" aria-hidden="true">
+          {hero && (
+            <>
+              <Image src={hero.path} alt={hero.alt} fill priority sizes="100vw" style={{ objectFit: 'cover' }} />
+              <span style={{ position: 'absolute', inset: 0, background: 'color-mix(in srgb, var(--cream) 78%, transparent)' }} />
+            </>
+          )}
+          <span className="blob b1" /><span className="blob b2" /><span className="blob b3" />
+        </div>
         <div className="wrap">
           <div className="hero-text">
             <span className="eyebrow hero-eyebrow">{niche.siteName}</span>

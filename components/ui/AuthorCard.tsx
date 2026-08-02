@@ -1,12 +1,21 @@
 /**
- * AuthorCard — carte auteur sans photo.
- * Identité : monogramme CSS initiale en Syne 800.
+ * AuthorCard — carte auteur.
  * Variants : 'inline' (en bas d'article) | 'full' (page auteur).
  * Server Component.
+ *
+ * IMAGE STRUCTURELLE : le portrait `author-<slug>` du registre `lib/image-slots`
+ * est rendu en rond, à la taille du monogramme. Le slot n'existe que si
+ * `niche.author.slug` est renseigné — donc pas dans le template nu, où la carte
+ * garde son monogramme CSS (initiale en display 800). Le portrait n'est servi que
+ * pour l'auteur DU SITE : une carte affichée pour un autre `authorSlug` retombe
+ * elle aussi sur le monogramme.
  */
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { tl } from '@/lib/i18n'
+import { niche } from '@/niche.config'
+import { getAuthorImage } from '@/lib/image-slots'
 
 type AuthorCardVariant = 'inline' | 'full'
 
@@ -58,6 +67,9 @@ export function AuthorCard({
   locale = 'fr',
 }: AuthorCardProps) {
   const isInline = variant === 'inline'
+  const size = isInline ? 44 : 64
+
+  const portrait = authorSlug === niche.author.slug ? getAuthorImage() : undefined
 
   return (
     <div
@@ -69,7 +81,23 @@ export function AuthorCard({
         borderTop: '1px solid var(--glass-border)',
       }}
     >
-      <Monogram size={isInline ? 44 : 64} initial={authorName.charAt(0).toUpperCase() || '?'} />
+      {portrait ? (
+        <Image
+          src={portrait.path}
+          alt={portrait.alt}
+          width={size}
+          height={size}
+          style={{
+            width: size,
+            height: size,
+            borderRadius: 'var(--radius-full)',
+            objectFit: 'cover',
+            flexShrink: 0,
+          }}
+        />
+      ) : (
+        <Monogram size={size} initial={authorName.charAt(0).toUpperCase() || '?'} />
+      )}
 
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ marginBottom: 'var(--space-1)' }}>

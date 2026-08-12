@@ -21,6 +21,10 @@ Lis-les avant de toucher au code. S'il manque une valeur dont tu as besoin, ne l
 
 ## Les assets, dans l'ordre
 
+**Un seul classement à l'init.** Le plan en contient plusieurs — souvent une douzaine — mais **un seul est en `status: "seed"`** : le head nu du cluster de priorité 1. Tu ne construis que celui-là. Les autres restent `planned` : ni route, ni entrée de sitemap, ni lien. La tâche de rédaction en publiera un par semaine.
+
+C'est ce qui fait passer l'init de ~11 000 mots de classements à ~3 000, sans rien perdre : la page qui porte le head term principal est là dès le premier jour, et le site grossit ensuite sur ses pages les plus citables.
+
 **Le classement d'abord** — c'est l'asset le plus citable, et tout le reste en dérive.
 
 Tout son contenu vit dans `content/data/classements.json` (+ `.en.json`). Le composant `ClassementList` est **bête** : il lit le JSON, zéro JS, SSR. `generateStaticParams` part des clés du JSON — **pas de données, pas de page, jamais de crash.**

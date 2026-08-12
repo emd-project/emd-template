@@ -290,38 +290,35 @@ describe("DA — suggestFonts ne rend JAMAIS la typo du template", () => {
   })
 })
 
-describe('DA — exclusion de home (anti-collision avec les sites voisins)', () => {
-  // La famille `comparateur` n'a que DEUX homes distinctes pour cinq secteurs :
-  // sans exclusion réelle, deux sites voisins se ressemblent.
-  it('une home exclue ne ressort pas quand le pool le permet', () => {
-    const seed = 'quel-fournisseur-energie.be'
-    const base = suggestVariants(seed)
-    expect(base.family).toBe('comparateur')
+describe('DA — deux squelettes seulement, la divergence passe par la peau', () => {
+  // Décision du 2026-08-02 : cinq homes coûtaient plus de temps et de tokens
+  // que la différence n'en valait. Il reste `marche` pour les services
+  // souscriptibles et `magazine` pour tout le reste. L'exclusion de home ne
+  // peut donc plus rien corriger — elle le SIGNALE, et c'est le comportement
+  // attendu, pas une régression.
 
-    const rerolled = suggestVariants(seed, base.family, { home: [base.home] })
-    expect(rerolled.home).not.toBe(base.home)
-    expect(rerolled.homeCollision).toBe(false)
-    expect(rerolled.family).toBe(base.family)
+  it('ne rend jamais autre chose que magazine ou marche', () => {
+    for (const domain of EMD_DOMAINS) {
+      const v = suggestVariants(domain)
+      expect(['magazine', 'marche'], `${domain} → ${v.home}`).toContain(v.home)
+    }
   })
 
-  it('exclure une home NON tirée ne change rien', () => {
-    const seed = 'meilleure-citadine.be'
-    const base = suggestVariants(seed)
-    const other = base.home === 'magazine' ? 'fil' : 'magazine'
-    expect(suggestVariants(seed, base.family, { home: [other] })).toEqual(base)
+  it('un service souscriptible tombe sur marche, le reste sur magazine', () => {
+    expect(suggestVariants('comparer-banque.be').home).toBe('marche')
+    expect(suggestVariants('meilleure-assurance-auto.be').home).toBe('marche')
+    expect(suggestVariants('meilleure-citadine.be').home).toBe('magazine')
+    expect(suggestVariants('meilleur-matelas.be').home).toBe('magazine')
   })
 
-  it('pool épuisé (beaute = presse seule) → tirage gardé ET signalé', () => {
-    const v = suggestVariants('beaute-naturelle.be', 'beaute', { home: ['presse'] })
-    expect(v.home).toBe('presse')
-    expect(v.category).toBe('presse')
-    expect(v.homeCollision).toBe(true)
+  it('exclure le seul squelette de la famille garde le tirage ET le signale', () => {
+    const base = suggestVariants('quel-fournisseur-energie.be')
+    const rerolled = suggestVariants('quel-fournisseur-energie.be', base.family, { home: [base.home] })
+    expect(rerolled.home).toBe(base.home)
+    expect(rerolled.homeCollision).toBe(true)
   })
 
-  it('sans exclusion, le tirage historique est inchangé (rétro-compat)', () => {
-    // Les deux nouveaux paramètres sont optionnels : les appels existants
-    // (`suggestVariants(domaine)`, `suggestVariants(domaine, famille)`) doivent
-    // rendre exactement la même chose qu'un appel avec un `exclude` vide.
+  it('sans exclusion, le tirage reste déterministe et inchangé', () => {
     for (const domain of EMD_DOMAINS) {
       const base = suggestVariants(domain)
       expect(suggestVariants(domain, base.family, {})).toEqual(base)

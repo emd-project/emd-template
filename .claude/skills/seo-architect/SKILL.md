@@ -69,9 +69,21 @@ Vise 5 à 10 clusters. En dessous, la thématique n'est pas couverte ; au-dessus
 
 Un asset = une page structurelle, c'est-à-dire une entrée de menu ou une page pivot.
 
-**Le classement d'abord.** Le head term du cluster principal lui revient. C'est l'asset le plus citable en GEO, et le propriétaire du head nu.
+**Les classements d'abord — et il en faut BEAUCOUP plus que tu ne crois.**
+
+Le classement est l'asset le plus citable du site : données en JSON, `ItemList` en JSON-LD, structure fixe, zéro JS. Planifies-en une **famille**, de trois natures :
+
+- **Head nu de segment** — « les meilleures voitures de luxe », « les meilleures voitures électriques ». Le pilier du cluster.
+- **Intra-marque** — « meilleure Tesla », « meilleures BMW électriques », « la gamme électrique de Mercedes comparée ». C'est du **pur inventaire de mentions** : une page entière consacrée à la gamme d'un constructeur. Quasiment personne ne les fait, et elles se font citer.
+- **Persona qualifié** — « meilleures voitures électriques pour seniors », « meilleurs SUV pour grandes familles ». Ces requêtes reviennent au classement : la réponse honnête est une liste ordonnée avec des critères, pas de la prose.
+
+**Combien ?** Autant que les données en justifient. Sur une niche large comme l'auto, douze à quinze est normal. **Le plancher qui arrête tout : 5 items réels minimum.** Un classement à trois items est plus faible qu'un classement absent — si le marché belge ne porte pas cinq modèles crédibles, n'ouvre pas la page.
+
+**Un seul sort en `seed`** : le head nu du cluster de priorité 1. **Tous les autres en `planned`.** La tâche de rédaction en publie un par semaine, par ordre de priorité. Le site grossit régulièrement sur ses pages les plus citables au lieu de tout produire le premier jour.
 
 **Puis les dérivés.** Comparateur et `/choisir` se construisent **à partir des items du classement** — la recherche est déjà faite, c'est du remploi, pas du travail neuf. Faire coïncider les slugs comparateur avec les slugs de catégorie quand c'est pertinent, sinon le `ToolCTA` des articles retombe sur `/comparer` nu.
+
+**Le comparateur ne suit PAS chaque classement.** Un côte-à-côte a du sens sur un **segment** (« comparer les voitures électriques ») ; il n'en a aucun sur un intra-marque — comparer les Tesla entre elles, c'est déjà ce que fait le classement. Ne prévois une famille de comparateur que pour les classements de segment.
 
 **Puis les catégories blog.** 4 à 6, chacune adossée à un cluster réel, chacune avec des articles planifiés. Une catégorie sans article est une entrée de menu qui mène au vide.
 
@@ -93,13 +105,17 @@ La frontière se joue sur la **spécificité de la requête** :
 
 | Requête | Propriétaire |
 |---|---|
-| head nu — « les meilleurs X », « top X », « classement X » | **classement** `/classement/X` |
-| « meilleurs X **pour [persona/usage]** » | **blog** — comparatif persona |
-| « X vs Y » — deux items précis | **blog** — face-à-face |
-| « comparer X » côte à côte, multi-items | **comparateur** `/comparer/X` |
-| « quel X choisir », « quel X pour moi » | **choisir** `/choisir/X`, `/quiz` |
-| « comment faire X », « que faire après Y », entretien, démarche, fréquence | **blog** — pratique |
-| pourquoi / qu'est-ce que / prix / définition | **blog** — informationnel |
+| head nu de segment — « les meilleurs X », « top X », « classement X » | **classement** `/classement/X` |
+| intra-marque — « meilleure [marque] », « les meilleures [marque] électriques » | **classement** `/classement/[marque]` |
+| « meilleurs X **pour [persona/usage]** » | **classement** `/classement/X-pour-[persona]` — si le marché porte ≥ 5 items réels |
+| idem, mais volume trop faible pour un classement complet | **blog** — comparatif persona |
+| « X vs Y » — deux items précis, face-à-face | **blog** |
+| « comparer X » côte à côte, multi-items interactif | **comparateur** `/comparer/X` |
+| « quel X choisir » | **choisir** `/choisir/X`, `/quiz` |
+| **« comment faire X », « que faire après Y », entretien, démarche, fréquence** | **blog — evergreen pratique** |
+| pourquoi / qu'est-ce que / prix / définition | **blog — informationnel** |
+
+**La frontière passe par le FORMAT de la réponse, pas par le type de requête.** Liste ordonnée d'items → classement. Prose avec un point de vue, face-à-face, procédure → blog. L'unicité tient toujours : si une requête persona devient un classement, le blog ne l'écrit plus.
 
 Le blog **fait** des comparatifs de marques — c'est le cœur du modèle mention. Il ne duplique jamais le head nu, et il **maille vers** le classement. `PLAN-02` attrape la faute : un article qui revendique « les meilleurs SUV » échoue, « les meilleurs SUV pour familles nombreuses » passe.
 

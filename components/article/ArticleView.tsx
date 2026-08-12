@@ -4,12 +4,10 @@
  * routes FR et EN : tout le « chrome » passe par tl(locale, …) → plus aucune
  * chaîne en dur à traduire.
  *
- * VARIANTES :
- *  - 'classic' : mise en page historique (classe CSS sur <article>).
- *  - 'presse'  : identité ÉDITORIALE → la MISE EN PAGE est déléguée à
- *                `PresseArticle`, mais le MDX est compilé ICI (mêmes composants,
- *                même TOC, même JSON-LD). Une seule source de compilation MDX
- *                dans tout le template.
+ * VARIANTE : une seule, `classic` (classe CSS `art-v-classic` sur <article>).
+ * La variante `presse` — une IDENTITÉ éditoriale complète maintenue pour un seul
+ * secteur — a été retirée le 2026-08-02 (cf. lib/variants.ts). La divergence
+ * inter-sites passe désormais par la peau : palette, typo, permutations.
  *
  * MODÈLE MENTION : aucun CTA d'achat, aucun bloc produit monétisé, aucun lien
  * sortant monétisé. Les seuls CTA rendus pointent vers les outils du site
@@ -43,7 +41,6 @@ import { ArticleImage } from '@/components/blog/ArticleImage'
 import { ReadingProgress } from '@/components/blog/ReadingProgress'
 import { FaqAccordion } from '@/components/blog/FaqAccordion'
 import { TableOfContents } from '@/components/blog/TableOfContents'
-import { PresseArticle } from '@/components/presse/PresseArticle'
 import { AuthorByline } from '@/components/ui/AuthorByline'
 import { AuthorCard } from '@/components/ui/AuthorCard'
 
@@ -164,24 +161,6 @@ export async function ArticleView({
   const schemas = jsonLd.map((schema, i) => (
     <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
   ))
-
-  // ── Identité ÉDITORIALE : même MDX, même TOC, autre mise en page ──────────
-  if (v === 'presse') {
-    return (
-      <>
-        {schemas}
-        <ReadingProgress />
-        <PresseArticle
-          locale={locale}
-          categorie={categorie}
-          meta={meta}
-          related={related}
-          mdxContent={mdxContent}
-          toc={tocItems}
-        />
-      </>
-    )
-  }
 
   return (
     <>

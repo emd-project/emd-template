@@ -157,8 +157,8 @@
           "categorie": { "type": "string", "description": "Doit referencer un asset de type blog-categorie (PLAN-05)." },
           "cluster": { "type": "string" },
           "type": {
-            "enum": ["comparatif", "face-a-face", "info"],
-            "description": "comparatif = « meilleurs X pour [persona] ». face-a-face = « X vs Y ». info = comment / pourquoi / prix / definition."
+            "enum": ["comparatif", "face-a-face", "pratique", "info"],
+            "description": "comparatif = « meilleurs X pour [persona] ». face-a-face = « X vs Y ». pratique = procedure, entretien, demarche (« comment attenuer une rayure ») — peu dispute et fortement cite par les LLM. info = pourquoi / qu'est-ce que / prix / definition."
           },
           "owns": { "type": "array", "minItems": 1, "items": { "type": "string" } },
           "questions": {

@@ -29,6 +29,37 @@ content/faq-base.md · content/calendrier-edito.md · content/priorites-geo.md (
 NB : les fichiers propres au site restent locaux — seule la DOCTRINE générique vient d'emd-methodo.
 Ne PAS lire le dossier skills/ du repo du site (copies dépréciées). Toute règle modifiée depuis le dernier run l'emporte.
 
+# 0bis — UN CLASSEMENT PAR SEMAINE (court-circuite tout le reste)
+Lis `content/site-plan.json` et `PROGRESS.md`, puis tranche AVANT de chercher un sujet d'article :
+  - reste-t-il un asset `type: "classement"` en `status: "planned"` ?
+  - un classement a-t-il déjà été publié il y a MOINS de 7 jours ?
+
+→ **Il en reste un ET rien depuis 7 jours : tu publies LE CLASSEMENT aujourd'hui, À LA PLACE de l'article.**
+  Prends celui de plus haute `priority`. Saute les étapes 1 à 7 et applique la section « CLASSEMENT » ci-dessous.
+→ **Sinon : article normal**, continue à l'étape 1.
+
+Quand tous les classements du plan sont `published`, cette règle s'éteint d'elle-même. Aucune intervention nécessaire.
+
+## CLASSEMENT — quoi produire
+Tout le contenu vit dans `content/data/classements.json` (+ `.en.json`). Le composant lit le JSON : ne touche jamais au template.
+- **Top 5 à 8 items RÉELS**, issus d'une recherche SERP dédiée + Cuik. `rank`, `nom`, `score`/100, `badge`/`bestFor`, `verdict`, `pros`/`cons`, `prix`, `url` (lien NEUTRE vers la source officielle, jamais affilié).
+- **< 5 items crédibles sur le marché belge → NE PUBLIE PAS.** Repasse le node en `planned`, note-le dans PROGRESS, et fais l'article du jour à la place. Un classement à trois items est plus faible qu'un classement absent.
+- **≥ 1000 mots** : `excerpt` (≤ 160 c) + `intro` answer-first + `tldr` 3-5 puces + `sections` 3-5 blocs dont le `q` est un **H2 en question** + `criteria` + `methodology` + `sources` datées + `faq` 6-7.
+- **Miroir EN strict** dans `classements.en.json`, même plancher de mots.
+- **JSON-LD** : `ItemList` + `FAQPage` + `BreadcrumbList`.
+- **Liens sortants** : ≥ 2 liens d'AUTORITÉ en dofollow. Lien produit uniquement si le produit s'achète en ligne, en nofollow.
+- **Images** : réutilise la couverture de la catégorie du cluster. **Aucune génération pour un classement.**
+
+## CLASSEMENT — enrichir les dérivés au passage
+Si le classement publié est un **classement de SEGMENT** (pas un intra-marque) :
+- ajoute sa famille à `content/data/comparateurs.json` (+ `.en`) : `modeles` = ses items, `specsLabels` = ses `criteria`, `prix` en number, `sourceUrl` neutre ;
+- ajoute son entrée à `content/data/choisir.json` : `tldr` + `sections` + `faq` repris du classement.
+
+Un **intra-marque** n'alimente NI le comparateur NI `/choisir` : comparer les modèles d'une même marque côte à côte, c'est déjà ce que fait le classement.
+
+## CLASSEMENT — publication
+Passe le node de `planned` à `published` dans `content/site-plan.json`, **dans le même commit** que les données. Entrée PROGRESS : slug, nb d'items, nb de mots FR/EN, marques citées, date. Commit : `feat(content): publish ranking [slug] (locales: [...])`.
+
 # 1 — LONGUE TRAÎNE MESURÉE (Cuik) — avant de choisir quoi que ce soit
 Un sujet sans volume mesuré est un sujet inventé.
 mcp__cuik__get_keyword_ideas sur le head term du cluster visé, avec les paramètres du marché
@@ -138,3 +169,4 @@ marques citées · **nombre de mots par locale** · commit · coût image.
 - **Lier vers l'extérieur est un signal, pas un risque.** La consigne « aucune affiliation » avait fini par produire des articles qui ne citaient personne. Un lien vers une source officielle en dofollow vaut mieux que pas de lien ; un lien marchand se justifie par l'utilité, en nofollow, et seulement quand le produit s'achète en ligne.
 - **Anti-cannibalisation par spécificité** : le classement possède le head nu ; le blog les variantes persona/long-tail et les face-à-face.
 - **SERP-first** · **GEO 2026** (Answer-Explanation-Example + Expérience) · **images économes** (1 cover générée + 1 réemploi) · **miroir conditionnel** · **année dynamique** · **le plan reste synchrone du site déployé**.
+- **Un classement par semaine, pas quatre le premier jour.** Les classements sont les pages les plus citables du site et les plus lourdes à produire — quatre en FR et EN, c'était onze mille mots avant la mise en ligne. Un seul part à l'init, les autres sortent au rythme d'un par semaine, à la place de l'article du jour. La règle s'éteint seule quand le plan est épuisé.

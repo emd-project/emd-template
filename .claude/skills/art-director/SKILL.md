@@ -31,25 +31,23 @@ Cherche le matériau **à côté** de l'évidence. Pour l'assurance auto, l'univ
 
 ---
 
-## Levier 2 — Le squelette
+## Levier 2 — Le squelette : deux formes, et tu n'en conçois aucune
+
+Il n'y a plus que **deux** homes, et le choix n'en est pas un :
 
 ```ts
-const { family, confidence, conflict } = classifyNiche({ domain, siteName, sector })
+const { family } = classifyNiche({ domain, siteName, sector })
+// service souscriptible (assurance, banque, énergie, télécom, crédit) → `marche`
+// tout le reste                                                       → `magazine`
 ```
 
-Jamais à la main. Le signal est l'**entité** (`citadine`), pas le modificateur (`meilleure`) — presque tous les domaines du réseau sont comparatifs, ce critère enverrait tout le monde sur la home comparateur. Signale un `conflict` ou une `confidence: 'low'` : c'est presque toujours un mauvais libellé dans `sites.csv`.
+`suggestVariants(niche.domain, family)` te le rend. Écris-le dans `niche.config.layouts.home`, et passe au levier suivant.
 
-- **service souscriptible** (assurance, banque, énergie, télécom, crédit) → `comparateur` → pool ⅔ `marche` / ⅓ `comparateur`
-- **beauté & mode** → `beaute` → `presse`, identité éditoriale complète
-- **produit physique, hospitality, tech, et défaut prudent** → `editorial` → pool ⅔ `magazine` / ⅓ `fil`
+**Ne cherche pas à faire diverger la structure.** Deux sites du même secteur auront la même home, c'est décidé et c'est assumé : concevoir une forme par site coûtait plus de temps et de tokens que la différence n'en valait. `homeCollision` sortira à `true` si tu passes une exclusion — c'est normal, ignore-le.
 
-Puis le tirage, avec exclusion réelle des voisins :
+**Toute la divergence est donc dans la peau, et c'est là que tu passes ton temps :** la palette, la typo, les permutations `shape`/`border`/`shadow`, et les 3 à 5 effets de `da-site.css`. Un site `marche` en ardoise et laiton, rayons nuls, filets épais, et un site `marche` en craie et vert anglais, rayons doux, ombres profondes, ne se ressemblent pas — c'est ce que tu dois obtenir.
 
-```ts
-const v = suggestVariants(niche.domain, family, { home: [...homes des N derniers] })
-```
-
-Écris exactement le tirage obtenu. Si `v.homeCollision === true`, le pool de la famille est épuisé : signale-le, c'est le signal qu'il faut une variante de plus. `style.hero` suit la home — magazine/marche/presse → `centered`, comparateur → `split`, fil → `minimal`. **Jamais `split` par défaut.**
+Le mode clair ou sombre fait partie de cette divergence : ne pars pas du sombre par défaut parce que la référence l'est.
 
 ---
 

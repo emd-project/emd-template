@@ -47,6 +47,7 @@ Ces six champs suffisent :
 - Quelles requêtes à volume réel n'ont **aucune** page dédiée chez personne ? Ce sont tes ouvertures.
 - Quelles requêtes sont captées par une page **manifestement inadaptée** — une définition qui atterrit sur une page commerciale, une procédure noyée dans un article fourre-tout ? Ce sont tes prises.
 - Quels **formats** n'existent chez aucun concurrent ? Définitions, procédures en étapes, données chiffrées sourcées : massivement sous-traités, et ce sont ceux que les LLM citent le plus volontiers.
+- **Et surtout : quelles requêtes PRATIQUES le marché pose-t-il ?** « comment atténuer une rayure », « comment résilier », « que faire après un sinistre », « à quelle fréquence changer ». Ce sont les requêtes les moins disputées du secteur, elles ont du volume réel, et elles construisent l'autorité thématique que les pages commerciales seules n'obtiennent jamais. Cherche-les explicitement dans `get_keyword_ideas` : elles n'apparaissent pas dans les seeds commerciaux, il faut les demander (« comment », « pourquoi », « quand », « combien de temps »).
 
 ---
 
@@ -72,7 +73,11 @@ Un asset = une page structurelle, c'est-à-dire une entrée de menu ou une page 
 
 **Puis les dérivés.** Comparateur et `/choisir` se construisent **à partir des items du classement** — la recherche est déjà faite, c'est du remploi, pas du travail neuf. Faire coïncider les slugs comparateur avec les slugs de catégorie quand c'est pertinent, sinon le `ToolCTA` des articles retombe sur `/comparer` nu.
 
-**Puis les catégories blog.** 4 à 8, chacune adossée à un cluster réel, chacune avec des articles planifiés. Une catégorie sans article est une entrée de menu qui mène au vide — `PLAN-05` la refuse.
+**Puis les catégories blog.** 4 à 6, chacune adossée à un cluster réel, chacune avec des articles planifiés. Une catégorie sans article est une entrée de menu qui mène au vide.
+
+**L'une d'elles est obligatoirement la catégorie PRATIQUE**, et c'est toi qui la nommes d'après les données — jamais un libellé générique. Sur un site auto ce sera « Entretien & réparation », sur l'énergie « Factures & démarches », sur l'assurance « Sinistres & procédures ». Elle porte les requêtes en « comment / quand / combien de temps », et c'est la moitié du sujet que le modèle mention avait fait disparaître.
+
+Ne la traite pas comme un fourre-tout : un fourre-tout dilue le domaine, Google lit très bien la cohérence thématique. Elle a ses clusters, ses articles, et elle maille vers les classements comme les autres.
 
 **Puis ce qu'on éteint.** Quiz, simulateur, tout asset que les données ne justifient pas : `status: "disabled"` avec une `disabledReason` d'au moins vingt caractères. Éteindre est une décision légitime ; la taire ne l'est pas — la raison finit dans DECISIONS.md et évite qu'on repose la question dans trois mois.
 
@@ -93,7 +98,8 @@ La frontière se joue sur la **spécificité de la requête** :
 | « X vs Y » — deux items précis | **blog** — face-à-face |
 | « comparer X » côte à côte, multi-items | **comparateur** `/comparer/X` |
 | « quel X choisir », « quel X pour moi » | **choisir** `/choisir/X`, `/quiz` |
-| comment / pourquoi / qu'est-ce que / prix / définition | **blog** — informationnel |
+| « comment faire X », « que faire après Y », entretien, démarche, fréquence | **blog** — pratique |
+| pourquoi / qu'est-ce que / prix / définition | **blog** — informationnel |
 
 Le blog **fait** des comparatifs de marques — c'est le cœur du modèle mention. Il ne duplique jamais le head nu, et il **maille vers** le classement. `PLAN-02` attrape la faute : un article qui revendique « les meilleurs SUV » échoue, « les meilleurs SUV pour familles nombreuses » passe.
 
@@ -101,7 +107,13 @@ Le blog **fait** des comparatifs de marques — c'est le cœur du modèle mentio
 
 **Questions cibles.** Chaque article porte ≥ 3 questions formulées **en question**, issues de la recherche et non inventées (`PLAN-06`). Ce sont les H2, et c'est le matériau que les LLM citent.
 
-**Mentions.** `PLAN-07` exige que **deux tiers** des articles fassent surgir au moins 2 marques réelles. C'est le modèle économique : une page sans marque réelle n'a aucune valeur commerciale. Renseigne aussi le `persona` sur les comparatifs — c'est le levier de longue traîne le moins disputé.
+**Répartition des articles — ½ / ¼ / ¼.**
+
+- **½ comparatifs de marques ou de modèles** — « meilleurs X pour [persona] », « X vs Y ». Le cœur de l'inventaire vendable.
+- **¼ evergreen pratique** — procédures, entretien, démarches. Peu disputé, fortement cité par les LLM, et c'est là que les marques de PRODUITS apparaissent le plus naturellement (un article sur les rayures cite Meguiar's, 3M, Turtle Wax). C'est un second inventaire de mentions, pas un renoncement au premier.
+- **¼ informationnel** — définitions, prix, « pourquoi ».
+
+L'ancienne règle disait ⅔ / ⅓ et produisait des sites où presque tous les articles étaient des comparatifs déclinés par persona, donc interchangeables. Renseigne le `persona` sur les comparatifs — c'est le levier de longue traîne le moins disputé.
 
 **Aucun champ d'affiliation.** Ni `price`, ni `cta`, ni `promo`, ni `deal`. `PLAN-10` les rejette jusque dans le contrat.
 

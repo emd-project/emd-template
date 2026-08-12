@@ -1,12 +1,10 @@
-import type { Metadata } from 'next'
-import { HomeRouter } from '@/components/home/HomeRouter'
-
-/** EN preview — Marche home. noindex — removed at site init. */
-export const metadata: Metadata = {
-  title: 'Preview — Home Marché (EN)',
-  robots: { index: false, follow: false },
-}
+/**
+ * Preview route REMOVED. It previewed the `marche` home, now served by /en/home-v2
+ * (see HOME_PREVIEW in lib/variants.ts). Kept as an explicit 404 — the folder is
+ * deleted when the site is init'd.
+ */
+import { notFound } from 'next/navigation'
 
 export default function PreviewHomeV3En() {
-  return <HomeRouter locale="en" variant="marche" />
+  return notFound()
 }

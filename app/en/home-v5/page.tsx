@@ -1,18 +1,11 @@
-import type { Metadata } from 'next'
-import { HomeRouter } from '@/components/home/HomeRouter'
-import { PresseStyle } from '@/components/presse/PresseStyle'
-
-/** EN preview — Presse home (editorial identity). noindex — removed at site init. */
-export const metadata: Metadata = {
-  title: 'Preview — Home Presse (EN)',
-  robots: { index: false, follow: false },
-}
+/**
+ * Preview route REMOVED: the `presse` identity (editorial masthead + footer + home)
+ * was dropped on 2026-08-02 — `isPresse()` now always returns `false` and beauty
+ * sites use `magazine` like everyone else (see lib/variants.ts).
+ * Kept as an explicit 404 — the folder is deleted when the site is init'd.
+ */
+import { notFound } from 'next/navigation'
 
 export default function PreviewHomeV5En() {
-  return (
-    <>
-      <PresseStyle />
-      <HomeRouter locale="en" variant="presse" />
-    </>
-  )
+  return notFound()
 }

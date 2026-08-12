@@ -1,25 +1,11 @@
-import type { Metadata } from 'next'
-import { HomeRouter } from '@/components/home/HomeRouter'
-import { PresseStyle } from '@/components/presse/PresseStyle'
-
 /**
- * Preview variante home « Presse » (identité éditoriale). noindex — supprimé à
- * l'init du site.
- *
- * `PresseStyle` est monté ICI : sur un site NON-presse, le layout ne l'injecte pas
- * et les grilles (.presse-une, .presse-body…) n'existeraient pas → la preview
- * s'afficherait à plat. Le <style> est idempotent si le layout l'a déjà monté.
+ * Route preview RETIRÉE : l'identité `presse` (masthead + footer + home éditoriaux)
+ * a été supprimée le 2026-08-02 — `isPresse()` rend désormais toujours `false` et
+ * les sites beauté prennent `magazine` comme les autres (cf. lib/variants.ts).
+ * Conservée en 404 explicite — le dossier est supprimé à l'init du site.
  */
-export const metadata: Metadata = {
-  title: 'Preview — Home Presse',
-  robots: { index: false, follow: false },
-}
+import { notFound } from 'next/navigation'
 
 export default function PreviewHomeV5() {
-  return (
-    <>
-      <PresseStyle />
-      <HomeRouter locale="fr" variant="presse" />
-    </>
-  )
+  return notFound()
 }

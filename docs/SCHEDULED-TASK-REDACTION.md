@@ -38,14 +38,21 @@ ni par un article déjà publié — cf. `content/site-plan.json`, champ `owns`.
 ⚠️ NE JAMAIS appeler get_ranked_keywords ici : ~213 000 caractères pour 40 mots-clés, il fait exploser le run.
    Il est réservé à l'init.
 
-# 2 — Choisir UN sujet — MODÈLE MENTION (⅔ marques-modèles / ⅓ info)
+# 2 — Choisir UN sujet — MODÈLE MENTION (½ marques-modèles / ¼ evergreen pratique / ¼ info)
 Priorité : si content/priorites-geo.md a un brief NON coché (gap mesuré MentionLab) → le traiter.
 Sinon, croiser la longue traîne de l'étape 1 avec `content/site-plan.json` et le calendrier :
 choisir une catégorie sous-couverte + une intention non couverte. UN seul sujet.
-RÈGLE DE SÉLECTION (cf. seo-geo-redaction) :
-  - ~⅔ = sujets à MARQUES/MODÈLES (le cœur des mentions) : comparatifs cross-marques, intra-marque,
-    « X vs Y », et surtout **« meilleurs X pour [persona/usage] »** (long-tail, anti-cannibalisation). ≥ 2 marques citées.
-  - ~⅓ = informationnel utile (comment / pourquoi / qu'est-ce que / prix / définition).
+RÈGLE DE SÉLECTION — ½ / ¼ / ¼ :
+  - **½ = sujets à MARQUES/MODÈLES** (le cœur des mentions) : comparatifs cross-marques, intra-marque,
+    « X vs Y », et surtout **« meilleurs X pour [persona/usage] »**. ≥ 2 marques citées.
+  - **¼ = EVERGREEN PRATIQUE** : procédures, entretien, démarches — « comment atténuer une rayure »,
+    « comment résilier », « que faire après un sinistre », « à quelle fréquence changer ».
+    Peu disputé, durable, et c'est le format que les LLM citent le plus volontiers. C'est aussi là que les
+    marques de PRODUITS apparaissent naturellement : un article sur les rayures cite Meguiar's, 3M, Turtle Wax.
+    Second inventaire de mentions, pas un renoncement au premier.
+  - **¼ = informationnel** : définitions, prix, « pourquoi », « qu'est-ce que ».
+  Regarde ce qui est déjà publié avant de choisir : l'ancienne règle ⅔/⅓ a produit des sites où presque
+  tous les articles étaient des comparatifs déclinés par persona, donc interchangeables. Rééquilibre.
 ANTI-CANNIBALISATION : un seul propriétaire par requête EXACTE.
   - NE PAS dupliquer le **head nu** déjà pris par un asset : « les meilleurs X / top X » → /classement ;
     « comparer X » → /comparer ; « quel X choisir » → /choisir.
@@ -67,6 +74,16 @@ content gap, sources, FAQ, JSON-LD, **marques/modèles à citer (≥ 2)**.
 # 6 — Rédaction FR (humaniser-fr). Voix [authorName]. Answer-Explanation-Example par H2. ≥ 3 signaux d'Expérience.
 ≥ 2 marques/modèles cités, traités factuellement (jamais de promo creuse). Sources datées .[market_tld].
 ≥ 1 tableau comparatif si comparaison. Année via currentYear() — JAMAIS d'année en dur dans titre/frontmatter.
+LIENS SORTANTS — deux natures, à ne jamais confondre :
+  - **Liens d'AUTORITÉ : ≥ 2 par article, en dofollow normal.** Source officielle, régulateur, administration,
+    Wikipédia, documentation constructeur, étude datée. Une page qui ne cite personne a l'air d'une page qui ne
+    sait rien — et un lien vers une source solide est un signal de qualité, pas une fuite de trafic.
+    NE PAS leur mettre `nofollow` : ce serait se priver du signal tout en gardant le lien.
+  - **Liens PRODUIT : uniquement si le produit s'achète en ligne**, et seulement là où ça rend service au lecteur
+    (un evergreen pratique « quel kit pour une rayure », un classement de produits). Vers la fiche marchand ou la
+    page officielle, en `rel="noopener noreferrer nofollow"`. **Aucune affiliation, aucun tag, aucun prix barré,
+    aucun compte à rebours.** Sur un comparatif de modèles de voitures, le lien utile est la fiche constructeur,
+    pas un marchand.
 PLANCHER DE LONGUEUR — non négociable, corps de l'article hors frontmatter et hors FAQ :
   - comparatif / face-à-face : **>= 1200 mots**
   - informationnel : **>= 900 mots**
@@ -99,9 +116,11 @@ Un plan qui décrit un site différent de celui qui est déployé ne vaut plus r
 - JAMAIS publier sans SERP analysis (étape 3).
 - JAMAIS sous le plancher de longueur (étape 6), dans aucune locale.
 - AUCUN élément affilié (modèle mention) ; ≥ 2 marques/modèles cités + tagués ; persona tagué.
+- ≥ 2 liens d'AUTORITÉ en dofollow (source officielle, régulateur, Wikipédia, constructeur, étude datée).
+- Lien produit UNIQUEMENT si le produit s'achète en ligne, en nofollow, sans affiliation.
 - Anti-cannibalisation : NE JAMAIS dupliquer le **head nu** d'un asset. Les comparatifs persona/long-tail
   et « X vs Y » sont OK et souhaités ; mailler vers l'asset.
-- Le « trop-informationnel sans marque » (how-to pur, zéro marque) limité à ⅓ max.
+- Respecter la répartition ½ comparatifs / ¼ evergreen pratique / ¼ informationnel, en regardant ce qui est déjà publié.
 - JAMAIS un seul locale si miroir strict actif. JAMAIS d'année en dur. UNE SEULE image générée (la cover).
 - TOUJOURS alt dans toutes les locales · sources datées · >= 70 % H2 en question · >= 3 signaux d'Expérience.
 
@@ -115,6 +134,7 @@ marques citées · **nombre de mots par locale** · commit · coût image.
 - **La demande d'abord, le calendrier ensuite.** La tâche vérifiait la SERP mais ne mesurait jamais le volume : elle pouvait produire un article impeccable sur une requête que personne ne tape. Cuik passe maintenant avant le choix du sujet, et la requête retenue arrive dans le brief avec son chiffre.
 - **Un plancher de longueur, parce que la structure n'y suffisait pas.** Le gabarit décrivait la forme d'un article dans le détail — H2 en question, FAQ, tableau, signaux d'expérience — sans jamais dire combien de temps il devait tenir. On obtenait des articles correctement charpentés et trop courts pour dire quelque chose. Le classement a un plancher depuis toujours ; l'article n'en avait aucun.
 - **Doctrine centralisée** : les skills et garde-fous sont lus depuis `emd-project/emd-methodo`. Les copies `skills/` embarquées dans le repo du site sont **dépréciées**.
-- **Modèle mention** : ⅔ sujets à marques/modèles = inventaire vendable ; ⅓ info. Pas d'affiliation.
+- **Modèle mention, sur deux inventaires.** ½ comparatifs de marques et de modèles ; ¼ evergreen pratique, où ce sont les marques de PRODUITS qui surgissent — un article sur la réparation d'une rayure cite trois fabricants aussi naturellement qu'un comparatif cite trois constructeurs. Pas d'affiliation, jamais.
+- **Lier vers l'extérieur est un signal, pas un risque.** La consigne « aucune affiliation » avait fini par produire des articles qui ne citaient personne. Un lien vers une source officielle en dofollow vaut mieux que pas de lien ; un lien marchand se justifie par l'utilité, en nofollow, et seulement quand le produit s'achète en ligne.
 - **Anti-cannibalisation par spécificité** : le classement possède le head nu ; le blog les variantes persona/long-tail et les face-à-face.
 - **SERP-first** · **GEO 2026** (Answer-Explanation-Example + Expérience) · **images économes** (1 cover générée + 1 réemploi) · **miroir conditionnel** · **année dynamique** · **le plan reste synchrone du site déployé**.

@@ -73,7 +73,7 @@ Vérifie aussi le **couple de fonds** : deux presets différents partagent souve
 suggestFonts(niche.domain, v.home, { fonts: [...polices des 8 derniers sites] })
 ```
 
-Le pool compte **51 paires** ; par famille : comparateur 29, marche 22, magazine 33, fil 21. L'exclusion écarte une paire dès que **son display OU son body** figure dans la fenêtre — trois sites en « X × Inter » se ressemblent autant que trois sites sur la même paire.
+Le pool compte **51 paires**. Il n'en reste que deux qui te concernent : **`marche` 22 paires** (grotesques et géométriques) et **`magazine` 33 paires** (serifs éditoriaux, expressifs et grotesques). C'est large : avec l'exclusion des huit derniers sites, une répétition ne devrait pas arriver avant longtemps. L'exclusion écarte une paire dès que **son display OU son body** figure dans la fenêtre — trois sites en « X × Inter » se ressemblent autant que trois sites sur la même paire.
 
 Écris la paire dans **`app/layout.tsx`**, en imports next/font **statiques** (espaces → `_`). `DA-02` le vérifie là et nulle part ailleurs : **`niche.config.fonts` n'est lu par aucun code.** Le renseigner quand même, comme trace — mais l'écrire seul ne change rien au rendu, et c'est le piège n°1 de cette phase.
 

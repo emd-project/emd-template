@@ -144,7 +144,7 @@ Six questions, dans cet ordre. Si l'une reste sans réponse satisfaisante, corri
 1. **Deux propriétaires pour la même requête ?** Passe les `owns` de tous les assets et de tous les articles, en ignorant la casse, les accents et l'article défini initial : « les meilleurs SUV » et « meilleurs SUV » sont la MÊME requête. Un doublon veut dire que ton découpage confond deux intentions, ou que tu as créé une page en trop.
 2. **Un article mord-il sur le head nu ?** « les meilleurs X », « top X », « classement X » appartiennent au classement. Le blog prend les variantes qualifiées — persona, usage, face-à-face. Qualifie l'article, ou supprime-le.
 3. **Une catégorie blog sans article ?** Soit tu lui donnes des articles, soit elle n'existe pas : une entrée de menu qui mène au vide coûte plus qu'elle ne rapporte.
-4. **Le ratio de mentions tient-il ?** Deux tiers des articles doivent faire surgir au moins deux marques réelles. En dessous, tu as écrit trop d'informationnel, et le modèle économique ne tient plus.
+4. **La répartition tient-elle ?** ½ comparatifs de marques, ¼ evergreen pratique, ¼ informationnel. Les deux premiers tiers-là font surgir des marques réelles — constructeurs pour les uns, fabricants de produits pour les autres — soit **trois quarts des articles avec au moins deux marques**. Si tu tombes en dessous, c'est que l'informationnel a débordé, et l'inventaire de mentions se vide.
 5. **Chaque article a-t-il ses trois questions cibles**, formulées en question et issues de la recherche ? Sans elles, la page n'est pas citable.
 6. **Le budget est-il honnête ?** `maxArticles` ne doit pas dépasser ce que `dailyPublish` absorbe en douze mois. Si ça dépasse, réduis le nombre d'articles — jamais la cadence.
 

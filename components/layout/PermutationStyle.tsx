@@ -4,13 +4,33 @@
  * dans volteo.css : il injecte des overrides de variables globales en !important
  * (donc gagne quel que soit l'ordre/spécificité), theme-safe (light + dark).
  *
- *  - shape  : --radius-* (rounded défaut | soft | sharp)
- *  - border : --border / --border-strong (standard défaut | hairline | bold)
- *  - shadow : --shadow-* (standard défaut | flat | deep)
+ *  - shape   : --radius-* (rounded défaut | soft | sharp)
+ *  - border  : --border / --border-strong (standard défaut | hairline | bold)
+ *  - shadow  : --shadow-* (standard défaut | flat | deep)
+ *  - effects : --fx-aurora (aurora défaut | subtle | none)
+ *  - cards   : --card-bg / --card-border-width (bordered défaut | filled | minimal)
  *
- * 'rounded'/'standard' = aucun override → look historique inchangé.
+ * 'rounded'/'standard'/'aurora'/'bordered' = aucun override → look historique
+ * inchangé, au caractère près : la valeur par défaut est portée par globals.css,
+ * pas par ce composant.
+ *
+ * effects & cards passent par le MÊME mécanisme que les trois autres — un token,
+ * jamais une branche de rendu. `--fx-aurora` est un nombre sans unité et
+ * `--card-bg` une référence à un token de fond : les deux sont indépendants du
+ * thème, donc émis en `:root` simple, comme shape, et non via themed().
  */
-import { resolveShape, resolveBorder, resolveShadow, type Shape, type Border, type Shadow } from '@/lib/variants'
+import {
+  resolveShape,
+  resolveBorder,
+  resolveShadow,
+  resolveEffects,
+  resolveCards,
+  type Shape,
+  type Border,
+  type Shadow,
+  type Effects,
+  type Cards,
+} from '@/lib/variants'
 
 const RADIUS: Record<Exclude<Shape, 'rounded'>, string> = {
   soft: '--radius-sm:5px!important;--radius-md:9px!important;--radius-lg:13px!important;--radius-xl:18px!important',
@@ -39,6 +59,27 @@ const SHADOW: Record<Exclude<Shadow, 'standard'>, { light: string; dark: string 
   },
 }
 
+/**
+ * Intensité des dégradés. `subtle` = nettement atténué mais encore lisible,
+ * `none` = 0, aucun dégradé visible. Aucune position, aucune taille, aucun
+ * layout : les règles de globals.css multiplient leurs propres pourcentages par
+ * ce nombre.
+ */
+const FX: Record<Exclude<Effects, 'aurora'>, string> = {
+  subtle: '--fx-aurora:0.35!important',
+  none: '--fx-aurora:0!important',
+}
+
+/**
+ * Surface de carte. `filled` = fond de surface plein et filet à 0, `minimal` =
+ * ni fond ni filet (l'espacement des grilles porte seul la séparation).
+ * Uniquement des tokens de palette — jamais une couleur en dur.
+ */
+const CARD: Record<Exclude<Cards, 'bordered'>, string> = {
+  filled: '--card-bg:var(--bg-surface-2)!important;--card-border-width:0!important',
+  minimal: '--card-bg:transparent!important;--card-border-width:0!important',
+}
+
 /** Émet les 3 contextes de thème pour des valeurs light/dark données. */
 function themed(light: string, dark: string): string {
   return [
@@ -52,11 +93,15 @@ export function PermutationStyle() {
   const shape = resolveShape()
   const border = resolveBorder()
   const shadow = resolveShadow()
+  const effects = resolveEffects()
+  const cards = resolveCards()
 
   let css = ''
   if (shape !== 'rounded') css += `:root{${RADIUS[shape]}}`
   if (border !== 'standard') css += themed(BORDER[border].light, BORDER[border].dark)
   if (shadow !== 'standard') css += themed(SHADOW[shadow].light, SHADOW[shadow].dark)
+  if (effects !== 'aurora') css += `:root{${FX[effects]}}`
+  if (cards !== 'bordered') css += `:root{${CARD[cards]}}`
 
   if (!css) return null
   return <style dangerouslySetInnerHTML={{ __html: css }} />

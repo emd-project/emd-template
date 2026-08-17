@@ -42,4 +42,35 @@
 
 /* PARTI PRIS : (à écrire par l'init — une phrase, l'idée directrice du site) */
 
+/* ── SURFACE DE CARTE — contrat partagé, à CONSERVER en réécrivant ce fichier ──
+   Câblage de `niche.config.style.cards` (2026-08-17).
+
+   POURQUOI ICI. Les surfaces de carte des deux homes et des pages catégorie
+   vivent dans `app/styles/volteo*.css`, via les alias `--paper` et `--line` — que
+   partagent aussi la nav collante `.magnav`, les chips et les inputs. Les remapper
+   au niveau du token casserait ces surfaces (une `.magnav` transparente laisse le
+   contenu défiler dessous), et volteo* est le système partagé de tous les forks :
+   interdit. Ce fichier-ci est chargé EN DERNIER et n'appartient qu'à ce site :
+   c'est le seul endroit d'où les deux tokens de carte atteignent ces classes,
+   à spécificité égale et sans un seul !important.
+
+   INVARIANT. Aux défauts (`cards: 'bordered'`), `--card-bg` vaut
+   `var(--bg-surface)` — exactement ce que `--paper` rend déjà — et
+   `--card-border-width` vaut `1px`, exactement le filet de volteo. Ce bloc ne
+   change donc rien tant que `style.cards` ne vaut pas `filled` ou `minimal`.
+
+   Deux propriétés, deux tokens : ni couleur en dur, ni règle de layout, ni
+   animation. N'ajoute PAS `.magnav`, `.chip`, `.md-chip` ni les inputs à cette
+   liste — ce ne sont pas des cartes. */
+.post,
+.featured,
+.guide,
+.md-post,
+.md-cat,
+.md-rank,
+.pop-list {
+  background: var(--card-bg);
+  border-width: var(--card-border-width);
+}
+
 /* (aucun effet dans le template — chaque site remplit ce fichier) */

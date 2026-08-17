@@ -15,7 +15,8 @@
  * │                                                                            │
  * │ La divergence passe désormais entièrement par : la palette (≥ 25° d'écart  │
  * │ de teinte avec les voisins), la typo (51 paires, exclusion glissante), les │
- * │ permutations shape/border/shadow, et les 3 à 5 effets de `da-site.css`.    │
+ * │ permutations shape/border/shadow, les leviers effects/cards (câblés le     │
+ * │ 2026-08-17, cf. plus bas), et les 3 à 5 effets de `da-site.css`.           │
  * │                                                                            │
  * │ Deux sites de la même famille se ressembleront. C'est assumé : ça rachète  │
  * │ la partie la plus longue et la moins fiable d'un provisionnement.          │
@@ -108,17 +109,58 @@ export function resolveShadow(): Shadow {
 }
 
 /**
- * ⚠️ ÉTAT RÉEL DU CÂBLAGE, à savoir avant d'espérer un changement visuel :
- * aucun code ne LIT `niche.style.effects` ni `niche.style.cards`.
- * `PermutationStyle` ne surcharge que les tokens de shape/border/shadow.
- * Le tirage est tracé dans la config, mais le rendu ne bouge pas encore.
+ * ÉTAT DU CÂBLAGE — `style.effects` et `style.cards` sont LUS depuis le 2026-08-17.
  *
- * Cela comptait peu quand cinq squelettes portaient la différence. Depuis qu'il
- * n'en reste que deux, câbler ces deux leviers devient le chantier le plus
- * rentable du moteur — c'est autant de divergence en moins aujourd'hui.
+ * `PermutationStyle` surcharge désormais cinq leviers, pas trois. Aux tokens de
+ * shape/border/shadow s'ajoutent :
+ *
+ *   • effects → `--fx-aurora`, un token d'INTENSITÉ sans unité (1 · ~0,35 · 0) qui
+ *     pilote l'opacité des dégradés déjà présents dans `app/globals.css` :
+ *     `.article-hero-band`, `.comparateur-card-wrap`, `.text-gradient-hero`,
+ *     `.nav-glass-active::before`. Ni position, ni taille, ni layout ne changent.
+ *   • cards   → `--card-bg` et `--card-border-width`, deux tokens de SURFACE,
+ *     consommés par `app/globals.css` (`.glass-card`, `.table-scroll-wrap`) et par
+ *     le bloc « surface de carte » de `app/styles/da-site.css`.
+ *
+ * Les défauts REPRODUISENT le rendu historique : `aurora` et `bordered` n'émettent
+ * aucun override. Un fork qui ne déclare rien — ou qui déclare ces deux valeurs —
+ * rend exactement ce qu'il rendait avant. Seuls `subtle`, `none`, `filled` et
+ * `minimal` changent quelque chose.
+ *
+ * `none` est le seul interrupteur qui sorte un site SANS AUCUN dégradé : c'est le
+ * cliché n°1 d'une page générée, et il n'existait pas jusqu'ici.
+ *
+ * HORS PÉRIMÈTRE, à savoir avant d'espérer plus : les surfaces de carte des deux
+ * homes et des pages catégorie vivent dans `app/styles/volteo*.css` via les alias
+ * `--paper` et `--line`, que partagent aussi la nav collante (`.magnav`), les chips
+ * et les inputs. Les remapper au niveau du token casserait ces surfaces, et ces
+ * fichiers sont le système partagé de tous les forks. C'est donc `da-site.css`,
+ * chargé en dernier et propre au site, qui consomme les tokens de carte sur ces
+ * classes — jamais volteo.
  */
 export type Effects = 'aurora' | 'subtle' | 'none'
 export type Cards = 'bordered' | 'filled' | 'minimal'
+
+export const EFFECTS_VARIANTS: readonly Effects[] = ['aurora', 'subtle', 'none']
+export const CARDS_VARIANTS: readonly Cards[] = ['bordered', 'filled', 'minimal']
+
+/**
+ * Défaut `aurora` = ce que le CSS rendait avant le câblage. Une valeur hors pool
+ * retombe dessus : `PermutationStyle` indexe un Record avec ce résultat et
+ * l'injecte dans un <style>, on ne lui passe donc que du vocabulaire connu.
+ */
+export function resolveEffects(): Effects {
+  const explicit = niche.style?.effects as Effects | undefined
+  if (explicit && EFFECTS_VARIANTS.includes(explicit)) return explicit
+  return 'aurora'
+}
+
+/** Défaut `bordered` : filet visible et fond de carte inchangés. */
+export function resolveCards(): Cards {
+  const explicit = niche.style?.cards as Cards | undefined
+  if (explicit && CARDS_VARIANTS.includes(explicit)) return explicit
+  return 'bordered'
+}
 
 // ─── Famille ────────────────────────────────────────────────────────────────
 

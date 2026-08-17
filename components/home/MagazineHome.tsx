@@ -8,8 +8,15 @@
  * posée à gauche de l'onglet coloré. C'était la seule des quatre variantes de home
  * à n'afficher aucune couverture de catégorie. La vignette reste petite à dessein :
  * `.cat-head` est une ligne (onglet + filet + « voir tout »), un bandeau y changerait
- * le rythme de la page. Sans slot déclaré, l'en-tête est exactement celui d'avant.
+ * le rythme de la page. Sans slot déclaré, OU si le fichier n'a pas encore été
+ * généré, l'en-tête est exactement celui d'avant.
+ *
+ * Un slot est déclaré dès qu'une catégorie existe dans `niche.config` : tester le
+ * seul slot laissait donc passer un `next/image` sur un fichier absent. Même garde
+ * que `app/(site)/[article]/page.tsx` (`fs.existsSync` sur `public/…`).
  */
+import fs from 'fs'
+import path from 'path'
 import Link from 'next/link'
 import Image from 'next/image'
 import { type ArticleMeta } from '@/lib/blog'
@@ -17,6 +24,15 @@ import { getArticlesL, articleHrefL, formatDateL } from '@/lib/blog-l10n'
 import { niche, localePath } from '@/niche.config'
 import { tl } from '@/lib/i18n'
 import { getCategoryImage } from '@/lib/image-slots'
+
+/** Le fichier de l'image est-il réellement présent dans /public ? */
+function imageExists(relativePath: string): boolean {
+  try {
+    return fs.existsSync(path.join(process.cwd(), 'public', relativePath.replace(/^\//, '')))
+  } catch {
+    return false
+  }
+}
 
 const CAT_INDEX: Record<string, number> = Object.fromEntries(
   niche.categories.map((c, i) => [c.slug, (i % 5) + 1])
@@ -106,13 +122,15 @@ export function MagazineHome({ locale = niche.defaultLocale }: { locale?: string
 
             {byCat.map((c) => {
               const [leadArt, ...others] = c.items
+              // Slot déclaré ET fichier réellement généré, sinon pas de vignette.
               const cover = getCategoryImage(c.slug)
+              const coverPath = cover && imageExists(cover.path) ? cover.path : null
               return (
                 <section key={c.slug} className="cat-block">
                   <div className="cat-head">
-                    {cover && (
+                    {cover && coverPath && (
                       <Image
-                        src={cover.path}
+                        src={coverPath}
                         alt={cover.alt}
                         width={38}
                         height={38}

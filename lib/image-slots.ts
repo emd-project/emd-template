@@ -31,6 +31,12 @@
  * │ `getImageSlot`, n'était importé nulle part. Toutes ces images étaient      │
  * │ générées — la partie la plus longue d'un run — et affichées sur aucune     │
  * │ page. Il ne reste que ce qui s'affiche.                                    │
+ * │                                                                            │
+ * │ 2026-08-12 : `home-hero` retiré à son tour. Il avait été branché dans      │
+ * │ ComparateurHome, variante supprimée depuis — donc généré pour rien. Aucune │
+ * │ des deux homes restantes ne s'y prête : `marche` ouvre sur des orbites et  │
+ * │ un ticker, `magazine` sur la photo de l'article de une. Une photo de fond  │
+ * │ générique y entrerait en concurrence avec ce qui porte déjà la page.       │
  * └───────────────────────────────────────────────────────────────────────────┘
  *
  * **On n'ajoute pas un slot ici sans le brancher dans un composant.**
@@ -52,7 +58,7 @@ export type ImageSlot = {
   alt: string
   description: string
   prompt: string
-  section: 'home' | 'category' | 'author'
+  section: 'category' | 'author'
 }
 
 /** Remplace les jetons de niche dans un fragment de prompt. */
@@ -88,26 +94,6 @@ function compose(subject: string): string {
   }
   if (forbid) out += ` Avoid: ${forbid}.`
   return `${out} ${NEG}.`
-}
-
-// ─── Slot statique ──────────────────────────────────────────────────────
-
-function staticSlots(): ImageSlot[] {
-  return [
-    {
-      id: 'home-hero',
-      path: '/images/home/hero.webp',
-      width: 1920,
-      height: 1080,
-      alt: `Illustration principale — ${niche.siteName}`,
-      description:
-        "Image de tête de la home. C'est la première chose qu'un lecteur voit : elle porte le parti pris plus que n'importe quelle autre image du site.",
-      prompt: compose(
-        `A real scene involving [nicheEn], photographed editorially, atmospheric light, shallow depth of field, generous negative space for a headline`
-      ),
-      section: 'home',
-    },
-  ]
 }
 
 // ─── Slots dynamiques ───────────────────────────────────────────────────
@@ -168,10 +154,10 @@ function dynamicSlots(): ImageSlot[] {
 
 /**
  * La checklist EXHAUSTIVE des images structurelles à générer à l'init :
- * 1 hero + 1 par catégorie + 1 auteur.
+ * 1 par catégorie + 1 auteur.
  */
 export function getAllImageSlots(): ImageSlot[] {
-  return [...staticSlots(), ...dynamicSlots()]
+  return dynamicSlots()
 }
 
 /** Un slot par son id. */

@@ -2,7 +2,7 @@
  * ImagePlaceholder — affiche une image optimisée si elle existe,
  * ou un placeholder visuel pour signaler quelle image mettre.
  *
- * Usage : <ImagePlaceholder slotId="home-hero-background" />
+ * Usage : <ImagePlaceholder slotId="category-<slug>" />
  *
  * Comportement :
  * - Si l'image existe : rendue via next/image avec les bonnes dimensions.

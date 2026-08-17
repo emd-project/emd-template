@@ -195,10 +195,13 @@ const pair = suggestFonts(niche.domain, v.home)
 - **Arborescence + seed réel sourcé** ; **seed BILINGUE si `locales` ≥ 2** (FR + miroir + paire
   `lib/i18n/article-slugs.ts`) — un `/en` vide = échec.
 - **Images — la checklist est le registre `lib/image-slots.ts` → `getAllImageSlots()`** :
-  hero ×2 (fond + visuel split), **LES DEUX slots PAR catégorie** (illustration + fond cinématique),
-  avatar auteur — **plus 1 cover par article seed**. Générées **À LA FIN de l'init, une par une,
-  séquentiellement** (fire-and-poll). Aucun plafond arbitraire : un slot du registre sans image =
-  placeholder en prod = bug d'init. Détail : [`IMAGES-WORKFLOW.md`](IMAGES-WORKFLOW.md).
+  **une couverture par catégorie de blog** (`/images/categories/<slug>.webp`) et **un portrait
+  d'auteur** (`/images/authors/<slug>.webp`) — **plus 1 cover par article seed**. La couverture de
+  catégorie sert **trois fois pour une seule génération** : carte de home, en-tête du hub
+  `/blog/[categorie]`, illustration in-content des articles de la catégorie. Générées **À LA FIN de
+  l'init, une par une, séquentiellement** (fire-and-poll). Aucun plafond arbitraire : un slot du
+  registre sans image = placeholder en prod = bug d'init. Détail :
+  [`IMAGES-WORKFLOW.md`](IMAGES-WORKFLOW.md).
 - **Logo & favicon** = mark SVG sur mesure + wordmark (inline `Nav.tsx` + `app/icon.svg`).
 - **Tâche de rédaction** quotidienne (cf. `SCHEDULED-TASK-REDACTION.md`).
 

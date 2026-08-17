@@ -118,9 +118,11 @@ une valeur écrite dans `volteo.css :root` = **bug d'init**.
 
 ## Images — registre `lib/image-slots.ts` (aucun slot oublié)
 La checklist d'images est **`getAllImageSlots()`** (source unique, dérivée de `niche.config.categories`/`author`) :
-hero home, **les 2 slots par catégorie**, avatar auteur, + **1 cover par article seed**. Génération **une par une,
-à la fin** de l'init (cf. `docs/IMAGES-WORKFLOW.md`). La tâche quotidienne génère **1 cover + 2 in-content
-réutilisées**. `next/image` uniquement · `alt` FR + EN.
+**une couverture par catégorie de blog** (`/images/categories/<slug>.webp`) et **un portrait d'auteur**
+(`/images/authors/<slug>.webp`), + **1 cover par article seed**. La couverture de catégorie sert **trois fois pour
+une seule génération** : carte de home, en-tête du hub `/blog/[categorie]`, illustration in-content des articles de
+la catégorie. Génération **une par une, à la fin** de l'init (cf. `docs/IMAGES-WORKFLOW.md`). La tâche de rédaction
+génère **1 cover d'article + 1 image in-content réutilisée**. `next/image` uniquement · `alt` FR + EN.
 
 ## Assets autorisés
 Images : `public/images/` (structurelles) · `public/blog/[categorie]/[slug]/` (articles). `next/image` + `alt`.

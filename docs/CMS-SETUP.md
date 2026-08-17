@@ -442,17 +442,21 @@ Dans n'importe quel champ **Image** du CMS, un bouton **Générer avec IA** appa
 
 ### Étape 12.3 — Génération batch (images structurelles)
 
-Pour générer toutes les images du site d'un coup (hero, catégories, etc.) :
+Le registre `lib/image-slots.ts` ne contient que deux familles de slots : une **couverture par catégorie**
+(`category-<slug>` → `/images/categories/<slug>.webp`) et le **portrait de l'auteur**
+(`author-<slug>` → `/images/authors/<slug>.webp`).
+
+Pour générer toutes les images du site d'un coup (couvertures de catégories + portrait auteur) :
 
 ```bash
 # Toutes les images
 npx tsx scripts/generate-images.ts
 
-# Seulement les images home
-npx tsx scripts/generate-images.ts --section home
+# Seulement les couvertures de catégories
+npx tsx scripts/generate-images.ts --section category
 
 # Un slot précis
-npx tsx scripts/generate-images.ts --slot home-hero-background
+npx tsx scripts/generate-images.ts --slot category-<slug>
 
 # Voir les prompts sans générer
 npx tsx scripts/generate-images.ts --dry-run
@@ -603,7 +607,7 @@ node -e "const c=require('crypto');const s=c.randomBytes(16).toString('hex');con
 grep branch niche.config.ts
 grep branch cms.config.ts
 
-# Générer toutes les images structurelles (hero, catégories, etc.)
+# Générer toutes les images structurelles (couvertures de catégories + portrait auteur)
 npx tsx scripts/generate-images.ts
 
 # Générer avec aperçu des prompts seulement

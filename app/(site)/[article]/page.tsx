@@ -4,21 +4,31 @@
  * Intégré au système blog : apparaît dans listings, auteur, articles liés.
  * Mise en page : hero visuel + corps 2 colonnes (sommaire sticky + prose MDX).
  *
+ * IMAGE STRUCTURELLE : le bandeau de tête prend pour fond la COUVERTURE DE LA
+ * CATÉGORIE (`category-<slug>` du registre `lib/image-slots`) — la même image
+ * que la carte de home et que l'en-tête du hub `/blog/[categorie]`. Une
+ * génération, trois apparitions. Si la catégorie n'a pas de slot déclaré (slug
+ * hors `niche.categories`, template nu) ou si le fichier n'est pas là, on rend
+ * l'en-tête nu : ni cadre vide, ni placeholder.
+ *
  * MODÈLE MENTION : aucun CTA d'achat, aucun bloc produit monétisé, aucun lien
  * sortant monétisé.
  *
  * Server Component.
  */
 
+import fs from 'fs'
+import path from 'path'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ImagePlaceholder } from '@/components/ui/ImagePlaceholder'
+import Image from 'next/image'
 import type { Metadata } from 'next'
 import Balancer from 'react-wrap-balancer'
 import { compileMDX } from 'next-mdx-remote/rsc'
 import remarkGfm from 'remark-gfm'
 import { processShortcodes } from '@/lib/content/shortcodes'
 import { getRelatedArticles, articleHref, CATEGORY_LABELS } from '@/lib/blog'
+import { getCategoryImage } from '@/lib/image-slots'
 import { extractHeadings, slugify, type TocItem } from '@/lib/utils/headings'
 import { AISummarize } from '@/components/blog/AISummarize'
 import { TableOfContents } from '@/components/blog/TableOfContents'
@@ -44,6 +54,15 @@ import type { ReactNode } from 'react'
 export const revalidate = 86400
 
 type Params = Promise<{ article: string }>
+
+/** Le fichier de l'image est-il réellement présent dans /public ? */
+function imageExists(relativePath: string): boolean {
+  try {
+    return fs.existsSync(path.join(process.cwd(), 'public', relativePath.replace(/^\//, '')))
+  } catch {
+    return false
+  }
+}
 
 /** Texte brut d'un noeud React (pour générer l'id d'un titre rendu). */
 function nodeText(node: ReactNode): string {
@@ -106,6 +125,11 @@ export default async function StandaloneArticlePage({ params }: { params: Params
   const catLabel = CATEGORY_LABELS[meta.categorie] ?? meta.categorie
   const related = getRelatedArticles(meta.categorie, slug, 3)
 
+  // Couverture de la catégorie. Slot absent (catégorie hors config, template nu)
+  // ou fichier pas encore généré → pas de bandeau du tout, en-tête nu.
+  const cover = getCategoryImage(meta.categorie)
+  const coverPath = cover && imageExists(cover.path) ? cover.path : null
+
   // Sommaire : ancres fixes (En bref) + sections de l'article (H2/H3) + FAQ + Liés.
   const tocItems: TocItem[] = [
     ...(meta.aiSummary && meta.aiSummary.length > 0 ? [{ id: 'en-bref', text: t('sidebar.tocSummary'), level: 2 } as TocItem] : []),
@@ -152,6 +176,41 @@ export default async function StandaloneArticlePage({ params }: { params: Params
       : []),
   ]
 
+  // Même en-tête dans les deux cas : avec la couverture, il est posé sur le
+  // bandeau et le texte passe en mode sombre ; sans elle, il est rendu seul.
+  const header = (
+    <header
+      style={{
+        maxWidth: '760px',
+        margin: '0 auto',
+        padding: 'var(--space-12) var(--space-6) var(--space-10)',
+        position: 'relative',
+        zIndex: 2,
+        width: '100%',
+      }}
+    >
+      <nav aria-label="Fil d'Ariane" style={{ marginBottom: 'var(--space-6)' }}>
+        <ol style={{ display: 'flex', gap: 'var(--space-2)', listStyle: 'none', fontSize: '13px', color: 'var(--text-muted)', flexWrap: 'wrap' }}>
+          <li><Link href="/" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Accueil</Link></li>
+          <li aria-hidden="true">›</li>
+          <li><Link href="/blog" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Blog</Link></li>
+          <li aria-hidden="true">›</li>
+          <li style={{ color: 'var(--text-secondary)' }}>{catLabel}</li>
+        </ol>
+      </nav>
+
+      <span style={{ display: 'inline-block', fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--accent-1)', background: 'rgba(255,61,87,0.1)', padding: '3px 10px', borderRadius: 'var(--radius-full)', marginBottom: 'var(--space-4)' }}>
+        {catLabel}
+      </span>
+
+      <h1 style={{ fontFamily: 'var(--next-font-display), system-ui, sans-serif', fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.15, marginBottom: 'var(--space-5)', textWrap: 'balance' }}>
+        <Balancer>{meta.title}</Balancer>
+      </h1>
+
+      <AuthorByline authorSlug={niche.author.slug || 'auteur'} publishedAt={meta.publishedAt} updatedAt={meta.updatedAt} readingTimeMin={meta.readingTimeMin} onDark={Boolean(coverPath)} />
+    </header>
+  )
+
   return (
     <>
       {jsonLd.map((schema, i) => (
@@ -161,70 +220,41 @@ export default async function StandaloneArticlePage({ params }: { params: Params
       <ReadingProgress />
       <main id="main-content">
         <article>
-          {/* Header — background image cinématique par catégorie + overlay + texte */}
-          <div
-            className="article-hero-band"
-            style={{
-              position: 'relative',
-              overflow: 'hidden',
-              minHeight: '520px',
-              display: 'flex',
-              alignItems: 'flex-end',
-            }}
-          >
-            {/* Image de fond par catégorie */}
-            <div aria-hidden="true" style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
-              <ImagePlaceholder
-                slotId={`blog-category-background-${meta.categorie}`}
-                priority
-                fit="cover"
-                style={{ width: '100%', height: '100%' }}
-              />
-            </div>
-
-            {/* Overlay sombre pour lisibilité */}
+          {/* Header — couverture de la catégorie en fond + voile + texte.
+              Pas de couverture disponible → en-tête seul, sans bandeau. */}
+          {coverPath ? (
             <div
-              aria-hidden="true"
+              className="article-hero-band"
               style={{
-                position: 'absolute',
-                inset: 0,
-                background:
-                  'linear-gradient(180deg, rgba(10,10,15,0.55) 0%, rgba(10,10,15,0.75) 60%, rgba(10,10,15,0.92) 100%)',
-                zIndex: 1,
-              }}
-            />
-
-            <header
-              style={{
-                maxWidth: '760px',
-                margin: '0 auto',
-                padding: 'var(--space-12) var(--space-6) var(--space-10)',
                 position: 'relative',
-                zIndex: 2,
-                width: '100%',
+                overflow: 'hidden',
+                minHeight: '520px',
+                display: 'flex',
+                alignItems: 'flex-end',
               }}
             >
-              <nav aria-label="Fil d'Ariane" style={{ marginBottom: 'var(--space-6)' }}>
-                <ol style={{ display: 'flex', gap: 'var(--space-2)', listStyle: 'none', fontSize: '13px', color: 'var(--text-muted)', flexWrap: 'wrap' }}>
-                  <li><Link href="/" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Accueil</Link></li>
-                  <li aria-hidden="true">›</li>
-                  <li><Link href="/blog" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Blog</Link></li>
-                  <li aria-hidden="true">›</li>
-                  <li style={{ color: 'var(--text-secondary)' }}>{catLabel}</li>
-                </ol>
-              </nav>
+              {/* Couverture de la catégorie (`category-<slug>`) */}
+              <div aria-hidden="true" style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+                <Image src={coverPath} alt="" fill priority sizes="100vw" style={{ objectFit: 'cover' }} />
+              </div>
 
-              <span style={{ display: 'inline-block', fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--accent-1)', background: 'rgba(255,61,87,0.1)', padding: '3px 10px', borderRadius: 'var(--radius-full)', marginBottom: 'var(--space-4)' }}>
-                {catLabel}
-              </span>
+              {/* Voile sombre pour la lisibilité du titre */}
+              <div
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background:
+                    'linear-gradient(180deg, rgba(10,10,15,0.55) 0%, rgba(10,10,15,0.75) 60%, rgba(10,10,15,0.92) 100%)',
+                  zIndex: 1,
+                }}
+              />
 
-              <h1 style={{ fontFamily: 'var(--next-font-display), system-ui, sans-serif', fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.15, marginBottom: 'var(--space-5)', textWrap: 'balance' }}>
-                <Balancer>{meta.title}</Balancer>
-              </h1>
-
-              <AuthorByline authorSlug={niche.author.slug || 'auteur'} publishedAt={meta.publishedAt} updatedAt={meta.updatedAt} readingTimeMin={meta.readingTimeMin} onDark />
-            </header>
-          </div>
+              {header}
+            </div>
+          ) : (
+            header
+          )}
 
           {/* featureImage n'est plus affichée ici — elle sert uniquement à l'OpenGraph (partage social). */}
 

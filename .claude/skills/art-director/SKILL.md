@@ -45,7 +45,9 @@ const { family } = classifyNiche({ domain, siteName, sector })
 
 **Ne cherche pas à faire diverger la structure.** Deux sites du même secteur auront la même home, c'est décidé et c'est assumé : concevoir une forme par site coûtait plus de temps et de tokens que la différence n'en valait. `homeCollision` sortira à `true` si tu passes une exclusion — c'est normal, ignore-le.
 
-**Toute la divergence est donc dans la peau, et c'est là que tu passes ton temps :** la palette, la typo, les permutations `shape`/`border`/`shadow`, et les 3 à 5 effets de `da-site.css`. Un site `marche` en ardoise et laiton, rayons nuls, filets épais, et un site `marche` en craie et vert anglais, rayons doux, ombres profondes, ne se ressemblent pas — c'est ce que tu dois obtenir.
+**Toute la divergence est donc dans la peau, et c'est là que tu passes ton temps :** la palette, la typo, les permutations `shape`/`border`/`shadow`, les deux leviers `style.effects` et `style.cards`, et les 3 à 5 effets de `da-site.css`. Un site `marche` en ardoise et laiton, rayons nuls, filets épais, et un site `marche` en craie et vert anglais, rayons doux, ombres profondes, ne se ressemblent pas — c'est ce que tu dois obtenir.
+
+`suggestVariants` rend les six leviers d'un coup ; écris-les tous dans `niche.config.ts` (`permutations.shape`/`border`/`shadow`, `style.effects`, `style.cards`) et laisse `PermutationStyle` faire le reste.
 
 Le mode clair ou sombre fait partie de cette divergence : ne pars pas du sombre par défaut parce que la référence l'est.
 
@@ -82,6 +84,28 @@ La paire par défaut du template est exclue du tirage. Trois sites du parc y son
 ---
 
 ## Levier 5 — Les effets
+
+### 5a. `style.effects` et `style.cards` — deux tokens, pas de la décoration
+
+**Câblés le 2026-08-17.** Ils étaient tirés depuis longtemps et lus par personne ; ce n'est plus le cas. `PermutationStyle` les traduit en tokens, comme `shape`/`border`/`shadow` :
+
+| valeur | ce qui bouge à l'écran |
+|---|---|
+| `effects: 'aurora'` | l'état historique — dégradés à pleine intensité (défaut, aucun override émis) |
+| `effects: 'subtle'` | `--fx-aurora: .35` — les mêmes dégradés, nettement atténués |
+| `effects: 'none'` | `--fx-aurora: 0` — **aucun dégradé visible** |
+| `cards: 'bordered'` | l'état historique — filet visible, fond de carte inchangé (défaut) |
+| `cards: 'filled'` | `--card-bg: var(--bg-surface-2)`, `--card-border-width: 0` — fond plein, pas de filet |
+| `cards: 'minimal'` | ni fond ni filet : l'espacement des grilles porte seul la séparation |
+
+**`none` est le seul interrupteur qui sorte un site sans un seul dégradé** — et le dégradé est le cliché n°1 d'une page générée. Ne le laisse pas systématiquement sur `aurora` par confort : sur une DA « papier », « ardoise » ou « herbier », `none` + `minimal` est presque toujours plus juste que le voile coloré du template.
+
+Deux contraintes à connaître :
+
+1. Le bloc **« SURFACE DE CARTE »** en tête de `app/styles/da-site.css` est ce qui fait atteindre `--card-bg` / `--card-border-width` aux cartes des deux homes. **Conserve-le** quand tu réécris le fichier : les surfaces de carte vivent dans `volteo*.css` via `--paper` / `--line`, que partagent la nav collante et les chips — on ne les remappe pas, et on ne touche pas à `volteo*.css`.
+2. Les valeurs par défaut (`aurora`, `bordered`) n'émettent **aucun** override. Un site qui les garde rend exactement ce que rendait le fork avant le câblage : ce n'est donc pas un levier « à ne pas oublier de neutraliser », c'est un levier à **choisir**.
+
+### 5b. Les 3 à 5 traitements de `da-site.css`
 
 **3 à 5** traitements de `docs/DA-EFFETS.md`, choisis pour servir le parti pris, écrits dans **`app/styles/da-site.css`** — le seul fichier propre à ce site.
 
@@ -125,6 +149,7 @@ Il n'y a pas de validateur. Sept points à vérifier toi-même avant de rendre �
 5. **Les contrastes sont-ils calculés, en clair ET en sombre ?** ≥ 4,5 pour le texte, ≥ 3 pour les gros titres, bordures et focus. Aucun arrondi : 4,49 échoue. Un accent lisible en clair ne l'est pas mécaniquement en sombre.
 6. **Reste-t-il une couleur en dur** dans un composant ou une page ? Hors `globals.css` et `da-site.css`, il ne doit y en avoir aucune — c'est ainsi que l'empreinte partagée revient. Laisse tranquilles `app/admin/` et `app/styles/volteo*.css` : c'est le chrome du CMS et le système partagé, tu n'as pas le droit d'y toucher.
 7. **Trois familles de polices au maximum.** Une paire plus une mono éventuelle tient dans le budget ; une troisième famille de texte, non.
+8. **`style.effects` et `style.cards` sont-ils choisis, et le bloc « SURFACE DE CARTE » de `da-site.css` est-il toujours là ?** Les deux valeurs sont lues depuis le 2026-08-17. Si la DA n'appelle pas de voile coloré, `effects: 'none'` — c'est le seul moyen de livrer un site sans dégradé.
 
 Et pour `da-site.css` : tokens uniquement, zéro hex, toute animation sous `@media (prefers-reduced-motion: reduce)`, aucune règle de layout.
 

@@ -98,14 +98,16 @@ export type NicheConfig = {
     /**
      * TIRÉ par `suggestVariants` à l'init (champ `effects`) — ne pas laisser le
      * défaut du template : c'est la TRACE que la sélection auto a tourné.
-     * ⚠️ Comme `fonts`, ce champ n'est lu par AUCUN code aujourd'hui (le CSS
-     * applique ses dégradés aurora inconditionnellement) : le changer ne change
-     * rien à l'écran tant que le câblage n'est pas fait. Cf. docs/AUTO-DESIGN.md.
+     * LU par `resolveEffects()` depuis le 2026-08-17 : `PermutationStyle` en
+     * dérive `--fx-aurora`, l'intensité des dégradés de globals.css.
+     * `aurora` = l'état historique · `subtle` = atténué · `none` = zéro dégradé.
      */
     effects: 'aurora' | 'subtle' | 'none'
     /**
-     * TIRÉ par `suggestVariants` à l'init (champ `cards`) — même statut que
-     * `effects` ci-dessus : trace d'init, pas encore câblé au rendu.
+     * TIRÉ par `suggestVariants` à l'init (champ `cards`) — LU par
+     * `resolveCards()` depuis le 2026-08-17 : `--card-bg` et
+     * `--card-border-width`, consommés par globals.css et par le bloc « surface
+     * de carte » de app/styles/da-site.css. `bordered` = l'état historique.
      */
     cards: 'bordered' | 'filled' | 'minimal'
     uiStyle: string
@@ -152,7 +154,7 @@ export type NicheConfig = {
     components: string[]
   }
 
-  // ─── i18n & marché (Bloc 0 d'init-site) ───────────────────────────
+  // ─── i18n & marché (Bloc 0 d'init-site) ─────────────────
   market: 'BE' | 'FR' | 'CA' | 'CH' | string
   defaultLocale: string
   locales: string[]
@@ -188,8 +190,9 @@ export type NicheConfig = {
    *  - border : bordures (--border*)        'standard' (défaut) | 'hairline' | 'bold'
    *  - shadow : ombres (--shadow-*)         'standard' (défaut) | 'flat' | 'deep'
    *
-   * Ce sont les SEULS leviers de `suggestVariants` qui changent réellement le rendu
-   * sans toucher la palette ou la typo (cf. components/layout/PermutationStyle.tsx).
+   * Avec `style.effects` et `style.cards` (câblés le 2026-08-17), ce sont les leviers
+   * de `suggestVariants` qui changent le rendu sans toucher la palette ou la typo
+   * (cf. components/layout/PermutationStyle.tsx, qui émet les cinq).
    */
   permutations?: {
     shape?: 'rounded' | 'soft' | 'sharp'
@@ -203,7 +206,7 @@ export type NicheConfig = {
   branch: string
 }
 
-// ─── Valeurs par défaut (placeholder) ──────────────────────────────
+// ─── Valeurs par défaut (placeholder) ──────────────────
 export const niche: NicheConfig = {
   siteName: 'emd-template',
   domain: 'example.com',
@@ -237,8 +240,8 @@ export const niche: NicheConfig = {
     hero: 'centered',
     // effects & cards : valeurs de TEMPLATE. L'init les remplace par le tirage de
     // suggestVariants(domaine, famille) — les 4 derniers sites provisionnés les
-    // ont toutes deux gardées, faute d'être tirées. (Trace d'init : pas encore
-    // câblées au rendu — cf. le commentaire du type ci-dessus.)
+    // ont toutes deux gardées, faute d'être tirées. Elles pilotent le rendu depuis
+    // le 2026-08-17 : `subtle` atténue réellement les dégradés du template.
     effects: 'subtle',
     cards: 'bordered',
     uiStyle: 'electrique',
@@ -286,7 +289,7 @@ export const niche: NicheConfig = {
   branch: 'main',
 }
 
-// ─── Helpers ───────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────
 
 /** Accent CSS variable for a given category index. */
 const ACCENT_VARS = ['var(--accent-1)', 'var(--accent-2)', 'var(--accent-3)', 'var(--accent-4)', 'var(--accent-5)']

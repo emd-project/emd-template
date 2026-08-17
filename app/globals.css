@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
-/* ═══════════════════════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════════════
    DA TEMPLATE — TOUTES CES VALEURS SONT REMPLACÉES À L'INIT
    L'init (docs/AUTO-DESIGN.md) applique un skin Voltéo
    (docs/design-reference/volteo/DESIGN-NOTES.md) et réécrit cette section :
    --accent-*, --bg-*, --text-*, --radius-*, --shadow-* + correctifs clair/sombre.
-   ═══════════════════════════════════════════════════════════════════════ */
+   ══════════════════════════════════════════════════════════════════════ */
 
 @theme {
   /* Colors — remplacer par la palette de la niche */
@@ -74,6 +74,26 @@
   --aurora-2:         #7B61FF;
   --aurora-3:         #3DFFC0;
   --gradient-angle:   135deg;
+
+  /* Intensité des dégradés — pilotée par niche.config.style.effects via
+     components/layout/PermutationStyle.tsx.
+       aurora (défaut) = 1  → l'état historique, au caractère près
+       subtle          = .35 → nettement atténué
+       none            = 0   → aucun dégradé visible
+     Nombre SANS UNITÉ, donc indépendant du thème : déclaré ici et nulle part
+     ailleurs. Les règles ci-dessous multiplient leur propre pourcentage par lui ;
+     aucune position, aucune taille, aucun layout n'en dépend. */
+  --fx-aurora: 1;
+
+  /* Surface de carte — pilotée par niche.config.style.cards, même mécanisme.
+       bordered (défaut) = les valeurs ci-dessous, l'état historique
+       filled            = --bg-surface-2 + filet à 0
+       minimal           = ni fond ni filet
+     --card-bg est une RÉFÉRENCE à un token de fond : il suit donc le thème sans
+     être redéclaré dans les blocs light/dark. Consommés ici et dans
+     app/styles/da-site.css (les surfaces de carte de volteo* y sont câblées). */
+  --card-bg: var(--bg-surface);
+  --card-border-width: 1px;
 
   /* Shadows */
   --shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.4);
@@ -361,7 +381,16 @@ body {
 .comparateur-card-wrap {
   position: relative;
   padding: 1px;
-  background: linear-gradient(135deg, var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1));
+  /* Intensité via --fx-aurora : à 1 chaque color-mix rend la couleur pure, donc
+     le dégradé historique ; à 0 les quatre arrêts sont transparents et l'anneau
+     disparaît. L'angle, la taille et le padding sont inchangés. */
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--aurora-1) calc(100% * var(--fx-aurora)), transparent),
+    color-mix(in srgb, var(--aurora-2) calc(100% * var(--fx-aurora)), transparent),
+    color-mix(in srgb, var(--aurora-3) calc(100% * var(--fx-aurora)), transparent),
+    color-mix(in srgb, var(--aurora-1) calc(100% * var(--fx-aurora)), transparent)
+  );
   background-size: 300% 300%;
   animation: gradient-shift 8s ease infinite;
 }
@@ -378,7 +407,7 @@ body {
   to   { transform: translateY(0); opacity: 1; }
 }
 
-/* ── Article ticker marquee ──────────────────────────────── */
+/* ── Article ticker marquee ──────────────────────── */
 @keyframes ticker-scroll {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
@@ -400,7 +429,7 @@ body {
   background: var(--bg-surface);
 }
 
-/* ── Hero layout 2 colonnes ──────────────────────────────── */
+/* ── Hero layout 2 colonnes ──────────────────────── */
 .hero-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -425,11 +454,14 @@ body {
 /* ===== UTILITAIRES DA ===== */
 
 /* Gradient text — H1 hero uniquement */
+/* Le second arrêt fond vers --accent-1 quand --fx-aurora baisse : à 0 le titre
+   est un aplat d'accent-1, jamais transparent — un H1 en background-clip:text ne
+   doit pas pouvoir devenir invisible. */
 .text-gradient-hero {
   background: linear-gradient(
     var(--gradient-angle),
     var(--accent-1),
-    var(--accent-2)
+    color-mix(in srgb, var(--accent-2) calc(100% * var(--fx-aurora)), var(--accent-1))
   );
   -webkit-background-clip: text;
   background-clip: text;
@@ -440,7 +472,7 @@ body {
 /* Glassmorphism card */
 .glass-card {
   background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  border: var(--card-border-width) solid var(--glass-border);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
 }
@@ -494,6 +526,9 @@ body {
   position: absolute;
   inset: 0;
   background: linear-gradient(175deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 30%, transparent 50%);
+  /* Calque isolé : l'opacité suffit. À 1 (défaut) c'est la valeur initiale, donc
+     un no-op strict. */
+  opacity: var(--fx-aurora);
   pointer-events: none;
   z-index: 0;
 }
@@ -713,7 +748,7 @@ body {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border);
+  border: var(--card-border-width) solid var(--border);
   margin: var(--space-6) 0;
 }
 .table-scroll-wrap table {
@@ -774,14 +809,16 @@ body {
 
 /* --- Hero article — gradient header --- */
 .article-hero-band {
+  /* 10% × --fx-aurora : ellipse, position et arrêts inchangés, seule la
+     saturation du voile bouge. */
   background: radial-gradient(
     ellipse 130% 100% at 50% 0%,
-    color-mix(in srgb, var(--accent-1) 10%, transparent) 0%,
+    color-mix(in srgb, var(--accent-1) calc(10% * var(--fx-aurora)), transparent) 0%,
     transparent 70%
   );
 }
 
-/* ── Home sections — layouts responsives ─────────────────── */
+/* ── Home sections — layouts responsives ───────────────── */
 
 /* Grille : contenu principal + sidebar produits */
 .home-sidebar-grid {
@@ -872,7 +909,7 @@ body {
   color: var(--text-primary) !important;
 }
 
-/* ── Blog grid — magazine layout ──────────────────────────── */
+/* ── Blog grid — magazine layout ─────────────────────── */
 .blog-grid {
   grid-template-columns: repeat(3, 1fr);
 }
@@ -893,7 +930,7 @@ body {
   color: var(--accent-1);
 }
 
-/* ── Article 2-column layout (main + sidebar) ──────────────── */
+/* ── Article 2-column layout (main + sidebar) ───────────── */
 .article-layout {
   display: grid;
   grid-template-columns: 1fr 300px;

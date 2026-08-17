@@ -8,8 +8,15 @@
  * IMAGE STRUCTURELLE : chaque ligne `.md-cat` affiche la couverture de sa catégorie
  * (`category-<slug>` du registre `lib/image-slots`) dans la vignette carrée de tête,
  * à la place du disque décoratif. La ligne est étroite : on remplace la pastille
- * plutôt que d'ajouter un bandeau. Sans slot déclaré, le disque est conservé.
+ * plutôt que d'ajouter un bandeau. Sans slot déclaré, OU si le fichier n'a pas
+ * encore été généré, le disque est conservé.
+ *
+ * Un slot est déclaré dès qu'une catégorie existe dans `niche.config` : tester le
+ * seul slot laissait donc passer un `next/image` sur un fichier absent. Même garde
+ * que `app/(site)/[article]/page.tsx` (`fs.existsSync` sur `public/…`).
  */
+import fs from 'fs'
+import path from 'path'
 import Link from 'next/link'
 import Image from 'next/image'
 import { type ArticleMeta } from '@/lib/blog'
@@ -18,6 +25,15 @@ import { getClassements } from '@/lib/classement'
 import { niche, localePath } from '@/niche.config'
 import { tl } from '@/lib/i18n'
 import { getCategoryImage } from '@/lib/image-slots'
+
+/** Le fichier de l'image est-il réellement présent dans /public ? */
+function imageExists(relativePath: string): boolean {
+  try {
+    return fs.existsSync(path.join(process.cwd(), 'public', relativePath.replace(/^\//, '')))
+  } catch {
+    return false
+  }
+}
 
 const catLabel = (slug: string) => niche.categories.find((c) => c.slug === slug)?.label ?? slug
 const catN = (slug: string) => (Math.max(0, niche.categories.findIndex((c) => c.slug === slug)) % 5) + 1
@@ -192,12 +208,14 @@ export function MarcheHome({ locale = niche.defaultLocale }: { locale?: string }
             <div className="md-cat-grid">
               {cats.map((c, i) => {
                 const count = articles.filter((a) => a.categorie === c.slug).length
+                // Slot déclaré ET fichier réellement généré, sinon on garde le disque.
                 const cover = getCategoryImage(c.slug)
+                const coverPath = cover && imageExists(cover.path) ? cover.path : null
                 return (
                   <Link href={lp(`/blog/${c.slug}`)} className="md-cat" key={c.slug}>
-                    {cover ? (
+                    {cover && coverPath ? (
                       <span className="ic" style={{ background: `var(--cat-${(i % 5) + 1})`, overflow: 'hidden' }}>
-                        <Image src={cover.path} alt={cover.alt} width={48} height={48} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <Image src={coverPath} alt={cover.alt} width={48} height={48} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       </span>
                     ) : (
                       <span className="ic" style={{ background: `var(--cat-${(i % 5) + 1})` }}><CatIc /></span>

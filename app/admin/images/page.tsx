@@ -18,10 +18,8 @@ function imageExists(relativePath: string): boolean {
 }
 
 const SECTION_LABELS: Record<string, string> = {
-  home: 'Home',
-  tools: 'Pages outils',
+  category: 'Catégories',
   author: 'Auteur',
-  brand: 'Branding',
 }
 
 export default function ImagesAdminPage() {

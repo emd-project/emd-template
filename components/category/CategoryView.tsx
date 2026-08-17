@@ -16,9 +16,15 @@
  * registre `lib/image-slots`) sert de FOND au `hub-hero`. Le dégradé du hub est
  * conservé PAR-DESSUS, en voile, pour que le titre reste lisible. Si la catégorie
  * n'a pas de slot déclaré (slug hors `niche.categories`, ou template nu dont
- * `categories` est vide), on ne rend rien de plus : l'en-tête est exactement celui
- * d'avant.
+ * `categories` est vide) OU si le fichier n'a pas encore été généré, on ne rend
+ * rien de plus : l'en-tête est exactement celui d'avant.
+ *
+ * Un slot est déclaré dès qu'une catégorie existe dans `niche.config` : tester le
+ * seul slot laissait donc passer un `next/image` sur un fichier absent. Même garde
+ * que `app/(site)/[article]/page.tsx` (`fs.existsSync` sur `public/…`).
  */
+import fs from 'fs'
+import path from 'path'
 import Link from 'next/link'
 import Image from 'next/image'
 import { type ArticleMeta, CATEGORY_LABELS } from '@/lib/blog'
@@ -30,6 +36,15 @@ import { getCategoryImage } from '@/lib/image-slots'
 import { resolveCategoryVariant, type CategoryVariant } from '@/lib/variants'
 
 const ARTICLES_PER_PAGE = 12
+
+/** Le fichier de l'image est-il réellement présent dans /public ? */
+function imageExists(relativePath: string): boolean {
+  try {
+    return fs.existsSync(path.join(process.cwd(), 'public', relativePath.replace(/^\//, '')))
+  } catch {
+    return false
+  }
+}
 
 const CAT_INDEX: Record<string, number> = Object.fromEntries(
   niche.categories.map((c, i) => [c.slug, (i % 5) + 1])
@@ -86,8 +101,10 @@ export function CategoryView({
   const w = WORDS[locale === 'en' ? 'en' : 'fr']
   const label = catLabel(categorie)
 
-  // Slot absent (catégorie hors config, template nu) → en-tête inchangé.
+  // Slot absent (catégorie hors config, template nu) ou fichier pas encore
+  // généré → en-tête inchangé.
   const cover = getCategoryImage(categorie)
+  const coverPath = cover && imageExists(cover.path) ? cover.path : null
 
   const total = articles.length
   const totalPages = Math.ceil(total / ARTICLES_PER_PAGE)
@@ -104,9 +121,9 @@ export function CategoryView({
   return (
     <main id="main-content">
       <header className="hub-hero">
-        {cover && (
+        {cover && coverPath && (
           <div style={{ position: 'absolute', inset: 0 }}>
-            <Image src={cover.path} alt={cover.alt} fill priority sizes="100vw" style={{ objectFit: 'cover' }} />
+            <Image src={coverPath} alt={cover.alt} fill priority sizes="100vw" style={{ objectFit: 'cover' }} />
             <span aria-hidden="true" style={{ position: 'absolute', inset: 0, background: HUB_COVER_SCRIM }} />
           </div>
         )}

@@ -5,8 +5,8 @@
 L'historique ci-dessous est conservé tel quel, mais ces décisions ne font PLUS foi :
 
 - **`ThemeToggle` abandonné** — un site est light OU dark **fixe**, jamais de toggle. Fait foi : `docs/AUTO-DESIGN.md` + `docs/DA-DIRECTIONS.md` (§ mode).
-- **« Articles : `cover` + `mid` générés »** remplacé par **« 1 cover généré + 2 images in-content réutilisées »** (aucune génération pour le corps). Fait foi : `docs/IMAGES-WORKFLOW.md`.
-- **Plafond « ≤ 5 images à l'init »** remplacé par le **registre `getAllImageSlots()`** (`lib/image-slots.ts`) : tous les slots + 1 cover par article seed, générés en fin d'init. Fait foi : `docs/AUTO-DESIGN.md` + `docs/IMAGES-WORKFLOW.md`.
+- **« Articles : `cover` + `mid` générés »** remplacé par **« 1 cover d'article généré + 1 image in-content réutilisée »** (la couverture de la catégorie, aucune génération pour le corps). Fait foi : **`lib/image-slots.ts`, source unique** ; `docs/IMAGES-WORKFLOW.md` en décrit la procédure.
+- **Plafond « ≤ 5 images à l'init »** remplacé par le **registre `getAllImageSlots()`** (`lib/image-slots.ts`, **source unique**) : une couverture par catégorie de blog (`/images/categories/<slug>.webp`) + un portrait d'auteur (`/images/authors/<slug>.webp`), + 1 cover par article seed, générés en fin d'init. Procédure : `docs/AUTO-DESIGN.md` + `docs/IMAGES-WORKFLOW.md`.
 - **Affiliation supprimée** (modèle MENTION) — plus de `AffiliateLink`/`ProductCTA`/`ProductCarousel`/`affiliateTag`, `/deals` désactivée. Fait foi : `CLAUDE.md` § Monétisation.
 - **Doctrine « skin Voltéo V1–V4 à appliquer/coller »** remplacée par la **sélection déterministe de variantes** (`classifyNiche` → `suggestVariants` → direction mutée → `suggestFonts`). Fait foi : `docs/AUTO-DESIGN.md` + `lib/variants.ts`.
 
@@ -29,11 +29,11 @@ L'historique ci-dessous est conservé tel quel, mais ces décisions ne font PLUS
 - [x] Archétypes pilotant la home + le hero : `comparateur` / `magazine` / `hybride` (cf. `niche.config.homeSections`).
 
 ## DA — stratégie images V2
-- [x] Doctrine « no image » V1 **abandonnée**. V2 : vraies images IA partout (cf. `docs/IMAGES-WORKFLOW.md`).
-- [x] Images structurelles : registre `lib/image-slots.ts` (prompt + dimensions par slot).
+- [x] Doctrine « no image » V1 **abandonnée**. V2 : vraies images IA partout. **Source unique : `lib/image-slots.ts`** ; procédure dans `docs/IMAGES-WORKFLOW.md`.
+- [x] Images structurelles : registre `lib/image-slots.ts` (prompt + dimensions par slot) — **deux familles seulement** : `category-<slug>` (1600×900) et `author-<slug>` (512×512).
 - [x] Deux moteurs : en-app `lib/image-generation.ts` (Gemini → Flux, CMS `/admin/images`) ; Cowork `mcp__nano-mentionbox__generate_image` (init + scheduled tasks).
-- [x] À l'init : générer les slots structurels (hero + fonds catégories) → site animé, pas de placeholders.
-- [x] Articles : `cover` + `mid` générés par la tâche quotidienne, WebP 16:9, `alt` FR + EN.
+- [x] À l'init : générer les slots du registre — **une couverture par catégorie de blog** + **un portrait d'auteur** → site illustré, pas de placeholders. La couverture de catégorie sert **trois fois pour une seule génération** : carte de home, en-tête du hub, illustration in-content des articles de la catégorie.
+- [x] Articles : la tâche de rédaction génère **1 cover d'article** (`featureImage`, hors registre) **+ 1 image in-content réutilisée** (la couverture de sa catégorie), WebP 16:9, `alt` FR + EN.
 
 ## DA — effets retenus par section
 - effect-hero → aurora CSS animée + noise 0.04 + H1 clip gradient

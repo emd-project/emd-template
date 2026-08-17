@@ -3,11 +3,20 @@
  * Server Component. EN data via getClassement(slug, 'en') (FR fallback).
  * MENTION model: no purchase CTA — at most a NEUTRAL link to the official page.
  *
- * TWO-COLUMN HERO (desktop), mirroring the FR page: intro keeps a comfortable reading
- * measure (~62ch) while « Key takeaways » moves up to the right so the width is used
- * instead of leaving a third of the page empty. Below ~760px both columns stack on
- * their own (flex-wrap, no media query). Since the TL;DR is rendered here, we pass
- * `showTldr={false}` to ClassementList to avoid rendering it twice.
+ * HERO LAYOUT — decision of 2026-08-17, mirrors the FR page exactly.
+ * The previous version placed the intro and the key takeaways SIDE BY SIDE, which
+ * squeezed the intro into a ~40 % column and turned a six-line paragraph into a
+ * fifteen-line wall, pushing the table far down the page. We now stack: a short
+ * intro on a comfortable reading measure, then « Key takeaways » FULL WIDTH right
+ * below, then the items. The reader reaches the first item without scrolling
+ * through three screens.
+ *
+ * Data-side corollary: `intro` must stay SHORT (2-3 sentences, answer-first). Detail
+ * belongs in `sections[]`. A ten-line intro is still a bad intro, whatever the
+ * column width.
+ *
+ * Since the TL;DR is rendered here, we pass `showTldr={false}` to ClassementList to
+ * avoid rendering it twice.
  *
  * The « Find my model → » CTA is emitted only when /en/choisir/[produit] actually
  * renders, i.e. when quiz.en.yaml has steps — otherwise it would be a dead link.
@@ -26,6 +35,10 @@ import { niche } from '@/niche.config'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 const stripYear = (s: string) => s.replace(/\s*20\d{2}\s*$/, '').trim()
+
+/** Content column width. Widened from 920 to 1120 so the table and the item list
+ *  breathe, and the intro is no longer strangled. Must match the FR page. */
+const WRAP = 1120
 
 export const revalidate = 86400
 
@@ -52,7 +65,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const label = stripYear(c.label)
   return {
     title: `Top ${c.items.length} best ${label} ${year} — ranking | ${niche.siteName}`,
-    description: c.intro || `The best ${label} in ${year}: Top ${c.items.length}, scores, verdict and comparison table.`,
+    description: c.excerpt || c.intro || `The best ${label} in ${year}: Top ${c.items.length}, scores, verdict and comparison table.`,
     alternates: {
       canonical: `${SITE_URL}/en/classement/${produit}`,
       languages: {
@@ -61,7 +74,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
         'x-default': `${SITE_URL}/classement/${produit}`,
       },
     },
-    openGraph: { title: `Top ${c.items.length} best ${label} ${year}`, description: c.intro, url: `${SITE_URL}/en/classement/${produit}`, siteName: niche.siteName, type: 'article', locale: 'en' },
+    openGraph: { title: `Top ${c.items.length} best ${label} ${year}`, description: c.excerpt || c.intro, url: `${SITE_URL}/en/classement/${produit}`, siteName: niche.siteName, type: 'article', locale: 'en' },
   }
 }
 
@@ -105,7 +118,7 @@ export default async function ClassementPageEn({ params }: { params: Params }) {
 
       <main id="main-content">
         <section className="section" style={{ paddingBottom: 24 }}>
-          <div className="wrap" style={{ maxWidth: 920 }}>
+          <div className="wrap" style={{ maxWidth: WRAP }}>
             <nav className="crumb" aria-label="Breadcrumb">
               <Link href="/en">Home</Link><span className="sep">/</span><span className="cur">{label} ranking</span>
             </nav>
@@ -120,39 +133,45 @@ export default async function ClassementPageEn({ params }: { params: Params }) {
               Top {c.items.length} best {label} {year}
             </h1>
 
-            {/* Two columns: intro (reading measure) + key takeaways. Stacks on mobile. */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 'var(--space-7)' }}>
-              <div style={{ flex: '1 1 420px', minWidth: 0, maxWidth: 620 }}>
-                {c.intro && <p style={{ fontSize: 17, color: 'var(--ink-2)', lineHeight: 1.6, margin: 0 }}>{c.intro}</p>}
-                {c.updated && <p style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 10, marginBottom: 0 }}>Updated {new Date(c.updated).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>}
-              </div>
-              {hasTldr && (
-                <aside
-                  aria-label={LABELS.tldr}
-                  style={{
-                    flex: '1 1 280px', minWidth: 0, maxWidth: 380,
-                    background: 'var(--bg-surface)', border: '1px solid var(--border)',
-                    borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)',
-                    padding: 'var(--space-6)',
-                  }}
-                >
-                  <div className="eyebrow" style={{ marginBottom: 'var(--space-4)' }}>{LABELS.tldr}</div>
-                  <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                    {c.tldr?.map((line, i) => (
-                      <li key={i} style={{ display: 'flex', gap: 'var(--space-3)', fontSize: '14.5px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                        <span aria-hidden="true" style={{ color: 'var(--accent-1)', fontWeight: 700, flexShrink: 0 }}>→</span>
-                        <span>{line}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </aside>
-              )}
-            </div>
+            {/* Intro — READING measure (~78ch), not a narrow column. */}
+            {c.intro && (
+              <p style={{ fontSize: 17.5, color: 'var(--ink-2)', lineHeight: 1.6, margin: 0, maxWidth: '78ch' }}>
+                {c.intro}
+              </p>
+            )}
+            {c.updated && (
+              <p style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 10, marginBottom: 0 }}>
+                Updated {new Date(c.updated).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </p>
+            )}
+
+            {/* Key takeaways — FULL WIDTH, stacked under the intro. */}
+            {hasTldr && (
+              <aside
+                aria-label={LABELS.tldr}
+                style={{
+                  marginTop: 'var(--space-7)',
+                  background: 'var(--bg-surface)', border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)',
+                  padding: 'var(--space-6)',
+                }}
+              >
+                <div className="eyebrow" style={{ marginBottom: 'var(--space-4)' }}>{LABELS.tldr}</div>
+                <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                  {c.tldr?.map((line, i) => (
+                    <li key={i} style={{ display: 'flex', gap: 'var(--space-3)', fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                      <span aria-hidden="true" style={{ color: 'var(--accent-1)', fontWeight: 700, flexShrink: 0 }}>→</span>
+                      <span>{line}</span>
+                    </li>
+                  ))}
+                </ul>
+              </aside>
+            )}
           </div>
         </section>
 
         <section className="section" style={{ paddingTop: 0 }}>
-          <div className="wrap" style={{ maxWidth: 920 }}>
+          <div className="wrap" style={{ maxWidth: WRAP }}>
             <ClassementList
               classement={c}
               labels={LABELS}

@@ -63,7 +63,7 @@ Le plan n'en demande qu'un — la tâche quotidienne écrit les autres. Mais c'e
 
 **Son miroir EN** est strict : même catégorie, slug traduit, paire ajoutée à `lib/i18n/article-slugs.ts`, alt traduits. Les deux versions partagent les mêmes images — on ne régénère jamais pour une traduction. Et le plancher de longueur vaut aussi pour la traduction : une version anglaise résumée est un article thin de plus.
 
-**Les images structurelles** viennent de `getAllImageSlots()` : un hero, une couverture par catégorie, un portrait d'auteur. Le registre a été réduit à ce qui s'affiche réellement — n'y ajoute rien qui ne soit pas branché dans un composant.
+**Les images structurelles** viennent de `getAllImageSlots()` : **une couverture par catégorie de blog** (`/images/categories/<slug>.webp`) et **un portrait d'auteur** (`/images/authors/<slug>.webp`). La couverture de catégorie sert **trois fois pour une seule génération** : carte de home, en-tête du hub, illustration in-content des articles de la catégorie. Le registre a été réduit à ce qui s'affiche réellement — n'y ajoute rien qui ne soit pas branché dans un composant.
 
 **Ce que le plan a mis en `disabled`, tu l'éteins pour de bon** : `enabled: false` **et** suppression de la route, en FR comme en EN, et retrait du lien de la nav, du footer et du sitemap. Un asset à moitié éteint laisse un 404 dans le menu.
 

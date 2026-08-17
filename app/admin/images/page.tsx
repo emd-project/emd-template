@@ -56,7 +56,7 @@ export default function ImagesAdminPage() {
         <ol style={{ margin: '8px 0 0', paddingLeft: 20 }}>
           <li>Copie le prompt IA → utilise-le dans Midjourney, DALL-E, Flux ou Gemini</li>
           <li>Télécharge l&apos;image générée</li>
-          <li>Renomme-la avec exactement le chemin indiqué (ex : <code>hero-background.webp</code>)</li>
+          <li>Renomme-la avec exactement le chemin indiqué (ex : <code>categories/&lt;slug&gt;.webp</code>)</li>
           <li>Place-la dans le dossier <code>public/images/...</code> indiqué</li>
           <li>Recharge la page — l&apos;image apparaît automatiquement sur le site</li>
         </ol>

@@ -154,7 +154,7 @@ export type NicheConfig = {
     components: string[]
   }
 
-  // ─── i18n & marché (Bloc 0 d'init-site) ─────────────────
+  // ─── i18n & marché (Bloc 0 d'init-site) ───────────────────────────
   market: 'BE' | 'FR' | 'CA' | 'CH' | string
   defaultLocale: string
   locales: string[]
@@ -206,7 +206,7 @@ export type NicheConfig = {
   branch: string
 }
 
-// ─── Valeurs par défaut (placeholder) ──────────────────
+// ─── Valeurs par défaut (placeholder) ──────────────────────────────
 export const niche: NicheConfig = {
   siteName: 'emd-template',
   domain: 'example.com',
@@ -289,7 +289,7 @@ export const niche: NicheConfig = {
   branch: 'main',
 }
 
-// ─── Helpers ──────────────────────────────
+// ─── Helpers ───────────────────────────────────────────────────
 
 /** Accent CSS variable for a given category index. */
 const ACCENT_VARS = ['var(--accent-1)', 'var(--accent-2)', 'var(--accent-3)', 'var(--accent-4)', 'var(--accent-5)']

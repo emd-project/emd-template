@@ -9,7 +9,8 @@
  * que la carte de home et que l'en-tête du hub `/blog/[categorie]`. Une
  * génération, trois apparitions. Si la catégorie n'a pas de slot déclaré (slug
  * hors `niche.categories`, template nu) ou si le fichier n'est pas là, on rend
- * l'en-tête nu : ni cadre vide, ni placeholder.
+ * l'en-tête sur le seul dégradé de `.article-hero-band`, comme avant l'ajout de
+ * l'image : ni cadre vide, ni placeholder.
  *
  * MODÈLE MENTION : aucun CTA d'achat, aucun bloc produit monétisé, aucun lien
  * sortant monétisé.
@@ -126,7 +127,7 @@ export default async function StandaloneArticlePage({ params }: { params: Params
   const related = getRelatedArticles(meta.categorie, slug, 3)
 
   // Couverture de la catégorie. Slot absent (catégorie hors config, template nu)
-  // ou fichier pas encore généré → pas de bandeau du tout, en-tête nu.
+  // ou fichier pas encore généré → pas d'image du tout, en-tête inchangé.
   const cover = getCategoryImage(meta.categorie)
   const coverPath = cover && imageExists(cover.path) ? cover.path : null
 
@@ -177,7 +178,8 @@ export default async function StandaloneArticlePage({ params }: { params: Params
   ]
 
   // Même en-tête dans les deux cas : avec la couverture, il est posé sur le
-  // bandeau et le texte passe en mode sombre ; sans elle, il est rendu seul.
+  // bandeau et le texte passe en mode sombre ; sans elle, il reste sur le seul
+  // dégradé du bandeau.
   const header = (
     <header
       style={{
@@ -221,7 +223,9 @@ export default async function StandaloneArticlePage({ params }: { params: Params
       <main id="main-content">
         <article>
           {/* Header — couverture de la catégorie en fond + voile + texte.
-              Pas de couverture disponible → en-tête seul, sans bandeau. */}
+              Pas de couverture disponible → l'en-tête reste posé sur le seul
+              dégradé de `.article-hero-band`, comme avant l'ajout de l'image :
+              ni cadre vide, ni placeholder. */}
           {coverPath ? (
             <div
               className="article-hero-band"
@@ -253,7 +257,7 @@ export default async function StandaloneArticlePage({ params }: { params: Params
               {header}
             </div>
           ) : (
-            header
+            <div className="article-hero-band">{header}</div>
           )}
 
           {/* featureImage n'est plus affichée ici — elle sert uniquement à l'OpenGraph (partage social). */}

@@ -2,13 +2,19 @@
  * Batch image generation from image-slots registry.
  *
  * Usage:
- *   npx tsx scripts/generate-images.ts                    # all slots
- *   npx tsx scripts/generate-images.ts --section home     # only home slots
- *   npx tsx scripts/generate-images.ts --slot home-hero-background  # single slot
- *   npx tsx scripts/generate-images.ts --provider gemini  # force provider
- *   npx tsx scripts/generate-images.ts --dry-run          # show prompts only
- *   npx tsx scripts/generate-images.ts --local            # force local output (public/)
+ *   npx tsx scripts/generate-images.ts                        # all slots
+ *   npx tsx scripts/generate-images.ts --section category     # only category covers
+ *   npx tsx scripts/generate-images.ts --section author       # only the author portrait
+ *   npx tsx scripts/generate-images.ts --slot category-<slug> # single slot
+ *   npx tsx scripts/generate-images.ts --slot author-<slug>   # single slot
+ *   npx tsx scripts/generate-images.ts --provider gemini      # force provider
+ *   npx tsx scripts/generate-images.ts --dry-run              # show prompts only
+ *   npx tsx scripts/generate-images.ts --local                # force local output (public/)
  *   npx tsx scripts/generate-images.ts --prompt-override "custom prompt"  # override slot prompt
+ *
+ * The registry holds two families only: one cover per blog category
+ * (`category-<slug>`) and one author portrait (`author-<slug>`).
+ * See lib/image-slots.ts — it is the single source of truth.
  *
  * Env vars required:
  *   GEMINI_API_KEY or BFL_API_KEY  — image generation

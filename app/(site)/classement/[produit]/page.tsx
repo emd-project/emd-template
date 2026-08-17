@@ -3,11 +3,20 @@
  * Server Component. Possède l'intent best/top/meilleur (cf. CLAUDE.md anti-cannibalisation).
  * Modèle MENTION : aucun CTA d'achat — au plus un lien NEUTRE vers la source officielle.
  *
- * HERO EN 2 COLONNES (desktop) : l'intro reste à une largeur de LECTURE (~62ch, cf.
- * references/design-ux-regles.md) et le « En bref » remonte à droite pour occuper la
- * largeur au lieu de laisser un tiers de vide. En dessous de ~760px, les deux colonnes
- * s'empilent toutes seules (flex-wrap, aucune media query). Le TL;DR étant rendu ici,
- * on passe `showTldr={false}` à ClassementList — sinon il s'afficherait deux fois.
+ * MISE EN PAGE DU HERO — décision du 2026-08-17.
+ * L'ancienne version mettait l'intro et le « En bref » CÔTE À CÔTE : l'intro se
+ * retrouvait dans une colonne de ~40 % de la largeur, ce qui transformait un
+ * paragraphe de six lignes en mur de quinze lignes et repoussait le tableau très
+ * bas. On empile désormais : intro courte sur une largeur de lecture confortable,
+ * puis « En bref » PLEINE LARGEUR juste en dessous, puis les items. Le lecteur
+ * atteint le premier item sans scroller trois écrans.
+ *
+ * Corollaire côté DONNÉES : `intro` doit rester COURT (2-3 phrases, answer-first).
+ * Le détail appartient à `sections[]`. Une intro de dix lignes reste une mauvaise
+ * intro, quelle que soit la largeur de la colonne.
+ *
+ * Le TL;DR étant rendu ici, on passe `showTldr={false}` à ClassementList — sinon il
+ * s'afficherait deux fois.
  *
  * Le CTA « Trouver mon modèle → » n'est émis QUE si /choisir/[produit] rend vraiment
  * quelque chose. La page cible ne 404 que si elle n'a NI éditorial (choisir.json)
@@ -31,6 +40,10 @@ import { niche } from '@/niche.config'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 const stripYear = (s: string) => s.replace(/\s*20\d{2}\s*$/, '').trim()
+
+/** Largeur de la colonne de contenu. Élargie de 920 à 1120 : le tableau et la
+ *  liste d'items respirent, et l'intro n'est plus étranglée. */
+const WRAP = 1120
 
 export const revalidate = 86400
 
@@ -116,7 +129,7 @@ export default async function ClassementPage({ params }: { params: Params }) {
 
       <main id="main-content">
         <section className="section" style={{ paddingBottom: 24 }}>
-          <div className="wrap" style={{ maxWidth: 920 }}>
+          <div className="wrap" style={{ maxWidth: WRAP }}>
             <nav className="crumb" aria-label="Fil d'Ariane">
               <Link href="/">Accueil</Link><span className="sep">/</span><span className="cur">Classement {label}</span>
             </nav>
@@ -131,39 +144,45 @@ export default async function ClassementPage({ params }: { params: Params }) {
               Top {c.items.length} {best(g, plural)} {label} {year}
             </h1>
 
-            {/* 2 colonnes : intro (lecture) + En bref (remplit la largeur). S'empile en mobile. */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 'var(--space-7)' }}>
-              <div style={{ flex: '1 1 420px', minWidth: 0, maxWidth: 620 }}>
-                {c.intro && <p style={{ fontSize: 17, color: 'var(--ink-2)', lineHeight: 1.6, margin: 0 }}>{c.intro}</p>}
-                {c.updated && <p style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 10, marginBottom: 0 }}>Mis à jour le {new Date(c.updated).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>}
-              </div>
-              {hasTldr && (
-                <aside
-                  aria-label={LABELS.tldr}
-                  style={{
-                    flex: '1 1 280px', minWidth: 0, maxWidth: 380,
-                    background: 'var(--bg-surface)', border: '1px solid var(--border)',
-                    borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)',
-                    padding: 'var(--space-6)',
-                  }}
-                >
-                  <div className="eyebrow" style={{ marginBottom: 'var(--space-4)' }}>{LABELS.tldr}</div>
-                  <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                    {c.tldr?.map((line, i) => (
-                      <li key={i} style={{ display: 'flex', gap: 'var(--space-3)', fontSize: '14.5px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                        <span aria-hidden="true" style={{ color: 'var(--accent-1)', fontWeight: 700, flexShrink: 0 }}>→</span>
-                        <span>{line}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </aside>
-              )}
-            </div>
+            {/* Intro — largeur de LECTURE (~78ch), pas une colonne étroite. */}
+            {c.intro && (
+              <p style={{ fontSize: 17.5, color: 'var(--ink-2)', lineHeight: 1.6, margin: 0, maxWidth: '78ch' }}>
+                {c.intro}
+              </p>
+            )}
+            {c.updated && (
+              <p style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 10, marginBottom: 0 }}>
+                Mis à jour le {new Date(c.updated).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </p>
+            )}
+
+            {/* « En bref » — PLEINE LARGEUR, empilé sous l'intro. */}
+            {hasTldr && (
+              <aside
+                aria-label={LABELS.tldr}
+                style={{
+                  marginTop: 'var(--space-7)',
+                  background: 'var(--bg-surface)', border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)',
+                  padding: 'var(--space-6)',
+                }}
+              >
+                <div className="eyebrow" style={{ marginBottom: 'var(--space-4)' }}>{LABELS.tldr}</div>
+                <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                  {c.tldr?.map((line, i) => (
+                    <li key={i} style={{ display: 'flex', gap: 'var(--space-3)', fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                      <span aria-hidden="true" style={{ color: 'var(--accent-1)', fontWeight: 700, flexShrink: 0 }}>→</span>
+                      <span>{line}</span>
+                    </li>
+                  ))}
+                </ul>
+              </aside>
+            )}
           </div>
         </section>
 
         <section className="section" style={{ paddingTop: 0 }}>
-          <div className="wrap" style={{ maxWidth: 920 }}>
+          <div className="wrap" style={{ maxWidth: WRAP }}>
             <ClassementList
               classement={c}
               labels={LABELS}

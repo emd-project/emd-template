@@ -960,3 +960,23 @@ body {
   color: var(--text-primary);
   border-left-color: var(--accent-1);
 }
+
+/* ===== LISTES DU CORPS D'ARTICLE =====
+   Le preflight Tailwind force `list-style: none` sur ul/ol : sans ceci, les
+   puces et les numéros disparaissent du MDX. On les restaure uniquement dans
+   le corps d'article — le sommaire et les listes de navigation gardent leur
+   `list-style: none`. */
+.prose-article ul,
+.prose-article ol {
+  padding-left: 1.5em;
+  margin-bottom: var(--space-5, 20px);
+}
+.prose-article ul { list-style: disc outside; }
+.prose-article ol { list-style: decimal outside; }
+.prose-article ul ul { list-style: circle outside; }
+.prose-article ul ul ul { list-style: square outside; }
+.prose-article ol ol { list-style: lower-alpha outside; }
+.prose-article li { margin-bottom: var(--space-2, 8px); }
+.prose-article li > ul,
+.prose-article li > ol { margin-top: var(--space-2, 8px); margin-bottom: 0; }
+.prose-article li::marker { color: var(--text-muted, currentColor); }

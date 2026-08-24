@@ -5,7 +5,8 @@
  */
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import { getAllArticlesEn, getCategoriesEn, CATEGORY_LABELS } from '@/lib/blog'
+import { getAllArticlesEn, getCategoriesEn } from '@/lib/blog'
+import { categoryLabelL } from '@/lib/niche-l10n'
 import { CategoryView } from '@/components/category/CategoryView'
 import { niche } from '@/niche.config'
 
@@ -13,7 +14,8 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain
 
 export const revalidate = 3600
 
-const catLabel = (slug: string) => CATEGORY_LABELS[slug] ?? slug
+/** Libellé EN de la catégorie — repli silencieux sur le label de base. */
+const catLabel = (slug: string) => categoryLabelL('en', slug)
 
 type Params = Promise<{ categorie: string }>
 type SearchParams = Promise<{ page?: string }>

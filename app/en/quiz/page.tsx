@@ -13,6 +13,7 @@ import type { Metadata } from 'next'
 import { currentYear } from '@/lib/utils/year'
 import { QuizEngine, type Step } from '@/components/quiz/QuizEngine'
 import { niche } from '@/niche.config'
+import { nicheL } from '@/lib/niche-l10n'
 import { getPageContent } from '@/lib/cms-pages'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
@@ -27,10 +28,10 @@ function getSteps(): Step[] {
 
 export function generateMetadata(): Metadata {
   const year = currentYear()
-  const question = `Which ${niche.entity} should you choose in ${year}?`
+  const question = `Which ${nicheL('en', 'entity')} should you choose in ${year}?`
   return {
     title: `${question} Quiz | ${niche.siteName}`,
-    description: `4 questions to find the ${niche.entity} that fits you. Instant result.`,
+    description: `4 questions to find the ${nicheL('en', 'entity')} that fits you. Instant result.`,
     alternates: {
       canonical: `${SITE_URL}/en/quiz`,
       languages: {
@@ -39,7 +40,7 @@ export function generateMetadata(): Metadata {
         'x-default': `${SITE_URL}/quiz`,
       },
     },
-    openGraph: { title: question, description: `4-question quiz — find your ${niche.entity}.`, url: `${SITE_URL}/en/quiz`, siteName: niche.siteName, type: 'website', locale: 'en' },
+    openGraph: { title: question, description: `4-question quiz — find your ${nicheL('en', 'entity')}.`, url: `${SITE_URL}/en/quiz`, siteName: niche.siteName, type: 'website', locale: 'en' },
   }
 }
 
@@ -68,7 +69,7 @@ export default function QuizPageEn() {
             </nav>
             <span className="tag c1" style={{ marginBottom: 20 }}><span className="pip" />{steps.length} questions · 2 minutes</span>
             <h1 style={{ fontSize: 'clamp(30px, 5vw, 52px)', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.1, margin: '14px 0', textWrap: 'balance' }}>
-              Which {niche.entity} is right for you?
+              Which {nicheL('en', 'entity')} is right for you?
             </h1>
             <p style={{ fontSize: 'clamp(15px, 2vw, 17px)', color: 'var(--ink-2)', lineHeight: 1.6, maxWidth: 500, margin: '0 auto' }}>
               Tap an answer and get a direct recommendation.

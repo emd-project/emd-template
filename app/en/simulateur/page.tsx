@@ -16,6 +16,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { currentYear } from '@/lib/utils/year'
 import { niche, simulatorEnabled } from '@/niche.config'
+import { nicheL } from '@/lib/niche-l10n'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
@@ -37,7 +38,7 @@ export function generateMetadata(): Metadata {
         'x-default': `${SITE_URL}/simulateur`,
       },
     },
-    openGraph: { title: simTitle || `Price simulator ${year}`, description: simDescription || `${niche.entities} price cycles.`, url: `${SITE_URL}/en/simulateur`, siteName: niche.siteName, type: 'website', locale: 'en' },
+    openGraph: { title: simTitle || `Price simulator ${year}`, description: simDescription || `${nicheL('en', 'entities')} price cycles.`, url: `${SITE_URL}/en/simulateur`, siteName: niche.siteName, type: 'website', locale: 'en' },
   }
 }
 

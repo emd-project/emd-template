@@ -14,6 +14,7 @@ import { currentYear } from '@/lib/utils/year'
 import { MarqueeStrip } from '@/components/effects/MarqueeStrip'
 import { FaqAccordion } from '@/components/blog/FaqAccordion'
 import { niche, dealsEnabled } from '@/niche.config'
+import { nicheL } from '@/lib/niche-l10n'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
@@ -23,7 +24,7 @@ export function generateMetadata(): Metadata {
   const year = currentYear()
   return {
     title: `Deals ${year} — best current offers | ${niche.siteName}`,
-    description: `The best ${niche.entities} offers right now. Hand-picked — no spam.`,
+    description: `The best ${nicheL('en', 'entities')} offers right now. Hand-picked — no spam.`,
     alternates: {
       canonical: `${SITE_URL}/en/deals`,
       languages: {
@@ -32,11 +33,11 @@ export function generateMetadata(): Metadata {
         'x-default': `${SITE_URL}/deals`,
       },
     },
-    openGraph: { title: `Deals ${year}`, description: `Best ${niche.entities} offers, hand-picked.`, url: `${SITE_URL}/en/deals`, siteName: niche.siteName, type: 'website', locale: 'en' },
+    openGraph: { title: `Deals ${year}`, description: `Best ${nicheL('en', 'entities')} offers, hand-picked.`, url: `${SITE_URL}/en/deals`, siteName: niche.siteName, type: 'website', locale: 'en' },
   }
 }
 
-const MARQUEE_ITEMS = ['Selection updated every week', `The best ${niche.entities} offers right now`]
+const MARQUEE_ITEMS = ['Selection updated every week', `The best ${nicheL('en', 'entities')} offers right now`]
 
 const FAQ_ITEMS = [
   { q: `Where can I find the best offers right now?`, a: `On ${niche.domain}/en/deals we hand-pick the best discounts every week. No fake deals, no inflated pre-promo prices.` },

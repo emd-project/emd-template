@@ -8,6 +8,7 @@ import type { Metadata } from 'next'
 import { currentYear } from '@/lib/utils/year'
 import { getComparateurs } from '@/lib/comparateur'
 import { niche } from '@/niche.config'
+import { nicheL } from '@/lib/niche-l10n'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
@@ -17,7 +18,7 @@ export function generateMetadata(): Metadata {
   const year = currentYear()
   return {
     title: `Comparator ${year} | ${niche.siteName}`,
-    description: `Compare all ${niche.entities} side by side. Up-to-date, sourced and neutral data.`,
+    description: `Compare all ${nicheL('en', 'entities')} side by side. Up-to-date, sourced and neutral data.`,
     alternates: {
       canonical: `${SITE_URL}/en/comparer`,
       languages: {
@@ -26,7 +27,7 @@ export function generateMetadata(): Metadata {
         'x-default': `${SITE_URL}/comparer`,
       },
     },
-    openGraph: { title: `Comparator ${year}`, description: `All ${niche.entities} comparators in one place.`, url: `${SITE_URL}/en/comparer`, siteName: niche.siteName, type: 'website', locale: 'en' },
+    openGraph: { title: `Comparator ${year}`, description: `All ${nicheL('en', 'entities')} comparators in one place.`, url: `${SITE_URL}/en/comparer`, siteName: niche.siteName, type: 'website', locale: 'en' },
   }
 }
 
@@ -54,7 +55,7 @@ export default function ComparatorHubPageEn() {
             <div className="sec-head" style={{ marginBottom: 8 }}>
               <span className="eyebrow">Compare</span>
               <h2 style={{ margin: '16px 0 12px' }}>One family, models side by side.</h2>
-              <p>Pick a family of {niche.entities} to compare the models at a glance.</p>
+              <p>Pick a family of {nicheL('en', 'entities')} to compare the models at a glance.</p>
             </div>
           </div>
         </section>

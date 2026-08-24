@@ -7,6 +7,7 @@ import type { Metadata } from 'next'
 import { currentYear } from '@/lib/utils/year'
 import { getClassements } from '@/lib/classement'
 import { niche } from '@/niche.config'
+import { nicheL } from '@/lib/niche-l10n'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
@@ -15,13 +16,13 @@ export const revalidate = 86400
 export function generateMetadata(): Metadata {
   const year = currentYear()
   return {
-    title: `Rankings ${year} — the best ${niche.entities} | ${niche.siteName}`,
-    description: `Our independent rankings of the best ${niche.entities} in ${year}: Top by category, scores and verdicts.`,
+    title: `Rankings ${year} — the best ${nicheL('en', 'entities')} | ${niche.siteName}`,
+    description: `Our independent rankings of the best ${nicheL('en', 'entities')} in ${year}: Top by category, scores and verdicts.`,
     alternates: {
       canonical: `${SITE_URL}/en/classement`,
       languages: { fr: `${SITE_URL}/classement`, en: `${SITE_URL}/en/classement`, 'x-default': `${SITE_URL}/classement` },
     },
-    openGraph: { title: `Rankings ${year}`, description: `The best ${niche.entities}, ranked.`, url: `${SITE_URL}/en/classement`, siteName: niche.siteName, type: 'website', locale: 'en' },
+    openGraph: { title: `Rankings ${year}`, description: `The best ${nicheL('en', 'entities')}, ranked.`, url: `${SITE_URL}/en/classement`, siteName: niche.siteName, type: 'website', locale: 'en' },
   }
 }
 
@@ -48,7 +49,7 @@ export default function ClassementHubPageEn() {
             </nav>
             <div className="sec-head" style={{ marginBottom: 8 }}>
               <span className="eyebrow">Rankings</span>
-              <h2 style={{ margin: '16px 0 12px' }}>The best {niche.entities}, ranked.</h2>
+              <h2 style={{ margin: '16px 0 12px' }}>The best {nicheL('en', 'entities')}, ranked.</h2>
               <p>Our independent Top lists by category — scores, verdicts and comparison table.</p>
             </div>
           </div>

@@ -2,7 +2,8 @@
  * ArticleView — rendu d'un article MDX, UNIQUE et LOCALE-AWARE (FR + EN).
  * Server Component async (compile le MDX). Remplace la logique dupliquée des
  * routes FR et EN : tout le « chrome » passe par tl(locale, …) → plus aucune
- * chaîne en dur à traduire.
+ * chaîne en dur à traduire. Le libellé de CATÉGORIE, lui, est du contenu de
+ * config : il passe par `categoryLabelL(locale, slug)` (lib/niche-l10n.ts).
  *
  * VARIANTE : une seule, `classic` (classe CSS `art-v-classic` sur <article>).
  * La variante `presse` — une IDENTITÉ éditoriale complète maintenue pour un seul
@@ -26,6 +27,7 @@ import { type ArticleMeta } from '@/lib/blog'
 import { articleHrefL, formatDateL } from '@/lib/blog-l10n'
 import { extractHeadings, slugify, type TocItem } from '@/lib/utils/headings'
 import { niche, localePath } from '@/niche.config'
+import { categoryLabelL } from '@/lib/niche-l10n'
 import { tl } from '@/lib/i18n'
 import { resolveArticleVariant, type ArticleVariant } from '@/lib/variants'
 import { AISummarize } from '@/components/blog/AISummarize'
@@ -49,10 +51,6 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain
 const CAT_INDEX: Record<string, number> = Object.fromEntries(
   niche.categories.map((c, i) => [c.slug, (i % 5) + 1])
 )
-const CATEGORY_LABELS: Record<string, string> = Object.fromEntries(
-  niche.categories.map((c) => [c.slug, c.label])
-)
-
 function nodeText(node: ReactNode): string {
   if (node == null || typeof node === 'boolean') return ''
   if (typeof node === 'string' || typeof node === 'number') return String(node)
@@ -106,7 +104,8 @@ export async function ArticleView({
     },
   })
 
-  const catLabel = CATEGORY_LABELS[categorie] ?? categorie
+  // Fil d'Ariane, tag et JSON-LD : libellé de catégorie dans la locale de l'article.
+  const catLabel = categoryLabelL(locale, categorie)
   const catCls = `c${CAT_INDEX[categorie] ?? 1}`
   const hasHeroImage = Boolean(meta.featureImage)
 
@@ -249,7 +248,7 @@ export async function ArticleView({
                       {related.map((a) => (
                         <Link key={`${a.categorie}/${a.slug}`} href={articleHrefL(locale, a)} className="post">
                           <div className="post-body">
-                            <span className={`tag c${CAT_INDEX[a.categorie] ?? 1}`}><span className="pip" />{CATEGORY_LABELS[a.categorie] ?? a.categorie}</span>
+                            <span className={`tag c${CAT_INDEX[a.categorie] ?? 1}`}><span className="pip" />{categoryLabelL(locale, a.categorie)}</span>
                             <h3>{a.title}</h3>
                             <div className="post-meta">{formatDateL(locale, a.publishedAt)} · {a.readingTimeMin} min</div>
                           </div>

@@ -115,6 +115,13 @@
           "description": "Tournures recurrentes, courtes, qu'un lecteur regulier finirait par reconnaitre."
         }
       }
+    },
+
+    "homeTitle": {
+      "type": "object",
+      "description": "Le <title> de la page d'accueil, UNE ENTREE PAR LOCALE. Format : `Nom du site - Promesse`, separateur espace-tiret-espace, 60 caracteres maximum (Google tronque au-dela ; un titre est deja sorti a 67). Le nom est NORMALISE, pas transcrit du domaine : un pluriel passe au singulier, un superlatif saute quand il alourdit. La promesse est CONCRETE — ce qu'on trouve ou ce qu'on y gagne — jamais une posture editoriale (« le comparateur independant », « votre guide neutre »). Deux registres a alterner : benefice (« Trouver la banque la moins chere ») et facettes, trois items avec `&` avant le dernier (« Coffre, sieges & budget »). La locale secondaire ECRIT SON PROPRE TITRE, elle ne traduit pas le francais.",
+      "additionalProperties": { "type": "string", "maxLength": 60 },
+      "propertyNames": { "pattern": "^[a-z]{2}$" }
     }
   }
 }

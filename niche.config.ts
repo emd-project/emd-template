@@ -160,27 +160,91 @@ export type NicheConfig = {
   locales: string[]
   localePrefix?: 'as-needed' | 'always'
 
+  /**
+   * Surcharges de CONFIGURATION par locale. OPTIONNEL, indexé par code de locale.
+   *
+   * POURQUOI CE MÉCANISME EN PLUS DE `tl()` — les deux ne traitent pas la même
+   * matière et ne peuvent pas fusionner :
+   *  - `tl(locale, clé)` (lib/i18n.ts) traduit les LIBELLÉS D'INTERFACE, un
+   *    vocabulaire FERMÉ et identique pour tous les forks (« Comparer », « Voir
+   *    tout », « min de lecture »). Il vit dans content/translations/[locale].json,
+   *    versionné avec le moteur.
+   *  - `localized` traduit le CONTENU DE CONFIGURATION, ouvert et propre à CHAQUE
+   *    site : sa tagline, son H1, son sous-titre, ses catégories. Aucune de ces
+   *    chaînes ne peut avoir de clé dans le moteur partagé — elles n'existent que
+   *    dans ce fichier.
+   * Mettre la tagline d'un fork dans en.json polluerait tous les autres forks ;
+   * inventer une clé `tl()` par site rendrait le fichier de traductions dépendant
+   * de la niche. D'où deux dimensions distinctes, qui se rejoignent seulement dans
+   * le JSX.
+   *
+   * REPLI SILENCIEUX, ET C'EST LE CONTRAT : le bloc entier peut être ABSENT, une
+   * locale peut manquer, un champ peut manquer ou être vide — dans tous ces cas on
+   * rend la valeur de BASE, sans avertissement et sans chaîne vide. Un fork sans
+   * traductions rend donc EXACTEMENT ce qu'il rendait avant l'existence de ce champ.
+   * Ne jamais lire `niche.localized` directement : passer par lib/niche-l10n.ts
+   * (`nicheL`, `categoryLabelL`, `categoriesL`, …), qui porte ce repli.
+   *
+   * La locale par défaut n'a RIEN à déclarer ici : elle lit la base directement.
+   *
+   * Ex. :
+   *   localized: {
+   *     en: {
+   *       tagline: 'The independent comparison site for …',
+   *       subtitle: '…',
+   *       categories: { 'assurance-auto': 'Car insurance' },
+   *     },
+   *   }
+   */
+  localized?: {
+    [locale: string]: {
+      tagline?: string
+      subtitle?: string
+      heroPrefix?: string
+      heroSuffix?: string
+      rotatingWords?: string[]
+      entity?: string
+      entities?: string
+      /**
+       * Libellés de catégories indexés par SLUG — JAMAIS par position.
+       * Par position, réordonner `categories` réaffecterait chaque traduction à la
+       * catégorie voisine, en silence et sans erreur de compilation.
+       * Une catégorie sans entrée garde son `label` de base.
+       */
+      categories?: Record<string, string>
+      ctaPrimary?: { text?: string }
+      ctaSecondary?: { text?: string }
+    }
+  }
+
   // ─── Variantes de design & permutations (système de variantes) ──────────
   /**
    * Choix de variante par type de page. OPTIONNEL & RÉTRO-COMPATIBLE :
-   * - `home` absent → resolver retombe sur `style.hero` (split→comparateur, sinon magazine).
+   * - `home` absent → resolver retombe sur 'magazine' (cf. resolveHomeVariant).
    *
-   * Home     : 'magazine' | 'comparateur' | 'marche' | 'fil' | 'presse'
-   * Catégorie: 'classic' | 'editorial' | 'presse'
-   * Article  : 'classic' | 'presse'
-   * Preview  : /home-v1..v5 · /cat-v1..v3 · /art-v1..v2
+   * DEUX squelettes de home, et c'est tout (décision du 2026-08-02, cf.
+   * lib/variants.ts) : `marche` pour les services souscriptibles, `magazine` pour
+   * tout le reste — et pour le repli.
    *
-   * ⚠️ `presse` est une IDENTITÉ, pas une simple home : dès que `home: 'presse'`,
-   * `isPresse()` bascule le layout (masthead + footer éditoriaux + PresseStyle) ET
-   * les pages blog/catégorie/article prennent leur rendu presse.
+   * Home     : 'magazine' | 'marche'
+   * Catégorie: 'classic' | 'editorial'
+   * Article  : 'classic'
+   * Preview  : /home-v1..v2 · /cat-v1..v2 · /art-v1
+   *
+   * RETIRÉES le 2026-08-02 : `comparateur`, `fil`, et `presse`. Cette dernière
+   * était une IDENTITÉ complète — masthead, pages catégorie et article dédiées —
+   * maintenue pour un seul secteur ; `isPresse()` rend désormais toujours `false`
+   * et les sites beauté prennent `magazine` comme les autres. Le type ne les
+   * accepte plus : les écrire ici serait une erreur de compilation, pas un rendu
+   * silencieusement retombé sur le défaut.
    *
    * À l'init : suggestVariants(domaine, homeFamily(secteur)) propose une combinaison ;
    * Claude l'écrit ici puis dépublie les routes preview (cf. docs/AUTO-DESIGN.md).
    */
   layouts?: {
-    home?: 'magazine' | 'comparateur' | 'marche' | 'fil' | 'presse'
-    category?: 'classic' | 'editorial' | 'presse'
-    article?: 'classic' | 'presse'
+    home?: 'magazine' | 'marche'
+    category?: 'classic' | 'editorial'
+    article?: 'classic'
   }
 
   /**
@@ -280,6 +344,9 @@ export const niche: NicheConfig = {
   locales: ['fr', 'en'],
   localePrefix: 'as-needed',
 
+  // `localized` : ABSENT par défaut, et c'est voulu. Tant qu'aucune traduction de
+  // config n'est écrite, toutes les pages — FR comme EN — rendent la valeur de base.
+
   // Variantes & permutations : non définies par défaut → resolver retombe sur
   // style.hero (magazine) + shape/border/shadow 'standard'. L'init les renseigne
   // via suggestVariants(domaine, homeFamily(secteur)) pour faire diverger chaque fork.
@@ -298,7 +365,10 @@ export function categoryAccent(index: number): string {
   return ACCENT_VARS[index % ACCENT_VARS.length]
 }
 
-/** Map category slug → label */
+/**
+ * Map category slug → label, dans la locale par DÉFAUT.
+ * Pour une autre locale, passer par `categoryLabelsL(locale)` (lib/niche-l10n.ts).
+ */
 export function categoryLabels(): Record<string, string> {
   const map: Record<string, string> = {}
   for (const cat of niche.categories) map[cat.slug] = cat.label

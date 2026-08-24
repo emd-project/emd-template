@@ -11,11 +11,17 @@
  * 2. Le CTA « simulateur » n'est proposé QUE si `niche.simulator.enabled` est vrai —
  *    la route /simulateur renvoie 404 sinon (désactivée par défaut).
  * Les hrefs sont préfixés par la locale active (`localePath`, no-op en FR).
+ *
+ * Les libellés viennent de `tl(locale, …)`, mais les VARIABLES qu'on y interpole
+ * (libellé de catégorie, entité de la niche) sont du contenu de CONFIG : elles
+ * passent donc par lib/niche-l10n.ts, sans quoi une phrase anglaise se retrouvait
+ * avec un mot français dedans.
  */
 import Link from 'next/link'
-import { niche, categoryAccent, localePath, simulatorEnabled } from '@/niche.config'
+import { categoryAccent, localePath, simulatorEnabled } from '@/niche.config'
 import { PRODUIT_SLUGS } from '@/lib/comparateur'
 import { tl } from '@/lib/i18n'
+import { nicheL, categoriesL } from '@/lib/niche-l10n'
 
 type Tool = {
   href: string
@@ -28,7 +34,7 @@ type Tool = {
 function buildTools(locale: string): Record<string, Tool> {
   const lp = (href: string) => localePath(locale, href)
   const tools: Record<string, Tool> = {}
-  niche.categories.forEach((cat, i) => {
+  categoriesL(locale).forEach((cat, i) => {
     // Pas d'entrée comparateur pour cette catégorie → pas de CTA (le repli /comparer s'applique).
     if (!PRODUIT_SLUGS.includes(cat.slug)) return
     tools[cat.slug] = {
@@ -44,7 +50,7 @@ function buildTools(locale: string): Record<string, Tool> {
     tools['deals'] = {
       href: lp('/simulateur'),
       label: tl(locale, 'toolCTA.simulator'),
-      description: tl(locale, 'toolCTA.simulatorDesc', { entity: niche.entity }),
+      description: tl(locale, 'toolCTA.simulatorDesc', { entity: nicheL(locale, 'entity') }),
       cta: tl(locale, 'toolCTA.useSimulator'),
       accentVar: 'var(--accent-1)',
     }
@@ -56,7 +62,7 @@ function buildFallback(locale: string): Tool {
   return {
     href: localePath(locale, '/comparer'),
     label: tl(locale, 'toolCTA.fallbackLabel'),
-    description: tl(locale, 'toolCTA.fallbackDesc', { entities: niche.entities }),
+    description: tl(locale, 'toolCTA.fallbackDesc', { entities: nicheL(locale, 'entities') }),
     cta: tl(locale, 'toolCTA.compareNow'),
     accentVar: 'var(--accent-1)',
   }

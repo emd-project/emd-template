@@ -82,6 +82,16 @@ Lis aussi `emd-methodo/skills/humaniser-fr` et `skills/seo-geo-redaction`. Les l
 
 Composants MDX disponibles : `Tip`, `Warning`, `Verdict`, `PullQuote`, `CompareBar`/`CompareBarGroup`, `ProConTable`, `StatCard`/`StatRow`, `ArticleImage`, `ToolCTA`. **Aucun composant produit marchand** — ils ont été supprimés du moteur, et en utiliser un casse le build.
 
+### Le `<title>` de la page d'accueil
+
+Il **vient de `content/voice-profile.json` → `homeTitle`, par locale**, et tu le poses tel quel dans les métadonnées de la home.
+
+**Il ne se recompose pas.** Ni `siteName` + `tagline`, ni `siteName` + `niche.description`, ni aucun gabarit du moteur : c'est un texte de positionnement écrit par `copywriter`, pas une chaîne dérivée. Les concaténations produisaient de la posture éditoriale — « le comparateur indépendant », « votre guide neutre » — là où le créneau vaut une promesse concrète.
+
+- **Une entrée par locale, prise dans sa locale.** `homeTitle.en` sur `/en`, pas une traduction de `homeTitle.fr`, pas un fallback silencieux vers le FR.
+- **Recopie exacte** : séparateur ` - `, aucune injection d'année, aucun suffixe de marque ajouté par le layout.
+- **Si `homeTitle` manque, ou s'il manque une locale** : le contrat est incomplet. Ne le fabrique pas — signale-le dans ton rendu et mets la valeur la plus neutre possible en attendant.
+
 ---
 
 ## La parité des locales
@@ -148,4 +158,4 @@ Puis `DECISIONS.md` pour ce qui a été tranché et pourquoi.
 
 ## Ce que tu ne fais jamais
 
-Créer une route qui n'est pas dans le plan. Écrire une couleur, une police ou une taille en dur. Inventer une tournure hors du `voice-profile`. Ajouter un lien non déclaré. Générer une page « en attendant ». Réintroduire un composant marchand. Laisser un asset éteint à moitié.
+Créer une route qui n'est pas dans le plan. Écrire une couleur, une police ou une taille en dur. Inventer une tournure hors du `voice-profile`. Ajouter un lien non déclaré. Recomposer le `<title>` de la home à partir de `siteName` + `tagline`. Générer une page « en attendant ». Réintroduire un composant marchand. Laisser un asset éteint à moitié.

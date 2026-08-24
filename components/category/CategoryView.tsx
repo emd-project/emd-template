@@ -12,6 +12,11 @@
  * Le SEO (metadata, JSON-LD, generateStaticParams) reste dans les routes ; ce
  * composant ne rend que le corps. Pagination identique aux variantes.
  *
+ * Le LIBELLÉ de la catégorie (H1, fil d'Ariane, tag de la une) vient de
+ * `categoryLabelL(locale, slug)` (lib/niche-l10n.ts) et non plus de la map FR
+ * `CATEGORY_LABELS` : c'est le H1 de /en/blog/[categorie]. Sans bloc `localized`,
+ * la valeur résolue EST celle de `CATEGORY_LABELS` — rendu inchangé.
+ *
  * IMAGE STRUCTURELLE : la couverture de la catégorie (`category-<slug>` du
  * registre `lib/image-slots`) sert de FOND au `hub-hero`. Le dégradé du hub est
  * conservé PAR-DESSUS, en voile, pour que le titre reste lisible. Si la catégorie
@@ -27,10 +32,11 @@ import fs from 'fs'
 import path from 'path'
 import Link from 'next/link'
 import Image from 'next/image'
-import { type ArticleMeta, CATEGORY_LABELS } from '@/lib/blog'
+import { type ArticleMeta } from '@/lib/blog'
 import { articleHrefL, formatDateL } from '@/lib/blog-l10n'
 import { niche, localePath } from '@/niche.config'
 import { tl } from '@/lib/i18n'
+import { categoryLabelL } from '@/lib/niche-l10n'
 import { Pagination } from '@/components/blog/Pagination'
 import { getCategoryImage } from '@/lib/image-slots'
 import { resolveCategoryVariant, type CategoryVariant } from '@/lib/variants'
@@ -50,7 +56,6 @@ const CAT_INDEX: Record<string, number> = Object.fromEntries(
   niche.categories.map((c, i) => [c.slug, (i % 5) + 1])
 )
 const catClass = (slug: string) => `c${CAT_INDEX[slug] ?? 1}`
-const catLabel = (slug: string) => CATEGORY_LABELS[slug] ?? slug
 
 /**
  * Voile de lisibilité posé sur la couverture du hub. C'est le dégradé du
@@ -70,11 +75,11 @@ const WORDS: Record<'fr' | 'en', { kicker: string; article: string; articles: st
   en: { kicker: 'Category', article: 'article', articles: 'articles', feed: 'The feed' },
 }
 
-function Cover({ a, fill = false }: { a: ArticleMeta; fill?: boolean }) {
+function Cover({ a, fill = false, locale }: { a: ArticleMeta; fill?: boolean; locale: string }) {
   if (a.featureImage) {
     return <Image src={a.featureImage} alt={a.title} fill sizes={fill ? '(max-width:900px) 100vw, 70vw' : '(max-width:900px) 100vw, 33vw'} style={{ objectFit: 'cover' }} />
   }
-  return <div className="ph"><span>{catLabel(a.categorie)}</span></div>
+  return <div className="ph"><span>{categoryLabelL(locale, a.categorie)}</span></div>
 }
 
 export function CategoryView({
@@ -99,7 +104,7 @@ export function CategoryView({
   const fmt = (iso: string) => formatDateL(locale, iso)
   const fmtShort = (iso: string) => new Date(iso).toLocaleDateString(locale === 'en' ? 'en-GB' : 'fr-FR', { day: 'numeric', month: 'short' })
   const w = WORDS[locale === 'en' ? 'en' : 'fr']
-  const label = catLabel(categorie)
+  const label = categoryLabelL(locale, categorie)
 
   // Slot absent (catégorie hors config, template nu) ou fichier pas encore
   // généré → en-tête inchangé.
@@ -156,7 +161,7 @@ export function CategoryView({
           <div className="wrap">
             <div className="fil-feature">
               <Link href={href(lead)} className="ffeat on">
-                <Cover a={lead} fill />
+                <Cover a={lead} fill locale={locale} />
                 <div className="body">
                   <span className="flag"><span className={`tag ${catClass(lead.categorie)}`}><span className="pip" />{label}</span></span>
                   <h2>{lead.title}</h2>
@@ -194,7 +199,7 @@ export function CategoryView({
           <div className="posts">
             {grid.map((a) => (
               <Link key={a.slug} href={href(a)} className="post">
-                <div className="post-img" style={{ position: 'relative', overflow: 'hidden' }}><Cover a={a} /></div>
+                <div className="post-img" style={{ position: 'relative', overflow: 'hidden' }}><Cover a={a} locale={locale} /></div>
                 <div className="post-body">
                   <h3>{a.title}</h3>
                   {a.description && <p>{a.description}</p>}

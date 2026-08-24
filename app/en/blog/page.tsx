@@ -10,6 +10,8 @@
  *
  * i18n (block 2b) : reads the EN mirror via getAllArticlesEn()/getCategoriesEn().
  * Copy is written in English inline (t() is locked to niche.defaultLocale = fr).
+ * Category labels come from `categoryLabelL('en', slug)` (lib/niche-l10n.ts), which
+ * falls back to the base label when the site declares no `localized` block.
  */
 
 import Link from 'next/link'
@@ -21,6 +23,7 @@ import { Pagination } from '@/components/blog/Pagination'
 import { PresseBlogHub } from '@/components/presse/PresseBlogHub'
 import { isPresse } from '@/lib/variants'
 import { niche } from '@/niche.config'
+import { categoryLabelL } from '@/lib/niche-l10n'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
 
@@ -32,8 +35,7 @@ const CAT_INDEX: Record<string, number> = Object.fromEntries(
   niche.categories.map((c, i) => [c.slug, (i % 5) + 1])
 )
 const catClass = (slug: string) => `c${CAT_INDEX[slug] ?? 1}`
-const catLabel = (slug: string) =>
-  niche.categories.find((c) => c.slug === slug)?.label ?? slug
+const catLabel = (slug: string) => categoryLabelL('en', slug)
 
 /** EN date formatting (formatDate() in lib/blog is fr-FR only). */
 const formatDateEn = (iso: string) =>

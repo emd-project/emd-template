@@ -1,6 +1,9 @@
 /**
  * MarcheHome — home archétype « Marché en direct » (portée de home-comparateur-marche).
  * Server Component, animations 100 % CSS. LOCALE-AWARE via `locale` (tl(locale,'homeMarche.*')).
+ * Le CONTENU DE CONFIG (H1, mot rotatif, sous-titre, libellés de catégories — chips,
+ * ticker, grille) passe par lib/niche-l10n.ts, jamais lu en direct sur `niche` :
+ * sans bloc `localized`, le repli rend exactement ce que rendait la version d'avant.
  * Le « terminal de tarifs » + le classement sont alimentés par lib/classement
  * (data-driven, locale-aware) et MASQUÉS si aucun classement n'existe (runtime bête).
  * Aucun prix/valeur inventé : tout vient des données ou des catégories.
@@ -24,6 +27,7 @@ import { getArticlesL, articleHrefL, formatDateL } from '@/lib/blog-l10n'
 import { getClassements } from '@/lib/classement'
 import { niche, localePath } from '@/niche.config'
 import { tl } from '@/lib/i18n'
+import { nicheL, rotatingWordsL, categoriesL, categoryLabelL } from '@/lib/niche-l10n'
 import { getCategoryImage } from '@/lib/image-slots'
 
 /** Le fichier de l'image est-il réellement présent dans /public ? */
@@ -35,16 +39,16 @@ function imageExists(relativePath: string): boolean {
   }
 }
 
-const catLabel = (slug: string) => niche.categories.find((c) => c.slug === slug)?.label ?? slug
+// La couleur reste positionnelle ; le LIBELLÉ est résolu par slug dans la locale.
 const catN = (slug: string) => (Math.max(0, niche.categories.findIndex((c) => c.slug === slug)) % 5) + 1
 const CatIc = () => (<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="7" /></svg>)
 const Check = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>)
 const Arrow = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>)
 const SPARK = ['48%', '70%', '40%', '64%', '52%', '78%', '44%']
 
-function Cover({ a }: { a: ArticleMeta }) {
+function Cover({ a, locale }: { a: ArticleMeta; locale: string }) {
   if (a.featureImage) return <Image src={a.featureImage} alt={a.title} fill sizes="(max-width:900px) 100vw, 33vw" style={{ objectFit: 'cover' }} />
-  return <div className="ph"><span>{catLabel(a.categorie)}</span></div>
+  return <div className="ph"><span>{categoryLabelL(locale, a.categorie)}</span></div>
 }
 
 export function MarcheHome({ locale = niche.defaultLocale }: { locale?: string }) {
@@ -52,8 +56,9 @@ export function MarcheHome({ locale = niche.defaultLocale }: { locale?: string }
   const lp = (p: string) => localePath(locale, p)
   const href = (a: ArticleMeta) => articleHrefL(locale, a)
   const fmt = (iso: string) => formatDateL(locale, iso)
-  const word = niche.rotatingWords?.[0] ?? niche.entities
-  const cats = niche.categories
+  const catLabel = (slug: string) => categoryLabelL(locale, slug)
+  const word = rotatingWordsL(locale)[0] ?? nicheL(locale, 'entities')
+  const cats = categoriesL(locale)
   const catCount = cats.length || 5
 
   const articles = getArticlesL(locale)
@@ -96,8 +101,8 @@ export function MarcheHome({ locale = niche.defaultLocale }: { locale?: string }
 
         <div className="md-hero-inner">
           <span className="md-pill"><span className="md-dot" /> {m('pill')}</span>
-          <h2 className="md-title">{niche.heroPrefix} <span className="grad">{word}</span> {niche.heroSuffix}</h2>
-          <p className="md-sub">{niche.subtitle}</p>
+          <h2 className="md-title">{nicheL(locale, 'heroPrefix')} <span className="grad">{word}</span> {nicheL(locale, 'heroSuffix')}</h2>
+          <p className="md-sub">{nicheL(locale, 'subtitle')}</p>
           <div className="md-cta">
             <Link href={lp(niche.ctaPrimary?.url ?? '/comparer')} className="md-btn md-btn-primary">{tl(locale, 'home.compare')} <span className="arr">→</span></Link>
             <Link href={lp('/blog')} className="md-btn md-btn-ghost">{m('readBlog')}</Link>
@@ -234,7 +239,7 @@ export function MarcheHome({ locale = niche.defaultLocale }: { locale?: string }
               <div className="md-posts">
                 {trio.map((a) => (
                   <Link href={href(a)} className="md-post" key={a.slug}>
-                    <div className="ph" style={{ position: 'relative', overflow: 'hidden' }}><Cover a={a} /></div>
+                    <div className="ph" style={{ position: 'relative', overflow: 'hidden' }}><Cover a={a} locale={locale} /></div>
                     <div className="pb">
                       <span className={`tag c${catN(a.categorie)}`}><span className="pip" />{catLabel(a.categorie)}</span>
                       <h3>{a.title}</h3>

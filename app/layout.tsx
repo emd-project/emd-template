@@ -48,6 +48,14 @@ const fontDisplay = Bricolage_Grotesque({
   display: 'swap',
 })
 
+// ── Méta-titre de la home ───────────────────────────────────────────────
+// Marque EN TÊTE, puis une promesse concrète. À RÉÉCRIRE À LA MAIN à l'init du
+// site : ce repli marque + tagline est un dépannage, pas un titre SEO — une
+// tagline est une phrase éditoriale. Cible ≤ 60 caractères, tiret simple `-`,
+// jamais de tiret cadratin. Ex. : « Meilleure Banque - Repérer la banque la
+// moins chère ».
+const HOME_TITLE = `${niche.siteName} - ${niche.tagline}`
+
 export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL ?? `https://www.${niche.domain}`
@@ -58,7 +66,7 @@ export const metadata: Metadata = {
   // qui rend le titre de la page tel quel. `default` (home, sans title propre) garde la marque.
   title: {
     template: '%s',
-    default: `${niche.tagline} | ${niche.siteName}`,
+    default: HOME_TITLE,
   },
   description: niche.tagline,
   robots: {
@@ -76,7 +84,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${niche.tagline} | ${niche.siteName}`,
+    title: HOME_TITLE,
     description: niche.tagline,
   },
 }

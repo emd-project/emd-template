@@ -23,11 +23,14 @@ import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
 import { categoryLabels, categoryAccents, niche } from '@/niche.config'
+import { categoryLabelsL } from '@/lib/niche-l10n'
 
 const BLOG_DIR = path.join(process.cwd(), 'content/blog')
 const BLOG_DIR_EN = path.join(process.cwd(), 'content/blog/en')
 const ARTICLES_DIR = path.join(process.cwd(), 'content/articles')
 
+/** Libellés de catégories dans la locale par DÉFAUT. Pour une autre locale :
+ *  `categoryLabelsL(locale)` / `categoryLabelL(locale, slug)` (lib/niche-l10n.ts). */
 export const CATEGORY_LABELS: Record<string, string> = categoryLabels()
 export const CATEGORY_ACCENT: Record<string, string> = categoryAccents()
 
@@ -228,7 +231,7 @@ export function getRelatedArticles(
   return [...sameCat, ...otherCat].slice(0, limit)
 }
 
-// ─── EN (miroir) ─────────────────────────────────────
+// ─── EN (miroir) ───────────────────────────────────────
 // Lecteurs miroir de la version EN des articles. Additifs : ils NE sont importés
 // par aucune route tant que l'arbre `app/en/` (bloc 2) n'existe pas, mais compilent.
 // content/blog/en/ utilise les MÊMES slugs de catégories que le FR → on réutilise
@@ -238,12 +241,19 @@ export function getAllArticlesEn(): ArticleMeta[] {
   return sortByDate(readArticlesDir(BLOG_DIR_EN, isFrCategory))
 }
 
+/**
+ * Catégories du miroir EN. Les libellés passent par la dimension de locale de
+ * niche.config (`categoryLabelsL('en')`, lib/niche-l10n.ts) : sans bloc
+ * `localized.en.categories`, on retombe sur le label de base — soit exactement
+ * `CATEGORY_LABELS`, ce que cette fonction rendait avant.
+ */
 export function getCategoriesEn(): { slug: string; label: string; count: number }[] {
   const articles = getAllArticlesEn()
+  const labels = categoryLabelsL('en')
   const map: Record<string, number> = {}
   for (const a of articles) map[a.categorie] = (map[a.categorie] ?? 0) + 1
   return Object.entries(map).map(([slug, count]) => ({
-    slug, label: CATEGORY_LABELS[slug] ?? slug, count,
+    slug, label: labels[slug] ?? slug, count,
   }))
 }
 

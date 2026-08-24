@@ -8,6 +8,9 @@
  * layout qui le monte (app/en/layout.tsx → `<Footer locale="en" />`). Le FR est
  * inchangé : `<Footer />` sans prop retombe sur defaultLocale.
  * Les hrefs internes sont préfixés par la locale active via `localePath` (no-op FR).
+ * La tagline et les libellés de catégories passent par lib/niche-l10n.ts (contenu de
+ * CONFIG, pas d'interface) : repli silencieux sur la valeur de base si le site n'a
+ * pas de bloc `localized`.
  *
  * ⚠️ Pages légales : PAS de `localePath` — les routes EN sont `/en/legal-notice` et
  * `/en/privacy`, pas la traduction littérale des slugs FR. On passe par `legalPath`
@@ -21,6 +24,7 @@
 import Link from 'next/link'
 import { niche, localePath, legalPath, dealsEnabled, simulatorEnabled } from '@/niche.config'
 import { tl } from '@/lib/i18n'
+import { nicheL, categoriesL } from '@/lib/niche-l10n'
 
 function currentYear() {
   return new Date().getFullYear()
@@ -50,7 +54,7 @@ export function Footer({ locale = niche.defaultLocale }: { locale?: string }) {
     ...(dealsEnabled() ? [{ href: lp('/deals'), label: niche.dealWord.charAt(0).toUpperCase() + niche.dealWord.slice(1) }] : []),
   ]
 
-  const colBlog = niche.categories.slice(0, 5).map((cat) => ({
+  const colBlog = categoriesL(locale).slice(0, 5).map((cat) => ({
     href: lp(`/blog/${cat.slug}`),
     label: cat.label,
   }))
@@ -72,7 +76,7 @@ export function Footer({ locale = niche.defaultLocale }: { locale?: string }) {
               </span>
               <span className="word">{niche.siteName}</span>
             </Link>
-            <p className="footer-blurb">{niche.tagline}</p>
+            <p className="footer-blurb">{nicheL(locale, 'tagline')}</p>
           </div>
 
           <FooterCol title={tl(locale, 'footer.tools')} links={colOutils} />

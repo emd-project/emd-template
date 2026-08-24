@@ -77,60 +77,48 @@ Ce qui fait une bonne bio, dans l'ordre : **d'où vient l'expertise** (un métie
 
 ## Le titre de la page d'accueil
 
-C'est toi qui l'écris. Le `<title>` de la home n'est pas une chaîne technique que le moteur assemble : c'est la première phrase de positionnement que voit un lecteur, dans une SERP, avant même d'avoir cliqué. Un artefact de voix, donc, pas de code.
+Le `<title>` de la home n'est pas une chaîne technique que le moteur assemble : c'est la première phrase de positionnement que voit un lecteur, dans une SERP, avant même d'avoir cliqué. Un artefact de voix, donc, pas de code. Mais avant de l'écrire, vérifie qu'il n'est pas déjà écrit.
 
-**Dépose-le dans `content/voice-profile.json`, champ `homeTitle`, une entrée par locale.** C'est ce qui le rend traçable et relisable — et c'est là que `builder` ira le chercher tel quel.
+### Premier geste : le registre
+
+**Lis `registry/home-titles.md` dans `emd-project/emd-methodo`.** C'est un registre central, au même titre que `da-registry.json` et `voice-registry.json` : il vit là-bas, il n'est jamais copié dans un fork, un fork le lit à distance. Puis, dans cet ordre :
+
+1. **Le domaine figure au tableau → prends le titre tel quel.** Il est décidé, il ne se réinvente pas. Une variation « améliorée » recrée exactement la dispersion que le registre existe pour empêcher.
+2. **Le domaine n'y figure pas → applique les règles ci-dessous, puis ajoute ta ligne au tableau dans le même run**, comme tu le fais déjà pour `da-registry.json` et `voice-registry.json`. Un titre décidé et non consigné est un titre qui sera redécidé autrement dans six mois.
+
+**Dépose le titre retenu dans `content/voice-profile.json`, champ `homeTitle`, une entrée par locale** — le schéma le déclare. C'est ce qui le rend traçable et relisable, et c'est là que `builder` ira le chercher tel quel.
 
 ```json
 "homeTitle": {
-  "fr": "Meilleure Voiture Familiale - Coffre, sièges & budget",
-  "en": "Family Cars Compared - Boot space, seats & running costs"
+  "fr": "Meilleure Voiture Familiale - Coffre, sièges & budget"
 }
 ```
 
-### La forme
+### Les règles, quand c'est à toi d'écrire
 
-**`Nom du site - Promesse`.** Séparateur : **espace, tiret simple, espace**. Jamais de pipe, jamais de tiret cadratin, jamais de deux-points.
+**Format : `Nom du site - Promesse`.** Séparateur : **espace, tiret simple, espace**. Jamais de pipe, jamais de tiret cadratin, jamais de deux-points.
 
-**60 caractères maximum**, en visant 50-58. Au-delà, Google tronque et la promesse disparaît — c'est-à-dire exactement la moitié utile. Une version du parc était partie à 67 caractères ; il a fallu la ramener à 56.
+**60 caractères maximum**, en visant 50-58, espaces et séparateur compris. Au-delà, Google tronque et la promesse disparaît — c'est-à-dire exactement la moitié utile. Une version du parc était partie à 67 caractères ; il a fallu la ramener à 56.
 
-### Le nom du site est normalisé, pas transcrit du domaine
+**Le nom du site est normalisé, pas transcrit du domaine.** Le domaine est une adresse. On garde ce qui se lit, on jette la redondance : `meilleures-assurances-auto.be` donne « Meilleure Assurance Auto », au singulier — le pluriel du domaine ne sert qu'à la requête ; `meilleure-voiture-utilitaire.be` donne « Voiture Utilitaire » — le superlatif saute quand il alourdit la ligne.
 
-Le domaine est une adresse, pas un titre. On garde ce qui se lit, on jette la redondance.
-
-- `meilleures-assurances-auto.be` → « Meilleure Assurance Auto ». Au singulier : le pluriel du domaine ne sert qu'à la requête.
-- `meilleure-voiture-utilitaire.be` → « Voiture Utilitaire ». Le superlatif saute quand il alourdit la ligne.
-
-### La promesse est concrète
-
-**Ce qu'on trouve, ou ce qu'on y gagne.** Jamais une posture éditoriale. Sont proscrits, sans exception : « le comparateur indépendant », « votre guide neutre », « tout savoir sur », « votre référence », « le site de référence ». Ces formules décrivent le site à lui-même ; elles ne disent rien au lecteur.
+**La promesse est concrète : ce qu'on trouve, ou ce qu'on y gagne.** Jamais une posture éditoriale. Sont proscrits, sans exception : « le comparateur indépendant », « votre guide neutre », « tout savoir sur », « votre référence », « le site de référence ». Ces formules décrivent le site à lui-même ; elles ne disent rien au lecteur.
 
 **Deux registres, et il faut alterner** — sinon trente sites du parc ouvrent tous sur « Trouver ».
 
-- **Bénéfice** — ce que le lecteur y gagne : « Trouver la banque la moins chère », « Réduire votre facture », « Estimer votre prime en 2 minutes ».
-- **Facettes** — trois items, `&` avant le dernier : « Coffre, sièges & budget », « Autonomie, primes & recharge ».
+```
+Meilleure Banque - Trouver la banque la moins chère
+Meilleur Fournisseur Énergie - Réduire votre facture
+Meilleure Voiture Familiale - Coffre, sièges & budget
+```
+
+Les deux premiers sont en registre **bénéfice** — ce que le lecteur y gagne. Le troisième est en **facettes** : trois items, `&` avant le dernier. Le registre en tient trente-trois autres, groupés par secteur ; c'est là qu'on va chercher un modèle, pas ici.
 
 **`&` plutôt que « et »** dans les listes : deux caractères gagnés, et ça se lit mieux serré.
 
 **Jamais d'année.** **Jamais le nom du site répété dans la promesse.**
 
-### Extraits du corpus validé
-
-```
-Meilleure Banque - Trouver la banque la moins chère
-Meilleur Fournisseur Énergie - Réduire votre facture
-Simulateur Assurance Auto - Estimer votre prime en 2 minutes
-Meilleure Voiture Familiale - Coffre, sièges & budget
-Meilleure Voiture Électrique - Autonomie, primes & recharge
-Meilleur Chocolat - Pralines, chocolatiers & adresses
-Voiture Utilitaire - Trouver l'utilitaire fait pour vous
-```
-
-Les trois premiers sont en registre bénéfice, les trois suivants en facettes. Le dernier montre la normalisation du nom : le domaine dit « meilleure-voiture-utilitaire », le titre dit « Voiture Utilitaire ».
-
-### La locale secondaire n'est pas une traduction
-
-Un titre anglais **se construit avec ses propres mots et sa propre longueur**, sous la même contrainte de 60 caractères. « Meilleure Voiture - Trouver la voiture faite pour vous » ne devient pas « Best Car - Find the car made for you » : la traduction littérale produit une ligne plate qui ne dit rien à un lecteur anglophone. Écris la version EN comme tu aurais écrit la FR si le site était né en anglais.
+**La locale secondaire écrit son propre titre, elle ne traduit pas.** Sous la même contrainte de 60 caractères, avec ses mots et sa longueur à elle. Une traduction littérale produit une ligne plate qui ne dit rien au lecteur visé. Écris la version secondaire comme tu aurais écrit la FR si le site était né dans cette langue.
 
 ---
 
@@ -143,7 +131,7 @@ Il n'y a pas de validateur. Six points à vérifier toi-même avant de rendre �
 3. **La formule signature est-elle propre au site ?** Compare-la aux entrées du registre. `meilleur-abonnement-5g.be` et `meilleur-operateur-mobile.be` sont à un mot près — c'est exactement ce qu'il faut éviter.
 4. **Le genre de l'entité est-il le bon ?** « néobanque » est féminin, « opérateur » masculin. Une faute d'accord sur le H1 est visible par n'importe quel lecteur et signe le gabarit.
 5. **La bio est-elle vérifiable ?** Un lieu réel, une ancienneté datée, et ce qui agace la personne dans son secteur. « passionné depuis toujours » ne dit rien.
-6. **`homeTitle`, locale par locale** : longueur ≤ 60 caractères (compte-les), séparateur ` - ` exactement — pas de pipe, pas de tiret cadratin, pas de deux-points —, promesse concrète et non posture éditoriale, pas d'année, pas de nom de site répété. Et la version secondaire est-elle écrite, ou seulement traduite ?
+6. **`homeTitle`, locale par locale** : as-tu d'abord cherché le domaine dans `registry/home-titles.md` sur `emd-methodo` — et, s'il y figurait, repris le titre tel quel ? Sinon : longueur ≤ 60 caractères (compte-les), séparateur ` - ` exactement — pas de pipe, pas de tiret cadratin, pas de deux-points —, promesse concrète et non posture éditoriale, pas d'année, pas de nom de site répété, et la ligne ajoutée au registre. Et la version secondaire est-elle écrite, ou seulement traduite ?
 
 **Écris ton entrée au registre d'`emd-methodo` dans le même mouvement** — prénom, formule signature, registre. C'est la seule action de la phase dont l'oubli ne casse rien aujourd'hui et désarme le dispositif pour tous les sites suivants.
 
